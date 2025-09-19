@@ -11,7 +11,7 @@ import {
 } from "../../services/commandCenter.services";
 import { useGlobalState } from "../../GlobalProvider";
 
-function Overview() {
+function Setting() {
   const navigate = useNavigate();
   const [initialValues, setInitialValues] = useState(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -128,7 +128,7 @@ function Overview() {
         </div>
         <div className="d-flex justify-content-between mb-4 mx-2">
           <b className="textThemePrimary">
-            <u>Overview</u>
+            <u>Setting</u>
           </b>
           <div className="d-flex">
             <span
@@ -139,9 +139,9 @@ function Overview() {
             </span>
             <span
               className="status-badge bg-light-subtle text-secondary mx-3 border cursor"
-              onClick={() => navigate("/setting")}
+              onClick={() => navigate("/overview")}
             >
-              Settings
+              Overview
             </span>
             <span
               className="status-badge bg-danger-subtle text-secondary border cursor"
@@ -160,4 +160,4 @@ function Overview() {
   );
 }
 
-export default Overview;
+export default Setting;

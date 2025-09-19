@@ -104,7 +104,7 @@ function TopNav({setIsCollapsed, isCollapsed}) {
 
               >
                 <img
-                  src="https://static.vecteezy.com/system/resources/previews/051/718/888/non_2x/3d-cartoon-boy-avatar-with-open-mouth-and-eyes-free-png.png"
+                  src= {globalState?.user?.profilePic || "https://static.vecteezy.com/system/resources/previews/051/718/888/non_2x/3d-cartoon-boy-avatar-with-open-mouth-and-eyes-free-png.png"}
                   className="rounded-circle"
                   width={28}
                   height={28}
@@ -118,7 +118,7 @@ function TopNav({setIsCollapsed, isCollapsed}) {
                  <a className="dropdown-item cursor" onClick={()=>navigate("/overview")}>
                   <i className="bi bi-grid me-2" /> Overview
                 </a>
-                <a className="dropdown-item cursor" onClick={()=>navigate("/settings")}>
+                <a className="dropdown-item cursor" onClick={()=>navigate("/setting")}>
                   <i className="bi bi-gear me-2" /> Settings
                 </a>
                 <div className="dropdown-divider" />

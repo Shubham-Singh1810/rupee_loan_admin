@@ -4,56 +4,119 @@ import * as Yup from "yup";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
-import { createUserServ } from "../../services/user.service";
+import {
+  getAdminProfileServ,
+  updateAdminServ,
+  updatePasswordServ,
+} from "../../services/commandCenter.services";
+import { useGlobalState } from "../../GlobalProvider";
 
 function Profile() {
   const navigate = useNavigate();
+  const [initialValues, setInitialValues] = useState(null);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const { globalState, setGlobalState } = useGlobalState();
+
+  const adminId = globalState?.user?._id;
 
   // ✅ Validation Schema
   const userSchema = Yup.object().shape({
     firstName: Yup.string().required("First Name is required"),
     lastName: Yup.string().required("Last Name is required"),
-    email: Yup.string().email("Invalid email").required("Email is required"),
-    countryCode: Yup.string(),
-    phone: Yup.string()
-      .matches(/^[0-9]{10}$/, "Phone must be 10 digits")
-      .required("Phone number is required"),
-    dob: Yup.date().required("Date of Birth is required"),
-    gender: Yup.string().required("Gender is required"),
-    status: Yup.string().required("Status is required"),
-
-    state: Yup.string().required("State is required"),
-    city: Yup.string().required("City is required"),
-    pincode: Yup.string()
-      .matches(/^[0-9]{6}$/, "Pincode must be 6 digits")
-      .required("Pincode is required"),
-    address: Yup.string().required("Address is required"),
-
-    employmentType: Yup.string().required("Employment Type is required"),
-    monthlyIncome: Yup.number().required("Monthly Income is required"),
-    annualIncome: Yup.number().required("Annual Income is required"),
-    creditScore: Yup.number().required("Credit Score is required"),
-    panNumber: Yup.string(),
-    aadharNumber: Yup.string(),
-    profilePic: Yup.mixed().required("Profile Picture is required"),
+    profilePic: Yup.mixed(),
   });
 
-  const handleCreateUser = async (values) => {
+  // ✅ Fetch Profile Data
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        let response = await getAdminProfileServ(adminId);
+        if (response?.data?.statusCode == "200") {
+          setInitialValues({
+            ...response?.data?.data,
+            profilePic: "",
+            profilePrev: response?.data?.data?.profilePic,
+            role: response?.data?.data?.role?.name,
+            branch: response?.data?.data?.branch,
+            status: response?.data?.data?.status ? "Active" : "Inactive",
+          });
+        } else {
+          toast.error("Failed to fetch profile");
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error("Internal Server Error");
+      }
+    };
+    fetchProfile();
+  }, [adminId]);
+
+  // ✅ Update Profile
+  const updateAdminProfile = async (values) => {
     try {
       const formData = new FormData();
-      Object.keys(values).forEach((key) => {
-        formData.append(key, values[key]);
-      });
-      let response = await createUserServ(formData);
+      formData.append("_id", adminId);
+      formData.append("firstName", values?.firstName);
+      formData.append("lastName", values?.lastName);
+      if (values?.profilePrev) {
+        formData.append("profilePic", values?.profilePic);
+      }
+
+      let response = await updateAdminServ(formData);
       if (response?.data?.statusCode == "200") {
-        toast.success(response?.data?.message);
-        navigate("/all-users");
+        toast.success("Profile updated successfully");
       } else {
         toast.error("Something went wrong");
       }
     } catch (error) {
       console.error(error);
       toast.error("Internal Server Error");
+    }
+  };
+
+  // ✅ Update Password
+  const handlePasswordUpdate = async (e) => {
+    e.preventDefault();
+    const oldPassword = e.target.oldPassword.value;
+    const newPassword = e.target.newPassword.value;
+    const confirmPassword = e.target.confirmPassword.value;
+
+    if (newPassword !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    try {
+      let response = await updatePasswordServ({
+        _id: adminId,
+        oldPassword,
+        newPassword,
+      });
+      if (response?.data?.statusCode == "200") {
+        toast.success(response?.data?.message);
+        setShowPasswordModal(false);
+      } else {
+        toast.error(response?.data?.message || "Failed to update password");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Internal Server Error");
+    }
+  };
+
+  const handleLogoutFunc = () => {
+    const confirmed = window.confirm("Are you sure you want to logout?");
+    if (confirmed) {
+      setGlobalState({
+        user: null,
+        token: null,
+        permissions: null,
+      });
+      toast.success("Admin logged out successfully");
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("permissions");
+      navigate("/");
     }
   };
 
@@ -68,65 +131,67 @@ function Profile() {
             <u>Profile</u>
           </b>
           <div className="d-flex">
-            <span className="status-badge bg-light-subtle text-secondary border cursor">
+            <span
+              className="status-badge bg-light-subtle text-secondary border cursor"
+              onClick={() => setShowPasswordModal(true)}
+            >
+              Change Password
+            </span>
+            <span
+              className="status-badge bg-light-subtle text-secondary border cursor ms-3"
+              onClick={() => navigate("/overview")}
+            >
               Overview
             </span>
-            <span className="status-badge bg-light-subtle text-secondary mx-3 border cursor">
+            <span
+              className="status-badge bg-light-subtle text-secondary mx-3 border cursor"
+              onClick={() => navigate("/setting")}
+            >
               Settings
             </span>
-             <span className="status-badge bg-danger-subtle text-secondary border cursor">
+            <span
+              className="status-badge bg-danger-subtle text-secondary border cursor"
+              onClick={() => handleLogoutFunc()}
+            >
               Logout
             </span>
           </div>
         </div>
 
         <Formik
-          initialValues={{
-            firstName: "",
-            lastName: "",
-            email: "",
-            phone: "",
-            countryCode: "+91",
-            dob: "",
-            gender: "",
-            status: "",
-            state: "",
-            city: "",
-            pincode: "",
-            address: "",
-            employmentType: "",
-            monthlyIncome: "",
-            annualIncome: "",
-            creditScore: "",
-            profilePic: "",
-            panNumber: "",
-            aadharNumber: "",
-          }}
+          enableReinitialize
+          initialValues={initialValues}
           validationSchema={userSchema}
-          onSubmit={handleCreateUser}
+          onSubmit={updateAdminProfile}
         >
           {({ setFieldValue, isSubmitting, values }) => (
             <Form>
-              {/* Personal Details */}
               <div className="form-section shadow-sm mb-3">
                 <div className="form-section-header">Personal Details</div>
                 <div className="form-section-body row g-3">
+                  {/* Profile Pic */}
                   <div className="col-md-12 ">
                     <input
                       type="file"
                       id="profilePic"
                       accept="image/*"
                       style={{ display: "none" }}
-                      onChange={(e) =>
-                        setFieldValue("profilePic", e.target.files[0])
-                      }
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          setFieldValue("profilePic", file); // form ke liye
+                          setFieldValue(
+                            "profilePrev",
+                            URL.createObjectURL(file)
+                          ); // 👈 preview ke liye
+                        }
+                      }}
                     />
                     <label htmlFor="profilePic" className="cursor-pointer">
                       <img
                         src={
-                          values.profilePic
-                            ? URL.createObjectURL(values.profilePic)
-                            : "https://cdn-icons-png.flaticon.com/512/847/847969.png"
+                          values?.profilePrev ||
+                          "https://cdn-icons-png.flaticon.com/512/847/847969.png"
                         }
                         alt="Profile"
                         style={{
@@ -143,18 +208,14 @@ function Profile() {
                       className="text-danger small"
                     />
                   </div>
+
+                  {/* Editable Fields */}
                   <div className="col-md-6">
                     <label className="form-label">First Name</label>
                     <Field
                       type="text"
                       name="firstName"
                       className="form-control"
-                      placeholder="Enter First Name"
-                    />
-                    <ErrorMessage
-                      name="firstName"
-                      component="div"
-                      className="text-danger small"
                     />
                   </div>
                   <div className="col-md-6">
@@ -163,133 +224,134 @@ function Profile() {
                       type="text"
                       name="lastName"
                       className="form-control"
-                      placeholder="Enter Last Name"
-                    />
-                    <ErrorMessage
-                      name="lastName"
-                      component="div"
-                      className="text-danger small"
                     />
                   </div>
+
+                  {/* Read-only Fields */}
                   <div className="col-md-6">
                     <label className="form-label">Email</label>
                     <Field
                       type="email"
                       name="email"
                       className="form-control"
-                      placeholder="Enter Email"
-                    />
-                    <ErrorMessage
-                      name="email"
-                      component="div"
-                      className="text-danger small"
+                      disabled
                     />
                   </div>
                   <div className="col-md-6">
                     <label className="form-label">Phone</label>
-                    <div className="input-group">
-                      {/* Country Code Dropdown */}
-                      <Field
-                        as="select"
-                        name="countryCode"
-                        className="form-select"
-                        style={{ maxWidth: "100px" }}
-                      >
-                        <option value="+91">🇮🇳 +91</option>
-                        <option value="+1">🇺🇸 +1</option>
-                        <option value="+44">🇬🇧 +44</option>
-                        <option value="+971">🇦🇪 +971</option>
-                        <option value="+61">🇦🇺 +61</option>
-                      </Field>
-
-                      {/* Phone Number Input */}
-                      <Field
-                        type="text"
-                        name="phone"
-                        className="form-control"
-                        placeholder="Enter Phone"
-                      />
-                    </div>
-                    <ErrorMessage
+                    <Field
+                      type="text"
                       name="phone"
-                      component="div"
-                      className="text-danger small"
+                      className="form-control"
+                      disabled
                     />
                   </div>
                   <div className="col-md-6">
                     <label className="form-label">Role</label>
                     <Field
-                      type="email"
-                      name="email"
+                      type="text"
+                      name="role"
                       className="form-control"
-                      placeholder="Enter Email"
-                    />
-                    <ErrorMessage
-                      name="email"
-                      component="div"
-                      className="text-danger small"
+                      disabled
                     />
                   </div>
                   <div className="col-md-6">
                     <label className="form-label">Branch</label>
-                    <div className="input-group">
-                      {/* Country Code Dropdown */}
-                      <Field
-                        type="email"
-                        name="email"
-                        className="form-control"
-                        placeholder="Enter Email"
-                      />
-                    </div>
-                    <ErrorMessage
-                      name="phone"
-                      component="div"
-                      className="text-danger small"
+                    <Field
+                      type="text"
+                      name="branch"
+                      className="form-control"
+                      disabled
                     />
                   </div>
-
                   <div className="col-md-6">
                     <label className="form-label">Status</label>
-                    <Field as="select" name="status" className="form-select">
-                      <option value="">Select</option>
-                      <option value="registered">Registered</option>
-                      <option value="verified">Verified</option>
-                      <option value="active">Active</option>
-                      <option value="blocked">Blocked</option>
-                    </Field>
-                    <ErrorMessage
+                    <Field
+                      type="text"
                       name="status"
-                      component="div"
-                      className="text-danger small"
+                      className="form-control"
+                      disabled
                     />
                   </div>
                 </div>
               </div>
 
-            
-              <div className="d-flex justify-content-between align-items-center mb-5 mt-4">
-                 <button type="reset" className="btn btn-warning me-2">
-                  Change Password
-                </button>
-                <div>
-                    <button type="reset" className="btn btn-secondary me-2">
-                  Enable Editiong
-                </button>
+              {/* Buttons */}
+              <div className="d-flex justify-content-end align-items-center mb-5 mt-4">
                 <button
                   className="btn bgThemePrimary"
                   type="submit"
                   disabled={isSubmitting}
-                  style={{ opacity: "0.8" }}
                 >
-                  {isSubmitting ? "Submitting..." : "Update"}
+                  {isSubmitting ? "Updating..." : "Update Profile"}
                 </button>
-                </div>
-                
               </div>
             </Form>
           )}
         </Formik>
       </div>
+
+      {/* Password Modal */}
+      {showPasswordModal && (
+        <div className="modal show d-block" tabIndex="-1">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <form onSubmit={handlePasswordUpdate}>
+                <div className="modal-header">
+                  <h5 className="modal-title">Change Password</h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={() => setShowPasswordModal(false)}
+                  ></button>
+                </div>
+                <div className="modal-body">
+                  <div className="mb-3">
+                    <label>Old Password</label>
+                    <input
+                      type="password"
+                      name="oldPassword"
+                      className="form-control"
+                      required
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label>New Password</label>
+                    <input
+                      type="password"
+                      name="newPassword"
+                      className="form-control"
+                      required
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label>Confirm Password</label>
+                    <input
+                      type="password"
+                      name="confirmPassword"
+                      className="form-control"
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-danger"
+                    onClick={() => setShowPasswordModal(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn bgThemePrimary">
+                    Update Password
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+      {showPasswordModal && <div className="modal-backdrop fade show"></div>}
     </div>
   );
 }

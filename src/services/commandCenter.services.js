@@ -144,3 +144,24 @@ export const deleteRoleServ = async (id) => {
   }
 };
 
+export const getAdminProfileServ = async (id) => {
+  try {
+    const response = await axios.get(BASE_URL + "admin/details/"+id,  getConfig());
+    return response;
+  } catch (error) {
+    // Handle error (e.g., log or throw an error)
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+};
+export const updatePasswordServ = async (formData) => {
+  try {
+    const response = await axios.put(BASE_URL + "admin/update-password", formData);
+    return response;
+  } catch (error) {
+    // Handle error (e.g., log or throw an error)
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+};
+

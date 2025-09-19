@@ -46,6 +46,7 @@ import RoleList from "../pages/RoleManagement/RoleList";
 import UpdateRole from "../pages/RoleManagement/UpdateRole";
 import Profile from "../pages/MyProfile/Profile";
 import Overview from "../pages/MyProfile/Overview";
+import Setting from "../pages/MyProfile/Setting";
 function AuthenticatedRoutes() {
   return (
     <Routes>
@@ -126,6 +127,7 @@ function AuthenticatedRoutes() {
         {/* Profile Section*/}
         <Route path="/my-profile" element={<Profile />} />
         <Route path="/overview" element={<Overview />} />
+        <Route path="/setting" element={<Setting />} />
       </Route>
     </Routes>
   );
