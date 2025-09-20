@@ -74,36 +74,11 @@ function Profile() {
     }
   };
 
-  // ✅ Update Password
-  const handlePasswordUpdate = async (e) => {
-    e.preventDefault();
-    const oldPassword = e.target.oldPassword.value;
-    const newPassword = e.target.newPassword.value;
-    const confirmPassword = e.target.confirmPassword.value;
+ 
+const [errors, setErrors] = useState({});
 
-    if (newPassword !== confirmPassword) {
-      toast.error("Passwords do not match");
-      return;
-    }
-
-    try {
-      let response = await updatePasswordServ({
-        _id: adminId,
-        oldPassword,
-        newPassword,
-      });
-      if (response?.data?.statusCode == "200") {
-        toast.success(response?.data?.message);
-        setShowPasswordModal(false);
-      } else {
-        toast.error(response?.data?.message || "Failed to update password");
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Internal Server Error");
-    }
-  };
-
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{}|;:,.<>?]).{8,}$/;
   const handleLogoutFunc = () => {
     const confirmed = window.confirm("Are you sure you want to logout?");
     if (confirmed) {
@@ -119,7 +94,53 @@ function Profile() {
       navigate("/");
     }
   };
-
+ const handlePasswordUpdate = async (e) => {
+     e.preventDefault();
+     const oldPassword = e.target.oldPassword.value;
+     const newPassword = e.target.newPassword.value;
+     const confirmPassword = e.target.confirmPassword.value;
+     let tempErrors = {};
+     
+     if (!passwordRegex.test(newPassword)) {
+       tempErrors.newPassword =
+         "Password must be at least 8 chars, include uppercase, lowercase, digit, and special character.";
+     }else{
+        tempErrors.newPassword =
+         "";
+     }
+     if (newPassword != confirmPassword) {
+       tempErrors.confirmPassword = "Passwords do not match.";
+     }else{
+       tempErrors.confirmPassword = "";
+     }
+     
+     setErrors(tempErrors);
+     if(tempErrors?.newPassword || tempErrors?.confirmPassword){
+       return
+     }
+     
+     try {
+       let response = await updatePasswordServ({
+         _id: adminId,
+         oldPassword,
+         newPassword,
+       });
+       if (response?.data?.statusCode == "200") {
+         toast.success(response?.data?.message);
+         setShowPasswordModal(false);
+       } else {
+         toast.error(response?.data?.message || "Failed to update password");
+       }
+     } catch (error) {
+       console.error(error);
+       toast.error("Internal Server Error");
+     }
+   };
+   const [passwordInputType, setPasswordInputType] = useState({
+     showOldPassword: true,
+     showNewPassword: true,
+     showConfirmPassword: true,
+   });
   return (
     <div className="container-fluid">
       <div className="col-lg-12 p-4">
@@ -137,17 +158,12 @@ function Profile() {
             >
               Change Password
             </span>
-            <span
-              className="status-badge bg-light-subtle text-secondary border cursor ms-3"
-              onClick={() => navigate("/overview")}
-            >
-              Overview
-            </span>
+            
             <span
               className="status-badge bg-light-subtle text-secondary mx-3 border cursor"
-              onClick={() => navigate("/setting")}
+              onClick={() => navigate("/permissions")}
             >
-              Settings
+              Permissions
             </span>
             <span
               className="status-badge bg-danger-subtle text-secondary border cursor"
@@ -292,7 +308,7 @@ function Profile() {
       </div>
 
       {/* Password Modal */}
-      {showPasswordModal && (
+        {showPasswordModal && (
         <div className="modal show d-block" tabIndex="-1">
           <div className="modal-dialog">
             <div className="modal-content">
@@ -302,43 +318,133 @@ function Profile() {
                   <button
                     type="button"
                     className="btn-close"
-                    onClick={() => setShowPasswordModal(false)}
+                   
+                     onClick={() => {
+                      setShowPasswordModal(false);
+                      setPasswordInputType({
+                        showOldPassword: false,
+                        showNewPassword: false,
+                        showConfirmPassword: false,
+                      });
+                      setErrors({})
+                    }}
                   ></button>
                 </div>
                 <div className="modal-body">
                   <div className="mb-3">
                     <label>Old Password</label>
-                    <input
-                      type="password"
-                      name="oldPassword"
-                      className="form-control"
-                      required
-                    />
+                    <div className="d-flex align-items-center border rounded">
+                      <input
+                        type={
+                          passwordInputType?.showOldPassword
+                            ? "password"
+                            : "text"
+                        }
+                        name="oldPassword"
+                        className="form-control border-0 passwordInput"
+                        required
+                      />
+                      <i
+                        className={
+                          "bi me-2 " +
+                          (passwordInputType?.showOldPassword
+                            ? " bi-eye-slash"
+                            : " bi-eye")
+                        }
+                        onClick={() =>
+                          setPasswordInputType({
+                            ...passwordInputType,
+                            showOldPassword:
+                              !passwordInputType?.showOldPassword,
+                          })
+                        }
+                      ></i>
+                    </div>
                   </div>
                   <div className="mb-3">
                     <label>New Password</label>
-                    <input
-                      type="password"
-                      name="newPassword"
-                      className="form-control"
-                      required
-                    />
+                    <div className="d-flex align-items-center border rounded">
+                      <input
+                        type={
+                          passwordInputType?.showNewPassword
+                            ? "password"
+                            : "text"
+                        }
+                        name="newPassword"
+                        className="form-control border-0 passwordInput"
+                        required
+                      />
+                      <i
+                        className={
+                          "bi me-2 " +
+                          (passwordInputType?.showNewPassword
+                            ? " bi-eye-slash"
+                            : " bi-eye")
+                        }
+                        onClick={() =>
+                          setPasswordInputType({
+                            ...passwordInputType,
+                            showNewPassword:
+                              !passwordInputType?.showNewPassword,
+                          })
+                        }
+                      ></i>
+                    </div>
+                    {errors.newPassword && (
+                      <small className="text-danger">
+                        {errors.newPassword}
+                      </small>
+                    )}
                   </div>
                   <div className="mb-3">
                     <label>Confirm Password</label>
-                    <input
-                      type="password"
-                      name="confirmPassword"
-                      className="form-control"
-                      required
-                    />
+                    <div className="d-flex align-items-center border rounded">
+                      <input
+                        type={
+                          passwordInputType?.showConfirmPassword
+                            ? "password"
+                            : "text"
+                        }
+                        name="confirmPassword"
+                        className="form-control border-0 passwordInput"
+                        required
+                      />
+                      <i
+                        className={
+                          "bi me-2 " +
+                          (passwordInputType?.showConfirmPassword
+                            ? " bi-eye-slash"
+                            : " bi-eye")
+                        }
+                        onClick={() =>
+                          setPasswordInputType({
+                            ...passwordInputType,
+                            showConfirmPassword:
+                              !passwordInputType?.showConfirmPassword,
+                          })
+                        }
+                      ></i>
+                    </div>
+                    {errors.confirmPassword && (
+                      <small className="text-danger">
+                        {errors.confirmPassword}
+                      </small>
+                    )}
                   </div>
                 </div>
                 <div className="modal-footer">
                   <button
                     type="button"
                     className="btn btn-danger"
-                    onClick={() => setShowPasswordModal(false)}
+                    onClick={() => {
+                      setShowPasswordModal(false);
+                      setPasswordInputType({
+                        showOldPassword: false,
+                        showNewPassword: false,
+                        showConfirmPassword: false,
+                      });
+                      setErrors({})
+                    }}
                   >
                     Cancel
                   </button>

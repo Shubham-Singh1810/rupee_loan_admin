@@ -115,12 +115,10 @@ function TopNav({setIsCollapsed, isCollapsed}) {
                 <a className="dropdown-item cursor" onClick={()=>navigate("/my-profile")}>
                   <i className="bi bi-person me-2" /> Profile
                 </a>
-                 <a className="dropdown-item cursor" onClick={()=>navigate("/overview")}>
-                  <i className="bi bi-grid me-2" /> Overview
+                 <a className="dropdown-item cursor" onClick={()=>navigate("/permissions")}>
+                  <i className="bi bi-grid me-2" /> Permissions
                 </a>
-                <a className="dropdown-item cursor" onClick={()=>navigate("/setting")}>
-                  <i className="bi bi-gear me-2" /> Settings
-                </a>
+                
                 <div className="dropdown-divider" />
                 <a className="dropdown-item text-danger cursor" onClick={()=>handleLogoutFunc()} >
                   <i className="bi bi-box-arrow-right me-2" />

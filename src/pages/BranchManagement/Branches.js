@@ -409,7 +409,7 @@ function Branches() {
                           <td className="text-center">
                             <a
                               className="cursor"
-                              onClick={() => toast.info("Coming soon!")}
+                              onClick={() => navigate("/view-staff/"+v?._id)}
                             >
                               <u
                                 style={{

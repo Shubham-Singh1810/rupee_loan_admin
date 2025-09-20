@@ -45,8 +45,11 @@ import AdminList from "../pages/AdminManagement/AdminList";
 import RoleList from "../pages/RoleManagement/RoleList";
 import UpdateRole from "../pages/RoleManagement/UpdateRole";
 import Profile from "../pages/MyProfile/Profile";
-import Overview from "../pages/MyProfile/Overview";
-import Setting from "../pages/MyProfile/Setting";
+import Permissions from "../pages/MyProfile/Permissions";
+import ViewStaff from "../pages/BranchManagement/ViewStaff";
+import LoanApplicationDocument from "../pages/LoanManagement/LoanApplicationDocument";
+import LoanAccountDetails from "../pages/LoanManagement/LoanAccountDetails";
+import LoanApplicationEmi from "../pages/LoanManagement/LoanApplicationEmi";
 function AuthenticatedRoutes() {
   return (
     <Routes>
@@ -56,6 +59,7 @@ function AuthenticatedRoutes() {
 
         {/* Loan routes started */}
         <Route path="/branches" element={<Branches />} />
+        <Route path="/view-staff/:id" element={<ViewStaff />} />
 
         {/* Loan routes ended */}
 
@@ -93,6 +97,9 @@ function AuthenticatedRoutes() {
         <Route path="/create-application" element={<CreateLoanApplication />} />
         <Route path="/update-loan-application/:id" element={<EditLoanApplication />} />
         <Route path="/loan-application-details/:id" element={<LoanApplicationDetails />} />
+        <Route path="/loan-application-documents/:id" element={<LoanApplicationDocument />} />
+        <Route path="/loan-application-account-details/:id" element={<LoanAccountDetails />} />
+        <Route path="/loan-application-emis/:id" element={<LoanApplicationEmi />} />
 
         {/* loan applications routes ended */}
 
@@ -126,8 +133,8 @@ function AuthenticatedRoutes() {
 
         {/* Profile Section*/}
         <Route path="/my-profile" element={<Profile />} />
-        <Route path="/overview" element={<Overview />} />
-        <Route path="/setting" element={<Setting />} />
+        <Route path="/permissions" element={<Permissions />} />
+        
       </Route>
     </Routes>
   );

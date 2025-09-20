@@ -740,3 +740,7 @@ a {
   color: var(--theme-primary); /* theme ka primary color */
 }
 
+.passwordInput:focus {
+  box-shadow: none !important;
+  border-color: transparent !important; /* agar border bhi hatana hai toh */
+}
