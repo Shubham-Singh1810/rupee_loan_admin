@@ -15,7 +15,10 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import moment from "moment";
 import ConfirmDeleteModal from "../../components/ConfirmDeleteModal";
+import { useGlobalState } from "../../GlobalProvider";
 function Documents() {
+  const { globalState } = useGlobalState();
+  const permissions = globalState?.user?.role?.permissions || [];
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [list, setList] = useState([]);
@@ -25,7 +28,7 @@ function Documents() {
   const [payload, setPayload] = useState({
     searchKey: "",
     pageNo: 1,
-    pageCount: 10,
+    pageCount: 20,
     status: "",
   });
   const [documentCount, setDocumentCount] = useState();
@@ -212,7 +215,7 @@ function Documents() {
       </div>
       {/* Header */}
       <div className="d-flex justify-content-between align-items-center my-4">
-        <h4 className="mb-0">Branches</h4>
+        <h4 className="mb-0">Documents</h4>
         <div className="d-flex align-items-center">
           <div className="d-flex align-items-center px-2 user-search">
             <form className="input-group search ms-2 d-none d-md-flex">
@@ -274,13 +277,14 @@ function Documents() {
               </li>
             </ul>
           </div>
-
-          <button
-            className="btn  bgThemePrimary shadow-sm"
-            onClick={() => setAddFormData({ ...addFormData, show: true })}
-          >
-            + Add Document
-          </button>
+          {permissions?.includes("Documents-Create") && (
+            <button
+              className="btn  bgThemePrimary shadow-sm"
+              onClick={() => setAddFormData({ ...addFormData, show: true })}
+            >
+              + Add Document
+            </button>
+          )}
         </div>
       </div>
       {/* Table Card */}
@@ -325,7 +329,9 @@ function Documents() {
                   : list?.map((v, i) => {
                       return (
                         <tr>
-                          <td>{i + 1 + (payload?.pageNo - 1) * 10}</td>
+                          <td>
+                            {i + 1 + (payload?.pageNo - 1) * payload?.pageCount}
+                          </td>
                           <td>
                             <h6 style={{ fontSize: "14px" }}>{v?.name}</h6>{" "}
                           </td>
@@ -334,33 +340,37 @@ function Documents() {
                             {renderProfile(v?.status)}
                           </td>
 
-                          {/* <td className="text-center">{moment(v?.lastLogin).format("DD MMM, YYYY")}</td> */}
                           <td style={{ textAlign: "center" }}>
-                            <a
-                              onClick={() =>
-                                setEditFormData({
-                                  name: v?.name,
+                            {permissions?.includes("Documents-Edit") && (
+                              <a
+                                onClick={() =>
+                                  setEditFormData({
+                                    name: v?.name,
 
-                                  status: v?.status,
+                                    status: v?.status,
 
-                                  _id: v?._id,
-                                })
-                              }
-                              className="text-primary text-decoration-underline me-2"
-                            >
-                              <i class="bi bi-pencil fs-6"></i>
-                            </a>
-                            <a
-                              // onClick={() => handleDeleteFunc(v?._id)}
-                              onClick={() => {
-                                setDeleteId(v?._id);
-                                setShowConfirm(true);
-                              }}
-                              className="text-danger text-decoration-underline"
-                            >
-                              <i class="bi bi-trash fs-6"></i>
-                            </a>
+                                    _id: v?._id,
+                                  })
+                                }
+                                className="text-primary text-decoration-underline me-2"
+                              >
+                                <i class="bi bi-pencil fs-6"></i>
+                              </a>
+                            )}
+                            {permissions?.includes("Documents-Delete") && (
+                              <a
+                                // onClick={() => handleDeleteFunc(v?._id)}
+                                onClick={() => {
+                                  setDeleteId(v?._id);
+                                  setShowConfirm(true);
+                                }}
+                                className="text-danger text-decoration-underline"
+                              >
+                                <i class="bi bi-trash fs-6"></i>
+                              </a>
+                            )}
                           </td>
+                          <td style={{ textAlign: "center" }}></td>
                         </tr>
                       );
                     })}

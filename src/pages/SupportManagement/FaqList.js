@@ -16,7 +16,10 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import moment from "moment";
 import ConfirmDeleteModal from "../../components/ConfirmDeleteModal";
+import { useGlobalState } from "../../GlobalProvider";
 function FaqList() {
+  const { globalState } = useGlobalState();
+  const permissions = globalState?.user?.role?.permissions || [];
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [list, setList] = useState([]);
@@ -26,7 +29,7 @@ function FaqList() {
   const [payload, setPayload] = useState({
     searchKey: "",
     pageNo: 1,
-    pageCount: 10,
+    pageCount: 20,
     status: "",
   });
   const [documentCount, setDocumentCount] = useState();
@@ -346,13 +349,14 @@ function FaqList() {
               </li>
             </ul>
           </div>
-
-          <button
-            className="btn  bgThemePrimary shadow-sm"
-            onClick={() => setAddFormData({ ...addFormData, show: true })}
-          >
-            + Add FAQ
-          </button>
+          {permissions?.includes("FAQ'S-Create") && (
+            <button
+              className="btn  bgThemePrimary shadow-sm"
+              onClick={() => setAddFormData({ ...addFormData, show: true })}
+            >
+              + Add FAQ
+            </button>
+          )}
         </div>
       </div>
       {/* Table Card */}
@@ -367,10 +371,14 @@ function FaqList() {
                 <tr>
                   <th className="text-center">Sr No.</th>
                   <th>Question</th>
-                  <th style={{width:"500px"}}>Answer</th>
+                  <th style={{ width: "500px" }}>Answer</th>
                   <th>Category</th>
                   <th className="text-center">Status</th>
-                  <th style={{ textAlign: "center" }}>Action</th>
+                   {(permissions?.includes("FAQ'S-Edit") ||
+                    permissions?.includes("FAQ'S-Delete")) && (
+                    <th style={{ textAlign: "center" }}>Action</th>
+                  )}
+                 
                 </tr>
               </thead>
               <tbody>
@@ -405,7 +413,7 @@ function FaqList() {
                       return (
                         <tr>
                           <td className="text-center">
-                            {i + 1 + (payload?.pageNo - 1) * 10}
+                            {i + 1 + (payload?.pageNo - 1) * payload?.pageCount}
                           </td>
                           <td>{v?.question}</td>
 
@@ -415,8 +423,10 @@ function FaqList() {
                             {renderProfile(v?.status)}
                           </td>
 
+                          
                           <td style={{ textAlign: "center" }}>
-                            <a
+                            {permissions?.includes("FAQ'S-Edit") && (
+                               <a
                               onClick={() =>
                                 setEditFormData({
                                   question: v?.question,
@@ -430,7 +440,9 @@ function FaqList() {
                             >
                               <i class="bi bi-pencil fs-6"></i>
                             </a>
-                            <a
+                            )}
+                            {permissions?.includes("FAQ'S-Delete") && (
+                               <a
                               // onClick={() => handleDeleteFunc(v?._id)}
                               onClick={() => {
                                 setDeleteId(v?._id);
@@ -440,6 +452,7 @@ function FaqList() {
                             >
                               <i class="bi bi-trash fs-6"></i>
                             </a>
+                            )}
                           </td>
                         </tr>
                       );
@@ -659,9 +672,9 @@ function FaqList() {
                     {/* ✅ Formik Form Start */}
                     <Formik
                       initialValues={{
-                        question:editFormData?.question,
-                        answer:editFormData?.answer,
-                        category:editFormData?.category,
+                        question: editFormData?.question,
+                        answer: editFormData?.answer,
+                        category: editFormData?.category,
                         status: editFormData?.status,
                       }}
                       validationSchema={FaqSchema}

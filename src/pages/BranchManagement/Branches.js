@@ -15,7 +15,10 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import moment from "moment";
 import ConfirmDeleteModal from "../../components/ConfirmDeleteModal";
+import { useGlobalState } from "../../GlobalProvider";
 function Branches() {
+  const { globalState } = useGlobalState();
+  const permissions = globalState?.user?.role?.permissions || [];
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [list, setList] = useState([]);
@@ -25,7 +28,7 @@ function Branches() {
   const [payload, setPayload] = useState({
     searchKey: "",
     pageNo: 1,
-    pageCount: 10,
+    pageCount: 20,
     status: "",
   });
   const [documentCount, setDocumentCount] = useState();
@@ -95,7 +98,7 @@ function Branches() {
       icon: "bi bi-diagram-3",
       count: documentCount?.totalCount,
 
-     iconColor: "#010a2d",
+      iconColor: "#010a2d",
     },
     {
       label: "Active Branches",
@@ -119,7 +122,7 @@ function Branches() {
         getListFunc();
         toast.success(response?.data?.message);
         setShowConfirm(false);
-        setDeleteId("")
+        setDeleteId("");
       }
     } catch (error) {
       toast.error("Internal Server error");
@@ -193,7 +196,7 @@ function Branches() {
       toast?.error("Internal Server Error!");
     }
   };
- 
+
   return (
     <div className="container-fluid user-table py-3">
       {/* KPIs */}
@@ -260,7 +263,7 @@ function Branches() {
               />
             </form>
           </div>
-          <div className="dropdown me-2" > 
+          <div className="dropdown me-2">
             <button
               className="btn btn-light dropdown-toggle border height37"
               type="button"
@@ -268,7 +271,7 @@ function Branches() {
               aria-expanded="false"
               style={{
                 width: "150px",
-                fontSize:"14px"
+                fontSize: "14px",
               }}
             >
               {payload?.status === true
@@ -276,7 +279,6 @@ function Branches() {
                 : payload?.status === false
                 ? "Inactive"
                 : "Select Status"}
-                 
             </button>
             <ul className="dropdown-menu">
               <li>
@@ -305,13 +307,14 @@ function Branches() {
               </li>
             </ul>
           </div>
-
-          <button
-            className="btn  bgThemePrimary shadow-sm"
-            onClick={() => setAddFormData({ ...addFormData, show: true })}
-          >
-            + Add Branch
-          </button>
+          {permissions?.includes("Branches-Create") && (
+            <button
+              className="btn  bgThemePrimary shadow-sm"
+              onClick={() => setAddFormData({ ...addFormData, show: true })}
+            >
+              + Add Branch
+            </button>
+          )}
         </div>
       </div>
       {/* Table Card */}
@@ -333,8 +336,10 @@ function Branches() {
                   <th>Description</th>
                   <th className="text-center">Status</th>
                   <th className="text-center">Agents</th>
-
-                  <th style={{ textAlign: "center" }}>Action</th>
+                  {(permissions?.includes("Branches-Edit") ||
+                    permissions?.includes("Branches-Delete")) && (
+                    <th style={{ textAlign: "center" }}>Action</th>
+                  )}
                 </tr>
               </thead>
               <tbody>
@@ -369,9 +374,12 @@ function Branches() {
                           <td className="text-center">
                             <Skeleton width={100} />
                           </td>
-                          <td className="text-center">
-                            <Skeleton width={100} />
-                          </td>
+                          {(permissions?.includes("Branches-Edit") ||
+                            permissions?.includes("Branches-Delete")) && (
+                            <td className="text-center">
+                              <Skeleton width={100} />
+                            </td>
+                          )}
                         </tr>
                       );
                     })
@@ -379,7 +387,7 @@ function Branches() {
                       return (
                         <tr>
                           <td className="text-center">
-                            {i + 1 + (payload?.pageNo - 1) * 10}
+                            {i + 1 + (payload?.pageNo - 1) * payload?.pageCount}
                           </td>
                           <td>
                             <h6 style={{ fontSize: "14px" }}>{v?.name}</h6>{" "}
@@ -409,7 +417,7 @@ function Branches() {
                           <td className="text-center">
                             <a
                               className="cursor"
-                              onClick={() => navigate("/view-staff/"+v?._id)}
+                              onClick={() => navigate("/view-staff/" + v?._id)}
                             >
                               <u
                                 style={{
@@ -424,35 +432,39 @@ function Branches() {
                           </td>
                           {/* <td className="text-center">{moment(v?.lastLogin).format("DD MMM, YYYY")}</td> */}
                           <td style={{ textAlign: "center" }}>
-                            <a
-                              onClick={() =>
-                                setEditFormData({
-                                  name: v?.name,
-                                  phone: v?.phone,
-                                  contactPerson: v?.contactPerson,
-                                  status: v?.status,
-                                  address: v?.address,
-                                  city: v?.city,
-                                  state: v?.state,
-                                  pincode: v?.pincode,
-                                  description: v?.description,
-                                  _id: v?._id,
-                                })
-                              }
-                              className="text-primary text-decoration-underline me-2"
-                            >
-                              <i class="bi bi-pencil fs-6"></i>
-                            </a>
-                            <a
-                              // onClick={() => handleDeleteFunc(v?._id)}
-                              onClick={() => {
-                                setDeleteId(v?._id);
-                                setShowConfirm(true);
-                              }}
-                              className="text-danger text-decoration-underline"
-                            >
-                              <i class="bi bi-trash fs-6"></i>
-                            </a>
+                            {permissions?.includes("Branches-Edit") && (
+                              <a
+                                onClick={() =>
+                                  setEditFormData({
+                                    name: v?.name,
+                                    phone: v?.phone,
+                                    contactPerson: v?.contactPerson,
+                                    status: v?.status,
+                                    address: v?.address,
+                                    city: v?.city,
+                                    state: v?.state,
+                                    pincode: v?.pincode,
+                                    description: v?.description,
+                                    _id: v?._id,
+                                  })
+                                }
+                                className="text-primary text-decoration-underline me-2"
+                              >
+                                <i class="bi bi-pencil fs-6"></i>
+                              </a>
+                            )}
+                            {permissions?.includes("Branches-Delete") && (
+                              <a
+                                // onClick={() => handleDeleteFunc(v?._id)}
+                                onClick={() => {
+                                  setDeleteId(v?._id);
+                                  setShowConfirm(true);
+                                }}
+                                className="text-danger text-decoration-underline"
+                              >
+                                <i class="bi bi-trash fs-6"></i>
+                              </a>
+                            )}
                           </td>
                         </tr>
                       );
@@ -536,7 +548,9 @@ function Branches() {
                           <div className="row">
                             {/* Name */}
                             <div className="col-6">
-                              <label className="mt-3">Name<span className="text-danger">*</span></label>
+                              <label className="mt-3">
+                                Name<span className="text-danger">*</span>
+                              </label>
                               <Field
                                 className="form-control"
                                 type="text"
@@ -553,7 +567,10 @@ function Branches() {
 
                             {/* Contact Person */}
                             <div className="col-6">
-                              <label className="mt-3">Contact Person<span className="text-danger">*</span></label>
+                              <label className="mt-3">
+                                Contact Person
+                                <span className="text-danger">*</span>
+                              </label>
                               <Field
                                 className="form-control"
                                 type="text"
@@ -566,7 +583,10 @@ function Branches() {
                               />
                             </div>
                             <div className="col-6">
-                              <label className="mt-3">Contact Number<span className="text-danger">*</span></label>
+                              <label className="mt-3">
+                                Contact Number
+                                <span className="text-danger">*</span>
+                              </label>
                               <Field
                                 className="form-control"
                                 type="text"
@@ -581,7 +601,9 @@ function Branches() {
 
                             {/* Status */}
                             <div className="col-6">
-                              <label className="mt-3">Status<span className="text-danger">*</span></label>
+                              <label className="mt-3">
+                                Status<span className="text-danger">*</span>
+                              </label>
                               <Field
                                 as="select"
                                 className="form-control"
@@ -615,7 +637,9 @@ function Branches() {
 
                             {/* Address */}
                             <div className="col-12">
-                              <label className="mt-3">Address<span className="text-danger">*</span></label>
+                              <label className="mt-3">
+                                Address<span className="text-danger">*</span>
+                              </label>
                               <Field
                                 className="form-control"
                                 type="text"
@@ -630,7 +654,9 @@ function Branches() {
 
                             {/* State */}
                             <div className="col-4">
-                              <label className="mt-3">State<span className="text-danger">*</span></label>
+                              <label className="mt-3">
+                                State<span className="text-danger">*</span>
+                              </label>
                               <Field
                                 className="form-control"
                                 type="text"
@@ -645,7 +671,9 @@ function Branches() {
 
                             {/* City */}
                             <div className="col-4">
-                              <label className="mt-3">City<span className="text-danger">*</span></label>
+                              <label className="mt-3">
+                                City<span className="text-danger">*</span>
+                              </label>
                               <Field
                                 className="form-control"
                                 type="text"
@@ -660,7 +688,9 @@ function Branches() {
 
                             {/* Pincode */}
                             <div className="col-4">
-                              <label className="mt-3">Pincode<span className="text-danger">*</span></label>
+                              <label className="mt-3">
+                                Pincode<span className="text-danger">*</span>
+                              </label>
                               <Field
                                 className="form-control"
                                 type="number"
@@ -758,7 +788,7 @@ function Branches() {
                       }}
                       enableReinitialize
                     >
-                      {({ isSubmitting , dirty}) => (
+                      {({ isSubmitting, dirty }) => (
                         <Form>
                           <div className="row">
                             {/* Name */}

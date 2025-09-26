@@ -15,7 +15,7 @@ function NewlyRegisteredUsers() {
   const [payload, setPayload] = useState({
     searchKey: "",
     pageNo: 1,
-    pageCount: 10,
+    pageCount: 20,
     status:"registered"
   });
   const [documentCount, setDocumentCount] = useState();
@@ -257,7 +257,7 @@ function NewlyRegisteredUsers() {
                         <tr>
                           <td className="text-center">
                             {/* {i+1} */}
-                            {i + 1 + (payload?.pageNo - 1) * 10}
+                            {i + 1 + (payload?.pageNo - 1) * payload?.pageCount}
                           </td>
                           <td>
                             <div className="d-flex align-items-center">

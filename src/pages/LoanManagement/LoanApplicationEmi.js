@@ -71,7 +71,7 @@ function LoanApplicationEmi() {
   }, [params?.id]);
   const [payload, setPayload] = useState({
     pageNo: 1,
-    pageCount: 10,
+    pageCount: 20,
     status: "",
     loanId: params?.id,
     userId: "68c7b27239b5706208a5b946",
@@ -334,7 +334,7 @@ function LoanApplicationEmi() {
                   : list?.map((v, i) => {
                       return (
                         <tr>
-                          <td>{i + 1 + (payload?.pageNo - 1) * 10}</td>
+                          <td>{i + 1 + (payload?.pageNo - 1) * payload?.pageCount}</td>
 
                           <td>{v?.applicationCode}</td>
                           <td>{v?.loanName}</td>

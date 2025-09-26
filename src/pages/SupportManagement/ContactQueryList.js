@@ -14,7 +14,10 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import moment from "moment";
 import ConfirmDeleteModal from "../../components/ConfirmDeleteModal";
+import { useGlobalState } from "../../GlobalProvider";
 function ContactQuesryList() {
+  const { globalState } = useGlobalState();
+    const permissions = globalState?.user?.role?.permissions || [];
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [list, setList] = useState([]);
@@ -24,7 +27,7 @@ function ContactQuesryList() {
   const [payload, setPayload] = useState({
     searchKey: "",
     pageNo: 1,
-    pageCount: 10,
+    pageCount: 20,
     status: "",
   });
   const [documentCount, setDocumentCount] = useState();
@@ -272,7 +275,8 @@ function ContactQuesryList() {
                   <th>Email</th>
                   <th>Subject</th>
                   <th style={{ width: "300px" }}>Message</th>
-                  <th className="text-center">Action</th>
+                  {permissions?.includes("Contact Queries-Update") && <th className="text-center">Action</th>}
+                  
                 </tr>
               </thead>
               <tbody>
@@ -299,9 +303,10 @@ function ContactQuesryList() {
                           <td>
                             <Skeleton width={300} />
                           </td>
-                          <td className="text-center">
+                          {permissions?.includes("Contact Queries-Update") && (<td className="text-center">
                             <Skeleton width={100} />
-                          </td>
+                          </td>)}
+                          
                         </tr>
                       );
                     })
@@ -309,7 +314,7 @@ function ContactQuesryList() {
                       return (
                         <tr>
                           <td className="text-center">
-                            {i + 1 + (payload?.pageNo - 1) * 10}
+                            {i + 1 + (payload?.pageNo - 1) * payload?.pageCount}
                           </td>
                           <td>{v?.firstName + " " + v?.lastName}</td>
 
@@ -317,47 +322,48 @@ function ContactQuesryList() {
                           <td>{v?.email}</td>
                           <td>{v?.subject}</td>
                           <td>{v?.message}</td>
-
-                          <td style={{ textAlign: "center" }}>
-                            {v?.isResponded ? (
-                              <button
-                                className="btn btn-sm btn-info"
-                                onClick={() =>
-                                  setEditFormData({
-                                    firstName: v?.firstName,
-                                    lastName: v?.lastName,
-                                    contactNumber: v?.contactNumber,
-                                    email: v?.email,
-                                    subject: v?.subject,
-                                    message: v?.message,
-                                    _id: v?._id,
-                                    isResponded: v?.isResponded,
-                                    respondedVia: v?.respondedVia,
-                                    note: v?.note,
-                                  })
-                                }
-                              >
-                                Replied
-                              </button>
-                            ) : (
-                              <button
-                                className="btn btn-sm btn-warning"
-                                onClick={() =>
-                                  setEditFormData({
-                                    firstName: v?.firstName,
-                                    lastName: v?.lastName,
-                                    contactNumber: v?.contactNumber,
-                                    email: v?.email,
-                                    subject: v?.subject,
-                                    message: v?.message,
-                                    _id: v?._id,
-                                  })
-                                }
-                              >
-                                Pending
-                              </button>
-                            )}
-                          </td>
+                          {permissions?.includes("Contact Queries-Update") && (
+                            <td style={{ textAlign: "center" }}>
+                              {v?.isResponded ? (
+                                <button
+                                  className="btn btn-sm btn-info"
+                                  onClick={() =>
+                                    setEditFormData({
+                                      firstName: v?.firstName,
+                                      lastName: v?.lastName,
+                                      contactNumber: v?.contactNumber,
+                                      email: v?.email,
+                                      subject: v?.subject,
+                                      message: v?.message,
+                                      _id: v?._id,
+                                      isResponded: v?.isResponded,
+                                      respondedVia: v?.respondedVia,
+                                      note: v?.note,
+                                    })
+                                  }
+                                >
+                                  Replied
+                                </button>
+                              ) : (
+                                <button
+                                  className="btn btn-sm btn-warning"
+                                  onClick={() =>
+                                    setEditFormData({
+                                      firstName: v?.firstName,
+                                      lastName: v?.lastName,
+                                      contactNumber: v?.contactNumber,
+                                      email: v?.email,
+                                      subject: v?.subject,
+                                      message: v?.message,
+                                      _id: v?._id,
+                                    })
+                                  }
+                                >
+                                  Pending
+                                </button>
+                              )}
+                            </td>
+                          )}
                         </tr>
                       );
                     })}
@@ -431,9 +437,9 @@ function ContactQuesryList() {
                         respondedVia: editFormData?.respondedVia,
                         note: editFormData?.note,
                       }}
-                      validationSchema={ContactSchema} 
+                      validationSchema={ContactSchema}
                       onSubmit={(values) => {
-                        handleUpdateContact(values); 
+                        handleUpdateContact(values);
                       }}
                       enableReinitialize
                     >
@@ -447,8 +453,8 @@ function ContactQuesryList() {
                                 className="form-control"
                                 type="text"
                                 name="firstName"
-                               disabled
-                               style={{background:"whitesmoke"}}
+                                disabled
+                                style={{ background: "whitesmoke" }}
                               />
                               <ErrorMessage
                                 name="firstName"
@@ -465,7 +471,7 @@ function ContactQuesryList() {
                                 type="text"
                                 name="lastName"
                                 disabled
-                               style={{background:"whitesmoke"}}
+                                style={{ background: "whitesmoke" }}
                               />
                               <ErrorMessage
                                 name="lastName"
@@ -482,7 +488,7 @@ function ContactQuesryList() {
                                 type="text"
                                 name="contactNumber"
                                 disabled
-                               style={{background:"whitesmoke"}}
+                                style={{ background: "whitesmoke" }}
                               />
                               <ErrorMessage
                                 name="contactNumber"
@@ -499,7 +505,7 @@ function ContactQuesryList() {
                                 type="email"
                                 name="email"
                                 disabled
-                               style={{background:"whitesmoke"}}
+                                style={{ background: "whitesmoke" }}
                               />
                               <ErrorMessage
                                 name="email"
@@ -516,7 +522,7 @@ function ContactQuesryList() {
                                 type="text"
                                 name="subject"
                                 disabled
-                               style={{background:"whitesmoke"}}
+                                style={{ background: "whitesmoke" }}
                               />
                               <ErrorMessage
                                 name="subject"
@@ -534,7 +540,7 @@ function ContactQuesryList() {
                                 className="form-control"
                                 name="message"
                                 disabled
-                               style={{background:"whitesmoke"}}
+                                style={{ background: "whitesmoke" }}
                               />
                               <ErrorMessage
                                 name="message"

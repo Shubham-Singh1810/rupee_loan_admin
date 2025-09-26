@@ -70,7 +70,7 @@ function UserEmis() {
   }, [params?.id]);
   const [payload, setPayload] = useState({
     pageNo: 1,
-    pageCount: 10,
+    pageCount: 20,
     status: "",
     loanId: "",
     userId: params?.id,
@@ -342,7 +342,7 @@ function UserEmis() {
                   : list?.map((v, i) => {
                       return (
                         <tr>
-                          <td>{i + 1 + (payload?.pageNo - 1) * 10}</td>
+                          <td>{i + 1 + (payload?.pageNo - 1) * payload?.pageCount}</td>
 
                           <td>{v?.applicationCode}</td>
                           <td>{v?.loanName}</td>

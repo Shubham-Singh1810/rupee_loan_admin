@@ -21,7 +21,7 @@ function TicketCategories() {
   const [payload, setPayload] = useState({
     searchKey: "",
     pageNo: 1,
-    pageCount: 10,
+    pageCount: 20,
     status: "",
   });
   const [documentCount, setDocumentCount] = useState();
@@ -337,7 +337,7 @@ function TicketCategories() {
                       return (
                         <tr>
                           <td className="text-center">
-                            {i + 1 + (payload?.pageNo - 1) * 10}
+                            {i + 1 + (payload?.pageNo - 1) * payload?.pageCount}
                           </td>
                           <td>{v?.name}</td>
                           <td className="text-center">

@@ -26,7 +26,7 @@ function ClosedTicket() {
   const [payload, setPayload] = useState({
     searchKey: "",
     pageNo: 1,
-    pageCount: 10,
+    pageCount: 20,
     status: "close",
   });
   const [documentCount, setDocumentCount] = useState();
@@ -175,7 +175,9 @@ function ClosedTicket() {
       toast?.error("Internal Server Error!");
     }
   };
-
+return(
+  <h1>Not Started</h1>
+)
   return (
     <div className="container-fluid user-table py-3">
       {/* KPIs */}
@@ -305,7 +307,7 @@ function ClosedTicket() {
                       return (
                         <tr>
                           <td className="text-center">
-                            {i + 1 + (payload?.pageNo - 1) * 10}
+                            {i + 1 + (payload?.pageNo - 1) * payload?.pageCount}
                           </td>
                           <td>
                             <div className="d-flex align-items-center">

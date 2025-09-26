@@ -20,7 +20,7 @@ function RoleList() {
   const [payload, setPayload] = useState({
     searchKey: "",
     pageNo: 1,
-    pageCount: 10,
+    pageCount: 20,
     status: "",
   });
   const [documentCount, setDocumentCount] = useState();
@@ -261,7 +261,7 @@ function RoleList() {
                         <tr>
                           <td>
                             <span className="ms-2">
-                              {i + 1 + (payload?.pageNo - 1) * 10}.
+                              {i + 1 + (payload?.pageNo - 1) * payload?.pageCount}.
                             </span>
                           </td>
 

@@ -138,7 +138,7 @@ function UpdateRole() {
       list: [
         {
           menu: "Contact Queries",
-          permissions: ["View", "Delete"],
+          permissions: ["View", "Update"],
         },
         {
           menu: "Tickets",

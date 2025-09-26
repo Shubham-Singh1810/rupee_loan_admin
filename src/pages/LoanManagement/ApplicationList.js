@@ -25,7 +25,7 @@ function ApplicationList() {
   const [payload, setPayload] = useState({
     searchKey: "",
     pageNo: 1,
-    pageCount: 10,
+    pageCount: 20,
     status: "pending",
     loanId: params?.loanId,
   });
@@ -54,7 +54,7 @@ function ApplicationList() {
     setPayload({
       searchKey: "",
       pageNo: 1,
-      pageCount: 10,
+      pageCount: 20,
       status: "pending",
       loanId: params?.loanId,
     });
@@ -328,7 +328,7 @@ function ApplicationList() {
                   : list?.map((v, i) => {
                       return (
                         <tr>
-                          <td>{i + 1 + (payload?.pageNo - 1) * 10}</td>
+                          <td>{i + 1 + (payload?.pageNo - 1) * payload?.pageCount}</td>
                           <td>{v?.code}</td>
                           <td>{v?.branchId?.name}</td>
                           <td>

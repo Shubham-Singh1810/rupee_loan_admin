@@ -11,7 +11,7 @@ import {
   deleteAdminServ,
   getAdminListServ,
   addAdminServ,
-  updateAdminServ
+  updateAdminServ,
 } from "../../services/commandCenter.services";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
@@ -22,7 +22,10 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import moment from "moment";
 import ConfirmDeleteModal from "../../components/ConfirmDeleteModal";
+import { useGlobalState } from "../../GlobalProvider";
 function AdminList() {
+  const { globalState } = useGlobalState();
+  const permissions = globalState?.user?.role?.permissions || [];
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [list, setList] = useState([]);
@@ -32,7 +35,7 @@ function AdminList() {
   const [payload, setPayload] = useState({
     searchKey: "",
     pageNo: 1,
-    pageCount: 10,
+    pageCount: 20,
     status: "",
     branch: "",
     role: "",
@@ -420,13 +423,14 @@ function AdminList() {
               </li>
             </ul>
           </div>
-
-          <button
-            className="btn  bgThemePrimary shadow-sm"
-            onClick={() => setAddFormData({ ...addFormData, show: true })}
-          >
-            + Add Agent
-          </button>
+          {permissions?.includes("Staff/Agent-Create") && (
+            <button
+              className="btn  bgThemePrimary shadow-sm"
+              onClick={() => setAddFormData({ ...addFormData, show: true })}
+            >
+              + Add Agent
+            </button>
+          )}
         </div>
       </div>
       {/* Table Card */}
@@ -479,9 +483,12 @@ function AdminList() {
                           <td className="text-center">
                             <Skeleton width={100} />
                           </td>
-                          <td className="text-center">
-                            <Skeleton width={100} />
-                          </td>
+                          {(permissions?.includes("Staff/Agent-Edit") ||
+                                                      permissions?.includes("Staff/Agent-Delete")) && (
+                                                      <td className="text-center">
+                                                        <Skeleton width={100} />
+                                                      </td>
+                                                    )}
                         </tr>
                       );
                     })
@@ -489,7 +496,7 @@ function AdminList() {
                       return (
                         <tr>
                           <td className="text-center">
-                            {i + 1 + (payload?.pageNo - 1) * 10}
+                            {i + 1 + (payload?.pageNo - 1) * payload?.pageCount}
                           </td>
                           <td>
                             <div className="d-flex align-items-center">
@@ -534,8 +541,9 @@ function AdminList() {
                           <td className="text-center">
                             {v?.branch?.name || "Branch Not Provided"}
                           </td>
-                          <td style={{ textAlign: "center" }}>
-                            <a
+                          <td style={{ textAlign: "center" }}>  
+                            {permissions?.includes("Staff/Agent-Edit") && (
+                              <a
                               onClick={() =>
                                 setEditFormData({
                                   firstName: v?.firstName,
@@ -554,7 +562,9 @@ function AdminList() {
                             >
                               <i class="bi bi-pencil fs-6"></i>
                             </a>
-                            <a
+                            )}
+                            {permissions?.includes("Staff/Agent-Delete") && (
+                              <a
                               onClick={() => {
                                 setDeleteId(v?._id);
                                 setShowConfirm(true);
@@ -563,6 +573,7 @@ function AdminList() {
                             >
                               <i class="bi bi-trash fs-6"></i>
                             </a>
+                            )}
                           </td>
                         </tr>
                       );

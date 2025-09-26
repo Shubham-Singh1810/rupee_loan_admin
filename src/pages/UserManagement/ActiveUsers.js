@@ -15,7 +15,7 @@ function ActiveUsers() {
   const [payload, setPayload] = useState({
     searchKey: "",
     pageNo: 1,
-    pageCount: 10,
+    pageCount: 20,
     status:"active"
   });
   const [documentCount, setDocumentCount] = useState();
@@ -257,7 +257,7 @@ function ActiveUsers() {
                         <tr>
                           <td className="text-center">
                             {/* {i+1} */}
-                            {i + 1 + (payload?.pageNo - 1) * 10}
+                            {i + 1 + (payload?.pageNo - 1) * payload?.pageCount}
                           </td>
                           <td>
                             <div className="d-flex align-items-center">
@@ -300,7 +300,7 @@ function ActiveUsers() {
                           <td className="text-center">
                             {moment(v?.lastLogin).format("DD MMM, YYYY")}
                           </td>
-                          <td style={{ textAlign: "center" }}>
+                         <td style={{ textAlign: "center" }}>
                             <a
                               onClick={() =>
                                 navigate("/user-details/" + v?._id)
@@ -308,8 +308,30 @@ function ActiveUsers() {
                               className="text-primary text-decoration-underline"
                             >
                               <i
-                                class="bi bi-eye fs-5"
-                                style={{ fontSize: "14px" }}
+                                class="bi bi-eye fs-6"
+                             
+                              ></i>
+                            </a>
+                            <a
+                              onClick={() =>
+                                toast.info("Coming Soon")
+                              }
+                              className="text-primary text-decoration-underline mx-2"
+                            >
+                              <i
+                                class="bi bi-pencil fs-6"
+                                
+                              ></i>
+                            </a>
+                            <a
+                              onClick={() =>
+                                toast.info("Coming Soon")
+                              }
+                              className="text-danger text-decoration-underline"
+                            >
+                              <i
+                                class="bi bi-trash fs-6"
+                                
                               ></i>
                             </a>
                           </td>

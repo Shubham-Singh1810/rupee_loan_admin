@@ -15,7 +15,7 @@ function AllUsers() {
   const [payload, setPayload] = useState({
     searchKey: "",
     pageNo: 1,
-    pageCount: 10,
+    pageCount: 20,
   });
   const [documentCount, setDocumentCount] = useState();
   const [totalCount, setTotalCount] = useState(0);
@@ -256,7 +256,7 @@ function AllUsers() {
                         <tr>
                           <td className="text-center">
                             {/* {i+1} */}
-                            {i + 1 + (payload?.pageNo - 1) * 10}
+                            {i + 1 + (payload?.pageNo - 1) * payload?.pageCount}
                           </td>
                           <td>
                             <div className="d-flex align-items-center">
@@ -307,8 +307,30 @@ function AllUsers() {
                               className="text-primary text-decoration-underline"
                             >
                               <i
-                                class="bi bi-eye fs-5"
-                                style={{ fontSize: "14px" }}
+                                class="bi bi-eye fs-6"
+                             
+                              ></i>
+                            </a>
+                            <a
+                              onClick={() =>
+                                toast.info("Coming Soon")
+                              }
+                              className="text-primary text-decoration-underline mx-2"
+                            >
+                              <i
+                                class="bi bi-pencil fs-6"
+                                
+                              ></i>
+                            </a>
+                            <a
+                              onClick={() =>
+                                toast.info("Coming Soon")
+                              }
+                              className="text-danger text-decoration-underline"
+                            >
+                              <i
+                                class="bi bi-trash fs-6"
+                                
                               ></i>
                             </a>
                           </td>
