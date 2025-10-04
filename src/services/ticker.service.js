@@ -85,7 +85,7 @@ export const getTicketDetailsServ = async (id) => {
 };
 export const sendMessageServ = async (formData) => {
   try {
-    const response = await axios.post(BASE_URL + "chat/create", formData);
+    const response = await axios.post(BASE_URL + "chat/create", formData, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)

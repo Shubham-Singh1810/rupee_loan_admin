@@ -744,3 +744,8 @@ a {
   box-shadow: none !important;
   border-color: transparent !important; /* agar border bhi hatana hai toh */
 }
+.chatBox{
+  max-height: 80vh;
+  overflow-y: scroll;
+  min-height: 30vh;
+}

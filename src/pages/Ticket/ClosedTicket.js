@@ -175,9 +175,7 @@ function ClosedTicket() {
       toast?.error("Internal Server Error!");
     }
   };
-return(
-  <h1>Not Started</h1>
-)
+
   return (
     <div className="container-fluid user-table py-3">
       {/* KPIs */}
@@ -243,7 +241,14 @@ return(
                 }
               />
             </form>
+            
           </div>
+          <button
+              className="btn  bgThemePrimary shadow-sm"
+              // onClick={() => setAddFormData({ ...addFormData, show: true })}
+            >
+              + Add Ticket
+            </button>
           
 
           

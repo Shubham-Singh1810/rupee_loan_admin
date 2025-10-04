@@ -81,6 +81,7 @@ import Permissions from "../pages/MyProfile/Permissions";
 
 // Documents
 import Documents from "../pages/Documents/Documents";
+import UpdateUser from "../pages/UserManagement/UpdateUser";
 
 function AuthenticatedRoutes() {
   return (
@@ -132,6 +133,7 @@ function AuthenticatedRoutes() {
           element={<ProtectedRoute allowedPermissions={["Users-Create"]} />}
         >
           <Route path="/create-user" element={<CreateUser />} />
+          <Route path="/update-user/:id" element={<UpdateUser />} />
         </Route>
         <Route element={<ProtectedRoute allowedPermissions={["Users-Edit"]} />}>
           <Route path="/user-details/:id" element={<UserDetails />} />
@@ -189,7 +191,15 @@ function AuthenticatedRoutes() {
           element={<ProtectedRoute allowedPermissions={["Loan Type-View"]} />}
         >
           <Route path="/loan-type-list" element={<LoanTypeList />} />
+        </Route>
+        <Route
+          element={<ProtectedRoute allowedPermissions={["Loan Type-Create"]} />}
+        >
           <Route path="/create-loan-type" element={<CreateLoan />} />
+        </Route>
+        <Route
+          element={<ProtectedRoute allowedPermissions={["Loan Type-Edit"]} />}
+        >
           <Route path="/update-loan-type/:id" element={<EditLoanType />} />
         </Route>
 

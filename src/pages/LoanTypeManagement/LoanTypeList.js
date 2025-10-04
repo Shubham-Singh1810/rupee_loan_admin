@@ -12,8 +12,11 @@ import Pagination from "../../components/Pagination";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import moment from "moment";
+import { useGlobalState } from "../../GlobalProvider";
 import ConfirmDeleteModal from "../../components/ConfirmDeleteModal";
 function LoanTypeList() {
+  const { globalState } = useGlobalState();
+  const permissions = globalState?.user?.role?.permissions || [];
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [list, setList] = useState([]);
@@ -212,12 +215,15 @@ function LoanTypeList() {
               </li>
             </ul>
           </div>
-          <button
+           {permissions?.includes("Loan Type-Create") && (
+            <button
             className="btn bgThemePrimary shadow-sm"
             onClick={() => navigate("/create-loan-type")}
           >
             + Add Loan Type
           </button>
+          )}
+          
         </div>
       </div>
       {/* Table Card */}
@@ -241,7 +247,10 @@ function LoanTypeList() {
                   <th className="text-center">Status</th>
                   {/* <th className="text-center">Applications</th> */}
 
-                  <th style={{ textAlign: "center" }}>Action</th>
+                  {(permissions?.includes("Loan Type-Edit") ||
+                    permissions?.includes("Loan Type-Delete")) && (
+                    <th style={{ textAlign: "center" }}>Action</th>
+                  )}
                 </tr>
               </thead>
               <tbody>
@@ -276,9 +285,13 @@ function LoanTypeList() {
                           <td className="text-center">
                             <Skeleton width={100} />
                           </td>
-                          <td className="text-center">
+                          {(permissions?.includes("Loan Type-Edit") ||
+                    permissions?.includes("Loan Type-Delete")) && (
+                    <td className="text-center">
                             <Skeleton width={100} />
                           </td>
+                  )}
+                          
                         </tr>
                       );
                     })
@@ -312,9 +325,9 @@ function LoanTypeList() {
                             {renderProfile(v?.status)}
                           </td>
 
-                          {/* <td className="text-center">{moment(v?.lastLogin).format("DD MMM, YYYY")}</td> */}
                           <td style={{ textAlign: "center" }}>
-                            <a
+                            {permissions?.includes("Loan Type-Edit") && (
+                              <a
                               onClick={() =>
                                 navigate("/update-loan-type/" + v?._id)
                               }
@@ -322,7 +335,9 @@ function LoanTypeList() {
                             >
                               <i class="bi bi-pencil fs-6"></i>
                             </a>
-                            <a
+                            )}
+                            {permissions?.includes("Loan Type-Delete") && (
+                               <a
                               onClick={() => {
                                 setDeleteId(v?._id);
                                 setShowConfirm(true);
@@ -331,7 +346,9 @@ function LoanTypeList() {
                             >
                               <i class="bi bi-trash fs-6"></i>
                             </a>
+                            )}
                           </td>
+                          
                         </tr>
                       );
                     })}

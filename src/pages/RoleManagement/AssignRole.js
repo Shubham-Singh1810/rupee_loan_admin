@@ -99,20 +99,8 @@ function AssignRole() {
         },
         {
           menu: "Policies",
-          subMenu: [
-            {
-              name: "Terms & Condition",
-              permissions: ["View", "Edit"],
-            },
-            {
-              name: "Privacy Policy",
-              permissions: ["View", "Edit"],
-            },
-            {
-              name: "Cookie Policy",
-              permissions: ["View", "Edit"],
-            },
-          ],
+          permissions: ["View", "Edit"],
+          
         },
         {
           menu: "Notify",
@@ -141,14 +129,6 @@ function AssignRole() {
             {
               name: "Ticket Category",
               permissions: ["View", "Create", "Edit", "Delete"],
-            },
-            {
-              name: "Open Ticket",
-              permissions: ["View", "Edit"],
-            },
-            {
-              name: "Closed Ticket",
-              permissions: ["View", "Edit"],
             },
           ],
         },

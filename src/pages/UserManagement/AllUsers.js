@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getUserListServ, getUserStatsServ } from "../../services/user.service";
+import { getUserListServ, getUserStatsServ , deleteUserServ} from "../../services/user.service";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import NoDataScreen from "../../components/NoDataScreen";
 import { toast } from "react-toastify";
 import Pagination from "../../components/Pagination";
 import moment from "moment";
+import ConfirmDeleteModal from "../../components/ConfirmDeleteModal";
 function AllUsers() {
   const [list, setList] = useState([]);
   const navigate = useNavigate();
@@ -23,7 +24,6 @@ function AllUsers() {
     if (list?.length == 0) {
       setShowSkelton(true);
     }
-
     try {
       let response = await getUserListServ(payload);
       if (response?.data?.statusCode == "200") {
@@ -117,6 +117,21 @@ function AllUsers() {
       iconColor: "red",
     },
   ];
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+  const handleDeleteFunc = async (id) => {
+      try {
+        let response = await deleteUserServ(deleteId);
+        if (response?.data?.statusCode == "200") {
+          getListFunc();
+          toast.success(response?.data?.message);
+          setShowConfirm(false);
+          setDeleteId("");
+        }
+      } catch (error) {
+        toast.error("Internal Server error");
+      }
+    };
   return (
     <div className="container-fluid user-table py-3">
       {/* KPIs */}
@@ -313,7 +328,7 @@ function AllUsers() {
                             </a>
                             <a
                               onClick={() =>
-                                toast.info("Coming Soon")
+                                navigate("/update-user/" + v?._id)
                               }
                               className="text-primary text-decoration-underline mx-2"
                             >
@@ -323,9 +338,10 @@ function AllUsers() {
                               ></i>
                             </a>
                             <a
-                              onClick={() =>
-                                toast.info("Coming Soon")
-                              }
+                              onClick={() => {
+                                  setDeleteId(v?._id);
+                                  setShowConfirm(true);
+                                }}
                               className="text-danger text-decoration-underline"
                             >
                               <i
@@ -348,6 +364,13 @@ function AllUsers() {
           </div>
         </div>
       </div>
+      <ConfirmDeleteModal
+        show={showConfirm}
+        handleClose={() => setShowConfirm(false)}
+        handleConfirm={handleDeleteFunc}
+        title="User Delete"
+        body="Do you really want to delete this User?"
+      />
     </div>
   );
 }

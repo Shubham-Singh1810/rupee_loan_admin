@@ -175,9 +175,7 @@ function AllTicket() {
       toast?.error("Internal Server Error!");
     }
   };
-return(
-  <h1>Not Started</h1>
-)
+
   return (
     <div className="container-fluid user-table py-3">
       {/* KPIs */}
@@ -288,8 +286,12 @@ return(
               </li>
             </ul>
           </div>
-
-          
+          <button
+            className="btn  bgThemePrimary shadow-sm"
+            onClick={() => toast.info("Work in progress")}
+          >
+            + Add Ticket
+          </button>
         </div>
       </div>
       {/* Table Card */}
@@ -303,6 +305,7 @@ return(
               <thead className="table-light">
                 <tr>
                   <th className="text-center">Sr No.</th>
+                  <th className="text-center">Ticket Id</th>
                   <th>User</th>
                   <th>Subject</th>
                   <th>Assigned To</th>
@@ -320,6 +323,9 @@ return(
                       return (
                         <tr key={i}>
                           <td className="text-center">
+                            <Skeleton width={100} />
+                          </td>
+                          <td>
                             <Skeleton width={100} />
                           </td>
 
@@ -355,6 +361,7 @@ return(
                           <td className="text-center">
                             {i + 1 + (payload?.pageNo - 1) * payload?.pageCount}
                           </td>
+                          <td className="text-center">{v?.code || "N/A"}</td>
                           <td>
                             <div className="d-flex align-items-center">
                               <img
@@ -378,49 +385,69 @@ return(
                                     " " +
                                     v?.userId?.lastName}
                                 </h6>{" "}
-                                <p  style={{ fontSize: "11px" }} className="mb-0">{v?.userId?.phone}</p>
+                                <p
+                                  style={{ fontSize: "11px" }}
+                                  className="mb-0"
+                                >
+                                  {v?.userId?.phone}
+                                </p>
                               </div>
                             </div>
                           </td>
                           <td>{v?.subject}</td>
                           <td>
-                            <div className="d-flex align-items-center">
-                              <img
-                                src={
-                                  v?.assignedTo?.profilePic
-                                    ? v?.assignedTo?.profilePic
-                                    : "https://cdn-icons-png.flaticon.com/128/149/149071.png"
-                                }
-                                style={{
-                                  height: "30px",
-                                  width: "30px",
-                                  borderRadius: "50%",
-                                }}
-                              />
-                              <div className="ms-2">
-                                <h6
-                                  style={{ fontSize: "12px" }}
-                                  className="mb-0"
-                                >
-                                  {v?.assignedTo?.firstName +
-                                    " " +
-                                    v?.assignedTo?.lastName}
-                                </h6>{" "}
-                                <p  style={{ fontSize: "11px" }} className="mb-0">{v?.assignedTo?.phone}</p>
+                            {v?.assignedTo ? (
+                              <div className="d-flex align-items-center">
+                                <img
+                                  src={
+                                    v?.assignedTo?.profilePic
+                                      ? v?.assignedTo?.profilePic
+                                      : "https://cdn-icons-png.flaticon.com/128/149/149071.png"
+                                  }
+                                  style={{
+                                    height: "30px",
+                                    width: "30px",
+                                    borderRadius: "50%",
+                                  }}
+                                />
+                                <div className="ms-2">
+                                  <h6
+                                    style={{ fontSize: "12px" }}
+                                    className="mb-0"
+                                  >
+                                    {v?.assignedTo?.firstName +
+                                      " " +
+                                      v?.assignedTo?.lastName}
+                                  </h6>{" "}
+                                  <p
+                                    style={{ fontSize: "11px" }}
+                                    className="mb-0"
+                                  >
+                                    {v?.assignedTo?.phone}
+                                  </p>
+                                </div>
                               </div>
-                            </div>
+                            ) : (
+                              <u
+                                className="text-primary cursor"
+                                onClick={() => toast.info("Work in progress")}
+                              >
+                                Assign staff
+                              </u>
+                            )}
                           </td>
                           <td>{v?.ticketCategoryId?.name}</td>
                           <td className="text-center">
-                                                      {moment(v?.createdAt).format("DD-MM-YYYY")}
-                          
-                                                    </td>
+                            {moment(v?.createdAt).format("DD-MM-YYYY")}
+                          </td>
                           <td className="text-center">
                             {renderProfile(v?.status)}
                           </td>
                           <td style={{ textAlign: "center" }}>
                             <a
-                              onClick={() => navigate("/chat-details/"+v?._id)}
+                              onClick={() =>
+                                navigate("/chat-details/" + v?._id)
+                              }
                               className="text-primary text-decoration-underline me-2"
                             >
                               <i class="bi bi-chat fs-6"></i>

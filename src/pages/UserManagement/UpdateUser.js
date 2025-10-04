@@ -2,12 +2,17 @@ import React, { useState, useEffect } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
-import { createUserServ } from "../../services/user.service";
+import {
+  getUserDetailsServ,
+  updateUserServ,
+} from "../../services/user.service";
 
-function CreateUser() {
+function UpdateUser() {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const [initialValues, setInitialValues] = useState(null);
 
   // ✅ Validation Schema
   const userSchema = Yup.object().shape({
@@ -20,31 +25,77 @@ function CreateUser() {
       .required("Phone number is required"),
     dob: Yup.date().required("Date of Birth is required"),
     gender: Yup.string().required("Gender is required"),
-    status: Yup.string().required("Status is required"),
-
+    profileStatus: Yup.string().required("Profile status is required"),
     state: Yup.string().required("State is required"),
     city: Yup.string().required("City is required"),
     pincode: Yup.string()
       .matches(/^[0-9]{6}$/, "Pincode must be 6 digits")
       .required("Pincode is required"),
     address: Yup.string().required("Address is required"),
-
     employementType: Yup.string().required("Employment Type is required"),
     monthlyIncome: Yup.number().required("Monthly Income is required"),
     annualIncome: Yup.number().required("Annual Income is required"),
     creditScore: Yup.number().required("Credit Score is required"),
     panNumber: Yup.string(),
     aadharNumber: Yup.string(),
-    profilePic: Yup.mixed().required("Profile Picture is required"),
+    profilePic: Yup.mixed(),
   });
 
-  const handleCreateUser = async (values) => {
+  // ✅ Fetch user
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        let response = await getUserDetailsServ(id);
+        if (response?.data?.statusCode == "200") {
+          const user = response.data.data;
+          setInitialValues({
+            firstName: user.firstName || "",
+            lastName: user.lastName || "",
+            email: user.email || "",
+            phone: user.phone || "",
+            countryCode: user.countryCode || "+91",
+            dob: user.dob ? user.dob.split("T")[0] : "",
+            gender: user.gender || "",
+            profileStatus: user.profileStatus || "",
+            state: user.state || "",
+            city: user.city || "",
+            pincode: user.pincode || "",
+            address: user.address || "",
+            employementType: user.employementType || "",
+            monthlyIncome: user.monthlyIncome || "",
+            annualIncome: user.annualIncome || "",
+            creditScore: user.creditScore || "",
+            panNumber: user.panNumber || "",
+            aadharNumber: user.aadharNumber || "",
+            profilePrev: user?.profilePic,
+          });
+        } else {
+          toast.error("Failed to load user details");
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Error fetching user details");
+      }
+    };
+    fetchUser();
+  }, [id]);
+
+  // ✅ Handle Update
+  const handleUpdateUser = async (values) => {
     try {
       const formData = new FormData();
       Object.keys(values).forEach((key) => {
-        formData.append(key, values[key]);
+        if (key === "profilePic") {
+          // ✅ Sirf tabhi bhejo jab file ho
+          if (values.profilePic) {
+            formData.append("profilePic", values.profilePic);
+          }
+        } else {
+          formData.append(key, values[key]);
+        }
       });
-      let response = await createUserServ(formData);
+      formData.append("id", id);
+      let response = await updateUserServ(formData);
       if (response?.data?.statusCode == "200") {
         toast.success(response?.data?.message);
         navigate("/all-users");
@@ -57,39 +108,30 @@ function CreateUser() {
     }
   };
 
+  //   if (!initialValues) {
+  //     return <div className="p-5 text-center">Loading...</div>;
+  //   }
+
   return (
     <div className="container-fluid">
       <div className="col-lg-12 p-4">
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <h5 className="ms-1 mb-0">Create New User</h5>
+          <h5 className="ms-1 mb-0">
+            <i
+              className="bi-arrow-left-circle bi cursor"
+              onClick={() => navigate("/all-users")}
+            ></i>{" "}
+            Update User
+          </h5>
         </div>
 
         <Formik
-          initialValues={{
-            firstName: "",
-            lastName: "",
-            email: "",
-            phone: "",
-            countryCode: "+91",
-            dob: "",
-            gender: "",
-            status: "",
-            state: "",
-            city: "",
-            pincode: "",
-            address: "",
-            employementType: "",
-            monthlyIncome: "",
-            annualIncome: "",
-            creditScore: "",
-            profilePic: "",
-            panNumber: "",
-            aadharNumber: "",
-          }}
+          initialValues={initialValues}
           validationSchema={userSchema}
-          onSubmit={handleCreateUser}
+          enableReinitialize
+          onSubmit={handleUpdateUser}
         >
-          {({ setFieldValue, isSubmitting, values }) => (
+          {({ setFieldValue, isSubmitting, values, dirty }) => (
             <Form>
               {/* Personal Details */}
               <div className="form-section shadow-sm mb-3">
@@ -101,15 +143,20 @@ function CreateUser() {
                       id="profilePic"
                       accept="image/*"
                       style={{ display: "none" }}
-                      onChange={(e) =>
-                        setFieldValue("profilePic", e.target.files[0])
-                      }
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          setFieldValue("profilePic", file);
+                          const previewUrl = URL.createObjectURL(file);
+                          setFieldValue("profilePrev", previewUrl);
+                        }
+                      }}
                     />
                     <label htmlFor="profilePic" className="cursor-pointer">
                       <img
                         src={
-                          values.profilePic
-                            ? URL.createObjectURL(values.profilePic)
+                          values?.profilePrev
+                            ? values?.profilePrev
                             : "https://cdn-icons-png.flaticon.com/512/847/847969.png"
                         }
                         alt="Profile"
@@ -172,7 +219,6 @@ function CreateUser() {
                   <div className="col-md-4">
                     <label className="form-label">Phone</label>
                     <div className="input-group">
-                      {/* Country Code Dropdown */}
                       <Field
                         as="select"
                         name="countryCode"
@@ -185,8 +231,6 @@ function CreateUser() {
                         <option value="+971">🇦🇪 +971</option>
                         <option value="+61">🇦🇺 +61</option>
                       </Field>
-
-                      {/* Phone Number Input */}
                       <Field
                         type="text"
                         name="phone"
@@ -200,7 +244,6 @@ function CreateUser() {
                       className="text-danger small"
                     />
                   </div>
-
                   <div className="col-md-4">
                     <label className="form-label">DOB</label>
                     <Field type="date" name="dob" className="form-control" />
@@ -225,8 +268,12 @@ function CreateUser() {
                     />
                   </div>
                   <div className="col-md-4">
-                    <label className="form-label">Status</label>
-                    <Field as="select" name="status" className="form-select">
+                    <label className="form-label">Profile Status</label>
+                    <Field
+                      as="select"
+                      name="profileStatus"
+                      className="form-select"
+                    >
                       <option value="">Select</option>
                       <option value="registered">Registered</option>
                       <option value="verified">Verified</option>
@@ -234,7 +281,7 @@ function CreateUser() {
                       <option value="blocked">Blocked</option>
                     </Field>
                     <ErrorMessage
-                      name="status"
+                      name="profileStatus"
                       component="div"
                       className="text-danger small"
                     />
@@ -393,15 +440,12 @@ function CreateUser() {
 
               {/* Submit Buttons */}
               <div className="d-flex justify-content-end align-items-center mb-5 mt-4">
-                <button type="reset" className="btn btn-danger me-2">
-                  Cancel
-                </button>
                 <button
                   className="btn bgThemePrimary"
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !dirty}
                 >
-                  {isSubmitting ? "Submitting..." : "Save User"}
+                  {isSubmitting ? "Updating..." : "Update User"}
                 </button>
               </div>
             </Form>
@@ -412,4 +456,4 @@ function CreateUser() {
   );
 }
 
-export default CreateUser;
+export default UpdateUser;

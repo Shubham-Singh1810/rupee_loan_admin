@@ -23,6 +23,16 @@ export const createUserServ = async (formData) => {
     throw error;
   }
 };
+export const updateUserServ = async (formData) => {
+  try {
+    const response = await axios.put(BASE_URL + "user/update", formData, getConfig());
+    return response;
+  } catch (error) {
+    // Handle error (e.g., log or throw an error)
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+};
 export const getUserListServ = async (formData) => {
   try {
     const response = await axios.post(BASE_URL + "user/list", formData);
