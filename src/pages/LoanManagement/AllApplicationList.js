@@ -462,14 +462,7 @@ function AllApplicationList() {
 
                           {/* <td className="text-center">{moment(v?.lastLogin).format("DD MMM, YYYY")}</td> */}
                           <td style={{ textAlign: "center" }}>
-                            <a
-                              onClick={() =>
-                                navigate("/update-loan-application/" + v?._id)
-                              }
-                              className="text-primary text-decoration-underline me-2"
-                            >
-                              <i class="bi bi-pencil fs-6"></i>
-                            </a>
+                            
                             <a
                               onClick={() =>
                                 navigate("/loan-application-details/" + v?._id)
@@ -477,6 +470,14 @@ function AllApplicationList() {
                               className="text-primary text-decoration-underline me-2"
                             >
                               <i class="bi bi-eye fs-6"></i>
+                            </a>
+                            <a
+                              onClick={() =>
+                                navigate("/update-loan-application/" + v?._id)
+                              }
+                              className="text-primary text-decoration-underline me-2"
+                            >
+                              <i class="bi bi-pencil fs-6"></i>
                             </a>
                             <a
                               onClick={() => {
