@@ -73,6 +73,16 @@ export const loanApplicationDetailsServ = async (id) => {
     throw error;
   }
 };
+export const updateLoanApplicationServ = async (payload) => {
+  try {
+    const response = await axios.put(BASE_URL + "loan-application/update", payload, getConfig());
+    return response;
+  } catch (error) {
+    // Handle error (e.g., log or throw an error)
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+};
 export const getLoanStatsServ = async () => {
   try {
     const response = await axios.get(BASE_URL + "loan-application/stats");
