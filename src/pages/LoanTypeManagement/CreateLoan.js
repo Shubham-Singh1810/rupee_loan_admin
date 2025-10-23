@@ -13,6 +13,7 @@ import { getDocumentSetServ } from "../../services/document.services";
 function CreateLoan() {
   const navigate = useNavigate();
   const [showDaysForm, setShowDaysForm] = useState(false);
+  const [showWebForm, setShowWebForm] = useState(false);
   const getLoanSchema = (showDaysForm) =>
     Yup.object().shape({
       name: Yup.string(),
@@ -20,7 +21,6 @@ function CreateLoan() {
       description: Yup.string().required("Description is required"),
       status: Yup.boolean().required("Status is required"),
       icon: Yup.mixed().required("Icon is required"),
-
       ...(showDaysForm
         ? {
             minAmountDays: Yup.number().required(
@@ -56,31 +56,45 @@ function CreateLoan() {
               "Repayment frequency is required"
             ),
           }),
-
       minIncome: Yup.number(),
       creditScoreRequired: Yup.number(),
       minAge: Yup.number(),
       maxAge: Yup.number(),
       employmentTypesAllowed: Yup.array(),
       DTIR: Yup.number(),
-
       collateralRequired: Yup.boolean().required(
         "Collateral required is required"
       ),
       collateralTypes: Yup.array().of(Yup.string()),
       maxLTV: Yup.number(),
-
       processingFee: Yup.number().required("Processing fee is required"),
       latePaymentPenalty: Yup.number().required(
         "Late payment penalty is required"
       ),
       prepaymentFee: Yup.number().required("Prepayment fee is required"),
-
       auto_approval: Yup.boolean().required("Auto approval is required"),
-
       documentRequired: Yup.array()
         .of(Yup.string().required("Document is required"))
         .min(1, "At least one document is required"),
+      ...(showWebForm
+        ? {
+            title: Yup.string().required("Title is required"),
+            slug: Yup.string().required("Slug is required"),
+            seoTitle: Yup.string(),
+            metaDescription: Yup.string(),
+            metaKeywords: Yup.string(),
+            isActiveOnWeb: Yup.boolean(),
+            banner: Yup.mixed().required("Banner image is required"),
+          }
+        : {
+            title: Yup.string(),
+            slug: Yup.string(),
+            seoTitle: Yup.string(),
+            metaDescription: Yup.string(),
+            metaKeywords: Yup.string(),
+            isActiveOnWeb: Yup.boolean(),
+            banner: Yup.mixed(),
+          }),
     });
   const createLoanTypeFunc = async (values) => {
     try {
@@ -187,6 +201,15 @@ function CreateLoan() {
 
               auto_approval: false,
               documentRequired: [],
+
+              // web content
+              isActiveOnWeb: false,
+              title: "",
+              slug: "",
+              banner: "",
+              seoTitle: "",
+              metaKeywords: "",
+              metaDescription: "",
             }}
             validationSchema={getLoanSchema(showDaysForm)}
             onSubmit={(values) => {
@@ -194,16 +217,14 @@ function CreateLoan() {
               createLoanTypeFunc(values);
             }}
           >
-            {({ values, setFieldValue , isSubmitting}) => (
+            {({ values, setFieldValue, isSubmitting }) => (
               <Form>
                 {/* Basic Information */}
                 <div className="form-section shadow-sm">
-                  <div className="form-section-header">
-                    Basic Information
-                  </div>
+                  <div className="form-section-header">Basic Information</div>
                   <div className="form-section-body">
                     <div className="row g-3">
-                      <div className="col-md-4">
+                      <div className="col-md-6">
                         <label className="form-label">
                           Loan Name<span className="text-danger">*</span>
                         </label>
@@ -220,7 +241,7 @@ function CreateLoan() {
                         />
                       </div>
 
-                      <div className="col-md-4">
+                      {/* <div className="col-md-4">
                         <label className="form-label">Loan Code / ID</label>
                         <Field
                           type="text"
@@ -233,8 +254,8 @@ function CreateLoan() {
                           component="div"
                           className="text-danger small"
                         />
-                      </div>
-                      <div className="col-md-4">
+                      </div> */}
+                      <div className="col-md-6">
                         <label className="form-label">
                           Status<span className="text-danger">*</span>
                         </label>
@@ -325,7 +346,6 @@ function CreateLoan() {
                 <div className="form-section shadow-sm">
                   <div className="d-flex justify-content-between align-items-center">
                     <div className="form-section-header">
-                      
                       Loan Amount & Duration (Months)
                     </div>
                     <div className="form-check form-switch mb-3">
@@ -605,16 +625,11 @@ function CreateLoan() {
 
                 {/* Eligibility Rules */}
                 <div className="form-section shadow-sm">
-                  <div className="form-section-header">
-                   
-                    Eligibility Rules
-                  </div>
+                  <div className="form-section-header">Eligibility Rules</div>
                   <div className="form-section-body">
                     <div className="row g-3">
                       <div className="col-md-6">
-                        <label className="form-label">
-                          Minimum Income
-                        </label>
+                        <label className="form-label">Minimum Income</label>
                         <Field
                           type="number"
                           name="minIncome"
@@ -644,9 +659,7 @@ function CreateLoan() {
                         />
                       </div>
                       <div className="col-md-6">
-                        <label className="form-label">
-                          Minimum Age
-                        </label>
+                        <label className="form-label">Minimum Age</label>
                         <Field
                           type="number"
                           name="minAge"
@@ -660,9 +673,7 @@ function CreateLoan() {
                         />
                       </div>
                       <div className="col-md-6">
-                        <label className="form-label">
-                          Maximum Age
-                        </label>
+                        <label className="form-label">Maximum Age</label>
                         <Field
                           type="number"
                           name="maxAge"
@@ -676,9 +687,7 @@ function CreateLoan() {
                         />
                       </div>
                       <div className="col-md-6">
-                        <label className="form-label">
-                          Employement Type
-                        </label>
+                        <label className="form-label">Employement Type</label>
                         <MultiSelect
                           options={[
                             { value: "Government", label: "Government" },
@@ -707,7 +716,6 @@ function CreateLoan() {
                       <div className="col-md-6">
                         <label className="form-label">
                           Dept To Income Max Ration
-                          
                         </label>
                         <Field
                           type="string"
@@ -728,7 +736,6 @@ function CreateLoan() {
                 {/* Collateral / Security */}
                 <div className="form-section shadow-sm">
                   <div className="form-section-header">
-                   
                     Collateral / Security
                   </div>
                   <div className="form-section-body">
@@ -807,10 +814,7 @@ function CreateLoan() {
 
                 {/* Fees & Charges */}
                 <div className="form-section shadow-sm">
-                  <div className="form-section-header">
-                   
-                    Fees & Charges
-                  </div>
+                  <div className="form-section-header">Fees & Charges</div>
                   <div className="form-section-body">
                     <div className="row g-3">
                       <div className="col-md-4">
@@ -873,10 +877,7 @@ function CreateLoan() {
 
                 {/* Disbursal Settings */}
                 <div className="form-section shadow-sm">
-                  <div className="form-section-header">
-                    
-                    Disbursal Settings
-                  </div>
+                  <div className="form-section-header">Disbursal Settings</div>
                   <div className="form-section-body">
                     <div className="form-check form-switch">
                       <Field
@@ -891,10 +892,7 @@ function CreateLoan() {
                   </div>
                 </div>
                 <div className="form-section shadow-sm">
-                  <div className="form-section-header">
-                    
-                    Document Required
-                  </div>
+                  <div className="form-section-header">Document Required</div>
                   <div className="form-section-body">
                     <label className="form-label">
                       Required Documents<span className="text-danger">*</span>
@@ -927,7 +925,156 @@ function CreateLoan() {
                     />
                   </div>
                 </div>
+                <div className="form-section shadow-sm">
+                  <div className="form-section-header">Web content</div>
+                  <div className="form-section-body">
+                    <div className="form-check form-switch mb-3">
+                      <Field
+                        type="checkbox"
+                        name="isActiveOnWeb"
+                        className="form-check-input"
+                        onChange={(e) => {setFieldValue("isActiveOnWeb", e.target.checked); setShowWebForm(e.target.checked)}}
+                      />
+                      <label className="form-check-label">Is active</label>
+                    </div>
+                    <div className="form-section-body">
+                      {values?.isActiveOnWeb && (
+                        <div className="row g-3">
+                          <div className="col-md-6">
+                            <label className="form-label">
+                              Title<span className="text-danger">*</span>
+                            </label>
+                            <Field
+                              type="text"
+                              name="title"
+                              className="form-control"
+                              placeholder="Enter loan title"
+                            />
+                            <ErrorMessage
+                              name="title"
+                              component="div"
+                              className="text-danger small"
+                            />
+                          </div>
 
+                          <div className="col-md-6">
+                            <label className="form-label">
+                              Slug <span className="text-danger">*</span>
+                            </label>
+                            <Field
+                              type="text"
+                              name="slug"
+                              className="form-control"
+                              placeholder="Enter Slug"
+                            />
+                            <ErrorMessage
+                              name="slug"
+                              component="div"
+                              className="text-danger small"
+                            />
+                          </div>
+
+                          <div className="col-2 my-auto">
+                            <div className="text-center">
+                              <input
+                                id="bannerUpload"
+                                type="file"
+                                accept="image/*"
+                                style={{ display: "none" }}
+                                onChange={(e) => {
+                                  const file = e.target.files[0];
+                                  if (file) {
+                                    setFieldValue("banner", file);
+
+                                    // ✅ preview ke liye
+                                    const previewUrl =
+                                      URL.createObjectURL(file);
+                                    setFieldValue("bannerPreview", previewUrl);
+                                  }
+                                }}
+                              />
+
+                              <label
+                                htmlFor="bannerUpload"
+                                className="cursor-pointer"
+                              >
+                                <img
+                                  src={
+                                    values.bannerPreview ||
+                                    "https://cdn-icons-png.flaticon.com/128/8191/8191607.png"
+                                  }
+                                  alt="Loan Banner"
+                                  style={{
+                                    width: "90px",
+                                    height: "90px",
+                                    objectFit: "contain",
+                                  }}
+                                />
+                              </label>
+                              <p>
+                                Upload Banner{" "}
+                                <span className="text-danger">*</span>
+                              </p>
+                              <ErrorMessage
+                                name="banner"
+                                component="div"
+                                className="text-danger small"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="col-10  row m-0 p-0 mt-3">
+                            <div className="col-md-6">
+                              <label className="form-label">Seo Title</label>
+                              <Field
+                                type="text"
+                                name="seoTitle"
+                                className="form-control"
+                                placeholder="Enter Title"
+                              />
+                              <ErrorMessage
+                                name="seoTitle"
+                                component="div"
+                                className="text-danger small"
+                              />
+                            </div>
+                            <div className="col-md-6">
+                              <label className="form-label">Meta Keyword</label>
+                              <Field
+                                type="text"
+                                name="metaKeywords"
+                                className="form-control"
+                                placeholder="Enter keywords"
+                              />
+                              <ErrorMessage
+                                name="metaKeywords"
+                                component="div"
+                                className="text-danger small"
+                              />
+                            </div>
+                            <div className="col-12 mt-3">
+                              <label className="form-label">
+                                Meta Description
+                              </label>
+                              <Field
+                                as="textarea"
+                                name="metaDescription"
+                                className="form-control"
+                                rows={4}
+                                placeholder="Please enter brief meta description about this loan type"
+                              />
+                              <ErrorMessage
+                                name="metaDescription"
+                                component="div"
+                                className="text-danger small"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
                 {/* Submit Buttons */}
                 <div className="d-flex justify-content-end align-items-center mb-5 mt-4">
                   <div>
@@ -935,13 +1082,12 @@ function CreateLoan() {
                       Cancel
                     </button>
                     <button
-                            className="btn bgThemePrimary "
-                            type="submit"
-                            disabled={isSubmitting}
-                          >
-                            {isSubmitting ? "Submitting..." : " Save Loan Type"}
-                          </button>
-                    
+                      className="btn bgThemePrimary "
+                      type="submit"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? "Submitting..." : " Save Loan Type"}
+                    </button>
                   </div>
                 </div>
               </Form>

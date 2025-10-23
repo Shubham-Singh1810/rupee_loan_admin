@@ -82,6 +82,9 @@ import Permissions from "../pages/MyProfile/Permissions";
 // Documents
 import Documents from "../pages/Documents/Documents";
 import UpdateUser from "../pages/UserManagement/UpdateUser";
+import LoanPurpose from "../pages/SupportManagement/LoanPurpose";
+import PaydayLoanApplication from "../pages/PaydayLoanManagement/PaydayLoanApplicationList";
+import UpdateLoanRequirement from "../pages/PayDayLoanType/UpdateLoanRequirement";
 
 function AuthenticatedRoutes() {
   return (
@@ -180,6 +183,35 @@ function AuthenticatedRoutes() {
           />
         </Route>
 
+         <Route element={<ProtectedRoute allowedPermissions={["Loans-View"]} />}>
+          <Route path="/:loanName/:loanId" element={<ApplicationList />} />
+          <Route path="/payday-loan-applications" element={<PaydayLoanApplication />} />
+          <Route
+            path="/create-application"
+            element={<CreateLoanApplication />}
+          />
+          <Route
+            path="/update-loan-application/:id"
+            element={<EditLoanApplication />}
+          />
+          <Route
+            path="/loan-application-details/:id"
+            element={<LoanApplicationDetails />}
+          />
+          <Route
+            path="/loan-application-documents/:id"
+            element={<LoanApplicationDocument />}
+          />
+          <Route
+            path="/loan-application-account-details/:id"
+            element={<LoanAccountDetails />}
+          />
+          <Route
+            path="/loan-application-emis/:id"
+            element={<LoanApplicationEmi />}
+          />
+        </Route>
+
         {/* Fund Management */}
         <Route element={<ProtectedRoute allowedPermissions={["Funds-View"]} />}>
           <Route path="/deposit-list" element={<DepositList />} />
@@ -192,15 +224,12 @@ function AuthenticatedRoutes() {
         >
           <Route path="/loan-type-list" element={<LoanTypeList />} />
         </Route>
-        <Route
-          element={<ProtectedRoute allowedPermissions={["Loan Type-Create"]} />}
-        >
-          <Route path="/create-loan-type" element={<CreateLoan />} />
-        </Route>
+        
+        
         <Route
           element={<ProtectedRoute allowedPermissions={["Loan Type-Edit"]} />}
         >
-          <Route path="/update-loan-type/:id" element={<EditLoanType />} />
+          <Route path="/payday-loan-configration" element={<UpdateLoanRequirement />} />
         </Route>
 
         {/* Policies & System */}
@@ -214,6 +243,13 @@ function AuthenticatedRoutes() {
           element={<ProtectedRoute allowedPermissions={["Documents-View"]} />}
         >
           <Route path="/documents" element={<Documents />} />
+        </Route>
+
+        {/* loan purpose */}
+        <Route
+          element={<ProtectedRoute allowedPermissions={["Documents-View"]} />}
+        >
+          <Route path="/loan-purpose" element={<LoanPurpose />} />
         </Route>
         {/* Contact */}
         <Route

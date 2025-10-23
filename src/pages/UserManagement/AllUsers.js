@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getUserListServ, getUserStatsServ , deleteUserServ} from "../../services/user.service";
+import {
+  getUserListServ,
+  getUserStatsServ,
+  deleteUserServ,
+  updateUserServ,
+} from "../../services/user.service";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import NoDataScreen from "../../components/NoDataScreen";
@@ -75,6 +80,13 @@ function AllUsers() {
         </span>
       );
     }
+    if (status == "inActive") {
+      return (
+        <span className="status-badge bg-danger-subtle text-danger">
+          Inactive
+        </span>
+      );
+    }
     if (status == "blocked") {
       return (
         <span className="status-badge bg-danger-subtle text-danger">
@@ -83,6 +95,20 @@ function AllUsers() {
       );
     }
   };
+  const updateStatusFunc = async (id, status) => {
+    try {
+      let response = await updateUserServ({ id: id, isUserApproved: status });
+      if (response?.data?.statusCode == "200") {
+        toast.success(response?.data?.message);
+        getListFunc();
+      } else {
+        toast.error("Something went wrong");
+      }
+    } catch (error) {
+      toast.error("Internal Server Error");
+    }
+  };
+
   const staticsData = [
     {
       label: "Total Users",
@@ -120,18 +146,18 @@ function AllUsers() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const handleDeleteFunc = async (id) => {
-      try {
-        let response = await deleteUserServ(deleteId);
-        if (response?.data?.statusCode == "200") {
-          getListFunc();
-          toast.success(response?.data?.message);
-          setShowConfirm(false);
-          setDeleteId("");
-        }
-      } catch (error) {
-        toast.error("Internal Server error");
+    try {
+      let response = await deleteUserServ(deleteId);
+      if (response?.data?.statusCode == "200") {
+        getListFunc();
+        toast.success(response?.data?.message);
+        setShowConfirm(false);
+        setDeleteId("");
       }
-    };
+    } catch (error) {
+      toast.error("Internal Server error");
+    }
+  };
   return (
     <div className="container-fluid user-table py-3">
       {/* KPIs */}
@@ -212,7 +238,12 @@ function AllUsers() {
               />
             </form>
           </div>
-          <button className="btn bgThemePrimary shadow-sm" onClick={()=>navigate("/create-user")}>+ Add User</button>
+          <button
+            className="btn bgThemePrimary shadow-sm"
+            onClick={() => navigate("/create-user")}
+          >
+            + Add User
+          </button>
         </div>
       </div>
       {/* Table Card */}
@@ -230,8 +261,9 @@ function AllUsers() {
                   <th>Email / Mobile</th>
                   <th>Joined At</th>
 
-                  <th className="text-center">Status</th>
-                  <th className="text-center">Last Login</th>
+                  <th className="text-center">Profile Status</th>
+                  <th className="text-center">Created By</th>
+                  <th className="text-center">Manage</th>
                   <th style={{ textAlign: "center" }}>Action</th>
                 </tr>
               </thead>
@@ -255,6 +287,9 @@ function AllUsers() {
                           </td>
 
                           <td>
+                            <Skeleton width={100} />
+                          </td>
+                          <td className="text-center">
                             <Skeleton width={100} />
                           </td>
                           <td className="text-center">
@@ -302,7 +337,7 @@ function AllUsers() {
                             <div>
                               <div>{v?.email}</div>
                               <small className="text-muted">
-                                +{v?.countryCode} {v?.phone}
+                                {v?.countryCode} {v?.phone}
                               </small>
                             </div>
                           </td>
@@ -311,8 +346,42 @@ function AllUsers() {
                           <td className="text-center">
                             {renderProfile(v?.profileStatus)}
                           </td>
+
                           <td className="text-center">
-                            {moment(v?.lastLogin).format("DD MMM, YYYY")}
+                            {v?.createdBy ? (
+                              <span className="bg-secondary badge">
+                                {v?.createdBy?.firstName +
+                                  " " +
+                                  v?.createdBy?.lastName}
+                              </span>
+                            ) : (
+                              <span className="text-secondary badge bg-light">
+                                Self
+                              </span>
+                            )}
+                          </td>
+                          <td className="text-center">
+                            {v?.isUserApproved ? (
+                              <button
+                                className="status-toggle approved"
+                                onClick={() => updateStatusFunc(v?._id, false)}
+                              >
+                                <span style={{ fontSize: "10px" }}>
+                                  Approved
+                                </span>
+                                <div className="circle"></div>
+                              </button>
+                            ) : (
+                              <button
+                                className="status-toggle pending bg-secondary"
+                                onClick={() => updateStatusFunc(v?._id, true)}
+                              >
+                                <span style={{ fontSize: "10px",  }}>
+                                  Pending
+                                </span>
+                                <div className="circle "></div>
+                              </button>
+                            )}
                           </td>
                           <td style={{ textAlign: "center" }}>
                             <a
@@ -321,33 +390,22 @@ function AllUsers() {
                               }
                               className="text-primary text-decoration-underline"
                             >
-                              <i
-                                class="bi bi-eye fs-6"
-                             
-                              ></i>
+                              <i class="bi bi-eye fs-6"></i>
                             </a>
                             <a
-                              onClick={() =>
-                                navigate("/update-user/" + v?._id)
-                              }
+                              onClick={() => navigate("/update-user/" + v?._id)}
                               className="text-primary text-decoration-underline mx-2"
                             >
-                              <i
-                                class="bi bi-pencil fs-6"
-                                
-                              ></i>
+                              <i class="bi bi-pencil fs-6"></i>
                             </a>
                             <a
                               onClick={() => {
-                                  setDeleteId(v?._id);
-                                  setShowConfirm(true);
-                                }}
+                                setDeleteId(v?._id);
+                                setShowConfirm(true);
+                              }}
                               className="text-danger text-decoration-underline"
                             >
-                              <i
-                                class="bi bi-trash fs-6"
-                                
-                              ></i>
+                              <i class="bi bi-trash fs-6"></i>
                             </a>
                           </td>
                         </tr>

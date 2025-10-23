@@ -16,6 +16,7 @@ import { getDocumentSetServ } from "../../services/document.services";
 function EditLoanType() {
   const navigate = useNavigate();
   const [showDaysForm, setShowDaysForm] = useState(false);
+  const [showWebForm, setShowWebForm] = useState(false);
   const [initialValues, setInitialValues] = useState({
     name: "",
     code: "",
@@ -59,6 +60,13 @@ function EditLoanType() {
 
     auto_approval: false,
     documentRequired: [],
+    isActiveOnWeb: false,
+    title: "",
+    slug: "",
+    banner: "",
+    seoTitle: "",
+    metaKeywords: "",
+    metaDescription: "",
   });
   const getLoanSchema = (showDaysForm) =>
     Yup.object().shape({
@@ -104,12 +112,12 @@ function EditLoanType() {
             ),
           }),
 
-       minIncome: Yup.number(),
-            creditScoreRequired: Yup.number(),
-            minAge: Yup.number(),
-            maxAge: Yup.number(),
-            employmentTypesAllowed: Yup.array(),
-            DTIR: Yup.number(),
+      minIncome: Yup.number(),
+      creditScoreRequired: Yup.number(),
+      minAge: Yup.number(),
+      maxAge: Yup.number(),
+      employmentTypesAllowed: Yup.array(),
+      DTIR: Yup.number(),
 
       collateralRequired: Yup.boolean().required(
         "Collateral required is required"
@@ -128,6 +136,26 @@ function EditLoanType() {
       documentRequired: Yup.array()
         .of(Yup.string().required("Document is required"))
         .min(1, "At least one document is required"),
+
+      ...(showWebForm
+        ? {
+            title: Yup.string().required("Title is required"),
+            slug: Yup.string().required("Slug is required"),
+            seoTitle: Yup.string(),
+            metaDescription: Yup.string(),
+            metaKeywords: Yup.string(),
+            isActiveOnWeb: Yup.boolean(),
+            banner: Yup.mixed().required("Banner image is required"),
+          }
+        : {
+            title: Yup.string(),
+            slug: Yup.string(),
+            seoTitle: Yup.string(),
+            metaDescription: Yup.string(),
+            metaKeywords: Yup.string(),
+            isActiveOnWeb: Yup.boolean(),
+            banner: Yup.mixed(),
+          }),
     });
   const updateLoanTypeFunc = async (values) => {
     try {
@@ -239,6 +267,15 @@ function EditLoanType() {
 
           auto_approval: loanData?.auto_approval || false,
           documentRequired: loanData?.documentRequired || [],
+
+          title: loanData?.title,
+          slug: loanData?.slug,
+          seoTitle: loanData?.seoTitle,
+          metaDescription: loanData?.metaDescription,
+          metaKeywords: loanData?.metaKeywords,
+          isActiveOnWeb: loanData?.isActiveOnWeb,
+          banner: loanData?.banner || "",
+          bannerPreview :loanData?.banner || ""
         });
       }
     } catch (error) {
@@ -693,9 +730,7 @@ function EditLoanType() {
                   <div className="form-section-body">
                     <div className="row g-3">
                       <div className="col-md-6">
-                        <label className="form-label">
-                          Minimum Income
-                        </label>
+                        <label className="form-label">Minimum Income</label>
                         <Field
                           type="number"
                           name="minIncome"
@@ -725,9 +760,7 @@ function EditLoanType() {
                         />
                       </div>
                       <div className="col-md-6">
-                        <label className="form-label">
-                          Minimum Age
-                        </label>
+                        <label className="form-label">Minimum Age</label>
                         <Field
                           type="number"
                           name="minAge"
@@ -741,9 +774,7 @@ function EditLoanType() {
                         />
                       </div>
                       <div className="col-md-6">
-                        <label className="form-label">
-                          Maximum Age
-                        </label>
+                        <label className="form-label">Maximum Age</label>
                         <Field
                           type="number"
                           name="maxAge"
@@ -757,9 +788,7 @@ function EditLoanType() {
                         />
                       </div>
                       <div className="col-md-6">
-                        <label className="form-label">
-                          Employement Type
-                        </label>
+                        <label className="form-label">Employement Type</label>
                         <MultiSelect
                           options={[
                             { value: "Government", label: "Government" },
@@ -788,7 +817,6 @@ function EditLoanType() {
                       <div className="col-md-6">
                         <label className="form-label">
                           Dept To Income Max Ration
-                          
                         </label>
                         <Field
                           type="string"
@@ -1006,6 +1034,159 @@ function EditLoanType() {
                       component="div"
                       className="text-danger small"
                     />
+                  </div>
+                </div>
+                <div className="form-section shadow-sm">
+                  <div className="form-section-header">Web content</div>
+                  <div className="form-section-body">
+                    <div className="form-check form-switch mb-3">
+                      <Field
+                        type="checkbox"
+                        name="isActiveOnWeb"
+                        className="form-check-input"
+                        onChange={(e) => {
+                          setFieldValue("isActiveOnWeb", e.target.checked);
+                          setShowWebForm(e.target.checked);
+                        }}
+                      />
+                      <label className="form-check-label">Is active</label>
+                    </div>
+                    <div className="form-section-body">
+                      {values?.isActiveOnWeb && (
+                        <div className="row g-3">
+                          <div className="col-md-6">
+                            <label className="form-label">
+                              Title<span className="text-danger">*</span>
+                            </label>
+                            <Field
+                              type="text"
+                              name="title"
+                              className="form-control"
+                              placeholder="Enter loan title"
+                            />
+                            <ErrorMessage
+                              name="title"
+                              component="div"
+                              className="text-danger small"
+                            />
+                          </div>
+
+                          <div className="col-md-6">
+                            <label className="form-label">
+                              Slug <span className="text-danger">*</span>
+                            </label>
+                            <Field
+                              type="text"
+                              name="slug"
+                              className="form-control"
+                              placeholder="Enter Slug"
+                            />
+                            <ErrorMessage
+                              name="slug"
+                              component="div"
+                              className="text-danger small"
+                            />
+                          </div>
+
+                          <div className="col-2 my-auto">
+                            <div className="text-center">
+                              <input
+                                id="bannerUpload"
+                                type="file"
+                                accept="image/*"
+                                style={{ display: "none" }}
+                                onChange={(e) => {
+                                  const file = e.target.files[0];
+                                  if (file) {
+                                    setFieldValue("banner", file);
+
+                                    // ✅ preview ke liye
+                                    const previewUrl =
+                                      URL.createObjectURL(file);
+                                    setFieldValue("bannerPreview", previewUrl);
+                                  }
+                                }}
+                              />
+
+                              <label
+                                htmlFor="bannerUpload"
+                                className="cursor-pointer"
+                              >
+                                <img
+                                  src={
+                                    values.bannerPreview ||
+                                    "https://cdn-icons-png.flaticon.com/128/8191/8191607.png"
+                                  }
+                                  alt="Loan Banner"
+                                  style={{
+                                    width: "90px",
+                                    height: "90px",
+                                    objectFit: "contain",
+                                  }}
+                                />
+                              </label>
+                              <p>
+                                Upload Banner{" "}
+                                <span className="text-danger">*</span>
+                              </p>
+                              <ErrorMessage
+                                name="banner"
+                                component="div"
+                                className="text-danger small"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="col-10  row m-0 p-0 mt-3">
+                            <div className="col-md-6">
+                              <label className="form-label">Seo Title</label>
+                              <Field
+                                type="text"
+                                name="seoTitle"
+                                className="form-control"
+                                placeholder="Enter Title"
+                              />
+                              <ErrorMessage
+                                name="seoTitle"
+                                component="div"
+                                className="text-danger small"
+                              />
+                            </div>
+                            <div className="col-md-6">
+                              <label className="form-label">Meta Keyword</label>
+                              <Field
+                                type="text"
+                                name="metaKeywords"
+                                className="form-control"
+                                placeholder="Enter keywords"
+                              />
+                              <ErrorMessage
+                                name="metaKeywords"
+                                component="div"
+                                className="text-danger small"
+                              />
+                            </div>
+                            <div className="col-12 mt-3">
+                              <label className="form-label">
+                                Meta Description
+                              </label>
+                              <Field
+                                as="textarea"
+                                name="metaDescription"
+                                className="form-control"
+                                rows={4}
+                                placeholder="Please enter brief meta description about this loan type"
+                              />
+                              <ErrorMessage
+                                name="metaDescription"
+                                component="div"
+                                className="text-danger small"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 

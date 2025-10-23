@@ -23,6 +23,7 @@ import * as Yup from "yup";
 import moment from "moment";
 import ConfirmDeleteModal from "../../components/ConfirmDeleteModal";
 import { useGlobalState } from "../../GlobalProvider";
+import { MultiSelect } from "react-multi-select-component";
 function AdminList() {
   const { globalState } = useGlobalState();
   const permissions = globalState?.user?.role?.permissions || [];
@@ -69,7 +70,7 @@ function AdminList() {
     phone: "",
     password: "",
     role: "",
-    branch: "",
+    branch: [],
     status: "",
     profilePic: "",
     show: false,
@@ -81,7 +82,7 @@ function AdminList() {
     phone: "",
     password: "",
     role: "",
-    branch: "",
+    branch: [],
     status: "",
     profilePic: "",
     _id: "",
@@ -144,21 +145,35 @@ function AdminList() {
       .matches(/^[0-9]{10}$/, "Must be a valid 10-digit number")
       .required("Contact Number is required"),
     status: Yup.string().required("Status is required"),
-    branch: Yup.string(),
+    branch: Yup.array().of(Yup.string().required()),
     email: Yup.string().email("Invalid email").required("Email is required"),
     profilePic: Yup.mixed(),
   });
-  const handleAddAdmin = async (value) => {
+  const handleAddAdmin = async (values) => {
     try {
-      // branch empty hai to usko hatao
-      let finalPayload = { ...value };
-      if (!finalPayload.branch) {
-        delete finalPayload.branch;
-      }
+      // ✅ Create FormData because file & array (branch) hain
+      const formData = new FormData();
 
-      let response = await addAdminServ(finalPayload);
+      Object.keys(values).forEach((key) => {
+        if (key === "branch") {
+          if (values.branch && values.branch.length > 0) {
+            // ✅ Convert array → JSON string
+            formData.append("branch", JSON.stringify(values.branch));
+          }
+        } else if (key === "profilePic") {
+          if (values.profilePic instanceof File) {
+            // ✅ Append file if exists
+            formData.append("profilePic", values.profilePic);
+          }
+        } else {
+          // ✅ Normal text fields
+          formData.append(key, values[key]);
+        }
+      });
+      const response = await addAdminServ(formData);
 
-      if (response?.data?.statusCode == "200") {
+      if (response?.data?.statusCode === 200) {
+        toast.success(response?.data?.message || "Staff created successfully!");
         setAddFormData({
           firstName: "",
           lastName: "",
@@ -166,27 +181,44 @@ function AdminList() {
           phone: "",
           password: "",
           role: "",
-          branch: "",
+          branch: [],
           status: "",
           profilePic: "",
           show: false,
         });
-        toast.success(response?.data?.message);
+
         getListFunc();
       } else {
-        toast?.error("Something went wrong!");
+        toast.error(response?.data?.message || "Something went wrong!");
       }
     } catch (error) {
-      toast?.error("Internal Server Error!");
+      console.error(error);
+      toast.error("Internal Server Error!");
     }
   };
 
-  const handleUpdateAdmin = async (value) => {
+  const handleUpdateAdmin = async (values) => {
     try {
-      let response = await updateAdminServ({
-        ...value,
-        _id: editFormData?._id,
+      const formData = new FormData();
+
+      Object.keys(values).forEach((key) => {
+        if (key === "branch") {
+          if (values.branch && values.branch.length > 0) {
+            // ✅ Convert array → JSON string
+            formData.append("branch", JSON.stringify(values.branch));
+          }
+        } else if (key === "profilePic") {
+          if (values.profilePic instanceof File) {
+            // ✅ Append file if exists
+            formData.append("profilePic", values.profilePic);
+          }
+        } else {
+          // ✅ Normal text fields
+          formData.append(key, values[key]);
+        }
       });
+      formData.append("_id", editFormData?._id);
+      let response = await updateAdminServ(formData);
       if (response?.data?.statusCode == "200") {
         setEditFormData({
           firstName: "",
@@ -195,7 +227,7 @@ function AdminList() {
           phone: "",
           password: "",
           role: "",
-          branch: "",
+          branch: [],
           status: "",
           profilePic: "",
           _id: "",
@@ -484,11 +516,11 @@ function AdminList() {
                             <Skeleton width={100} />
                           </td>
                           {(permissions?.includes("Staff/Agent-Edit") ||
-                                                      permissions?.includes("Staff/Agent-Delete")) && (
-                                                      <td className="text-center">
-                                                        <Skeleton width={100} />
-                                                      </td>
-                                                    )}
+                            permissions?.includes("Staff/Agent-Delete")) && (
+                            <td className="text-center">
+                              <Skeleton width={100} />
+                            </td>
+                          )}
                         </tr>
                       );
                     })
@@ -539,40 +571,52 @@ function AdminList() {
                             {renderProfile(v?.status)}
                           </td>
                           <td className="text-center">
-                            {v?.branch?.name || "Branch Not Provided"}
+                            {v?.branch?.length == 0 ? (
+                              <p>Branch Not Provided</p>
+                            ) : (
+                              v?.branch?.map((v, i) => {
+                                return (
+                                  <p className="mb-1">
+                                    <small className="bg-warning p-1 m-1 border text-dark rounded">
+                                      {v?.name}
+                                    </small>
+                                  </p>
+                                );
+                              })
+                            )}
                           </td>
-                          <td style={{ textAlign: "center" }}>  
+                          <td style={{ textAlign: "center" }}>
                             {permissions?.includes("Staff/Agent-Edit") && (
                               <a
-                              onClick={() =>
-                                setEditFormData({
-                                  firstName: v?.firstName,
-                                  lastName: v?.lastName,
-                                  email: v?.email,
-                                  phone: v?.phone,
-                                  password: v?.password,
-                                  role: v?.role?._id,
-                                  branch: v?.branch?._id,
-                                  status: v?.status,
-                                  profilePic: v?.profilePic,
-                                  _id: v?._id,
-                                })
-                              }
-                              className="text-primary text-decoration-underline me-2"
-                            >
-                              <i class="bi bi-pencil fs-6"></i>
-                            </a>
+                                onClick={() =>
+                                  setEditFormData({
+                                    firstName: v?.firstName,
+                                    lastName: v?.lastName,
+                                    email: v?.email,
+                                    phone: v?.phone,
+                                    password: v?.password,
+                                    role: v?.role?._id,
+                                    branch: v?.branch,
+                                    status: v?.status,
+                                    profilePic: v?.profilePic,
+                                    _id: v?._id,
+                                  })
+                                }
+                                className="text-primary text-decoration-underline me-2"
+                              >
+                                <i class="bi bi-pencil fs-6"></i>
+                              </a>
                             )}
                             {permissions?.includes("Staff/Agent-Delete") && (
                               <a
-                              onClick={() => {
-                                setDeleteId(v?._id);
-                                setShowConfirm(true);
-                              }}
-                              className="text-danger text-decoration-underline"
-                            >
-                              <i class="bi bi-trash fs-6"></i>
-                            </a>
+                                onClick={() => {
+                                  setDeleteId(v?._id);
+                                  setShowConfirm(true);
+                                }}
+                                className="text-danger text-decoration-underline"
+                              >
+                                <i class="bi bi-trash fs-6"></i>
+                              </a>
                             )}
                           </td>
                         </tr>
@@ -623,7 +667,7 @@ function AdminList() {
                             phone: "",
                             profilePic: "",
                             status: "",
-                            branch: "",
+                            branch: [],
                             role: "",
                             show: false,
                           })
@@ -786,25 +830,32 @@ function AdminList() {
                               />
                             </div>
                             <div className="col-6">
-                              <label className="mt-3">
-                                Branch<span className="text-danger"></span>
-                              </label>
-                              <Field
-                                as="select"
-                                className="form-control"
-                                name="branch"
-                              >
-                                <option value="">Select Branch</option>
-                                {branchList?.map((v, i) => {
-                                  return (
-                                    <option value={v?._id}>{v?.name}</option>
-                                  );
-                                })}
-                              </Field>
+                              <label className="form-label">Branch</label>
+                              <MultiSelect
+                                options={branchList.map((v) => ({
+                                  value: v?._id,
+                                  label: v?.name,
+                                }))}
+                                value={branchList
+                                  .filter((v) =>
+                                    values?.branch?.includes(v._id)
+                                  )
+                                  .map((v) => ({
+                                    value: v._id,
+                                    label: v.name,
+                                  }))}
+                                onChange={(selected) =>
+                                  setFieldValue(
+                                    "branch",
+                                    selected.map((s) => s.value)
+                                  )
+                                }
+                                labelledBy="Select Branch"
+                              />
                               <ErrorMessage
                                 name="branch"
                                 component="div"
-                                className="text-danger"
+                                className="text-danger small"
                               />
                             </div>
                             <div className="col-12">
@@ -882,7 +933,7 @@ function AdminList() {
                             phone: "",
                             profilePic: "",
                             status: "",
-                            branch: "",
+                            branch: [],
                             role: "",
                           })
                         }
@@ -1048,23 +1099,39 @@ function AdminList() {
 
                             {/* Branch */}
                             <div className="col-6">
-                              <label className="mt-3">Branch</label>
-                              <Field
-                                as="select"
-                                className="form-control"
-                                name="branch"
-                              >
-                                <option value="">Select Branch</option>
-                                {branchList?.map((v, i) => (
-                                  <option key={i} value={v?._id}>
-                                    {v?.name}
-                                  </option>
-                                ))}
-                              </Field>
+                              <label className="form-label">Branch</label>
+                              <MultiSelect
+                                options={branchList.map((v) => ({
+                                  value: v?._id,
+                                  label: v?.name,
+                                }))}
+                                value={
+                                  branchList
+                                    ?.filter((v) => {
+                                      // ✅ Handle both: when branch is array of objects or array of IDs
+                                      const branchIds = values?.branch?.map(
+                                        (b) =>
+                                          typeof b === "object" ? b._id : b
+                                      );
+                                      return branchIds?.includes(v._id);
+                                    })
+                                    ?.map((v) => ({
+                                      value: v._id,
+                                      label: v.name,
+                                    })) || []
+                                }
+                                onChange={(selected) =>
+                                  setFieldValue(
+                                    "branch",
+                                    selected.map((s) => s.value)
+                                  )
+                                }
+                                labelledBy="Select Branch"
+                              />
                               <ErrorMessage
                                 name="branch"
                                 component="div"
-                                className="text-danger"
+                                className="text-danger small"
                               />
                             </div>
 

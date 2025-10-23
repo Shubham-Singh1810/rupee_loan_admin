@@ -5,8 +5,9 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { createUserServ } from "../../services/user.service";
-
+import { useGlobalState } from "../../GlobalProvider";
 function CreateUser() {
+  const { globalState } = useGlobalState();
   const navigate = useNavigate();
 
   // ✅ Validation Schema
@@ -20,7 +21,7 @@ function CreateUser() {
       .required("Phone number is required"),
     dob: Yup.date().required("Date of Birth is required"),
     gender: Yup.string().required("Gender is required"),
-    status: Yup.string().required("Status is required"),
+    
 
     state: Yup.string().required("State is required"),
     city: Yup.string().required("City is required"),
@@ -44,6 +45,8 @@ function CreateUser() {
       Object.keys(values).forEach((key) => {
         formData.append(key, values[key]);
       });
+      formData.append("createdBy", globalState?.user?._id);
+      formData.append("profileStatus", "inActive");
       let response = await createUserServ(formData);
       if (response?.data?.statusCode == "200") {
         toast.success(response?.data?.message);
@@ -73,7 +76,7 @@ function CreateUser() {
             countryCode: "+91",
             dob: "",
             gender: "",
-            status: "",
+            
             state: "",
             city: "",
             pincode: "",
@@ -224,21 +227,7 @@ function CreateUser() {
                       className="text-danger small"
                     />
                   </div>
-                  <div className="col-md-4">
-                    <label className="form-label">Status</label>
-                    <Field as="select" name="status" className="form-select">
-                      <option value="">Select</option>
-                      <option value="registered">Registered</option>
-                      <option value="verified">Verified</option>
-                      <option value="active">Active</option>
-                      <option value="blocked">Blocked</option>
-                    </Field>
-                    <ErrorMessage
-                      name="status"
-                      component="div"
-                      className="text-danger small"
-                    />
-                  </div>
+                 
                 </div>
               </div>
 

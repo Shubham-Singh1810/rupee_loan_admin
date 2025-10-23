@@ -49,7 +49,7 @@ function LoanTypeList() {
   useEffect(() => {
     getListFunc();
   }, [payload]);
- 
+
   const renderProfile = (status) => {
     if (status) {
       return (
@@ -95,16 +95,13 @@ function LoanTypeList() {
         getListFunc();
         toast.success(response?.data?.message);
         setShowConfirm(false);
-        setDeleteId("")
+        setDeleteId("");
       }
     } catch (error) {
       toast.error("Internal Server error");
     }
   };
 
- 
-  
-  
   return (
     <div className="container-fluid user-table py-3">
       {/* KPIs */}
@@ -215,15 +212,14 @@ function LoanTypeList() {
               </li>
             </ul>
           </div>
-           {permissions?.includes("Loan Type-Create") && (
+          {permissions?.includes("Loan Type-Create") && (
             <button
-            className="btn bgThemePrimary shadow-sm"
-            onClick={() => navigate("/create-loan-type")}
-          >
-            + Add Loan Type
-          </button>
+              className="btn bgThemePrimary shadow-sm"
+              onClick={() => navigate("/create-loan-type")}
+            >
+              + Add Loan Type
+            </button>
           )}
-          
         </div>
       </div>
       {/* Table Card */}
@@ -244,9 +240,9 @@ function LoanTypeList() {
                   <th>Min Amount</th>
                   <th>Max Amount</th>
                   <th>Intrest Rate</th>
-                  <th className="text-center">Status</th>
-                  {/* <th className="text-center">Applications</th> */}
+                  <th className="text-center">View Web</th>
 
+                  <th className="text-center">Status</th>
                   {(permissions?.includes("Loan Type-Edit") ||
                     permissions?.includes("Loan Type-Delete")) && (
                     <th style={{ textAlign: "center" }}>Action</th>
@@ -271,6 +267,9 @@ function LoanTypeList() {
                           <td>
                             <Skeleton width={100} />
                           </td>
+                          <td>
+                            <Skeleton width={100} />
+                          </td>
 
                           <td>
                             <Skeleton width={100} />
@@ -286,19 +285,20 @@ function LoanTypeList() {
                             <Skeleton width={100} />
                           </td>
                           {(permissions?.includes("Loan Type-Edit") ||
-                    permissions?.includes("Loan Type-Delete")) && (
-                    <td className="text-center">
-                            <Skeleton width={100} />
-                          </td>
-                  )}
-                          
+                            permissions?.includes("Loan Type-Delete")) && (
+                            <td className="text-center">
+                              <Skeleton width={100} />
+                            </td>
+                          )}
                         </tr>
                       );
                     })
                   : list?.map((v, i) => {
                       return (
                         <tr>
-                          <td>{i + 1 + (payload?.pageNo - 1) * payload?.pageCount}</td>
+                          <td>
+                            {i + 1 + (payload?.pageNo - 1) * payload?.pageCount}
+                          </td>
 
                           <td>
                             <div className="d-flex align-items-center">
@@ -322,33 +322,48 @@ function LoanTypeList() {
                           <td>{v?.maxAmount}</td>
                           <td>{v?.intrestRate}%</td>
                           <td className="text-center">
+                            {v?.isActiveOnWeb ? (
+                              <i
+                                className="bi bi-eye fs-6 text-primary"
+                                onClick={() => {
+                                  const slug = v.slug; // or loan.slug / loan._id
+                                  const url = `https://loan-project-six.vercel.app/${slug}`;
+                                  window.open(url, "_blank"); // ✅ opens in a new tab
+                                }}
+                              ></i>
+                            ) : (
+                              <span className="badge bg-light text-secondary">
+                                Not Active
+                              </span>
+                            )}
+                          </td>
+                          <td className="text-center">
                             {renderProfile(v?.status)}
                           </td>
 
                           <td style={{ textAlign: "center" }}>
                             {permissions?.includes("Loan Type-Edit") && (
                               <a
-                              onClick={() =>
-                                navigate("/update-loan-type/" + v?._id)
-                              }
-                              className="text-primary text-decoration-underline me-2"
-                            >
-                              <i class="bi bi-pencil fs-6"></i>
-                            </a>
+                                onClick={() =>
+                                  navigate("/update-loan-type/" + v?._id)
+                                }
+                                className="text-primary text-decoration-underline me-2"
+                              >
+                                <i class="bi bi-pencil fs-6"></i>
+                              </a>
                             )}
                             {permissions?.includes("Loan Type-Delete") && (
-                               <a
-                              onClick={() => {
-                                setDeleteId(v?._id);
-                                setShowConfirm(true);
-                              }}
-                              className="text-danger text-decoration-underline"
-                            >
-                              <i class="bi bi-trash fs-6"></i>
-                            </a>
+                              <a
+                                onClick={() => {
+                                  setDeleteId(v?._id);
+                                  setShowConfirm(true);
+                                }}
+                                className="text-danger text-decoration-underline"
+                              >
+                                <i class="bi bi-trash fs-6"></i>
+                              </a>
                             )}
                           </td>
-                          
                         </tr>
                       );
                     })}

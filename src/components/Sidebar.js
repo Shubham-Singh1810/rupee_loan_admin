@@ -90,7 +90,7 @@ function Sidebar({ isCollapsed }) {
       title: "Loan Management",
       list: [
         {
-          menu: "Loans",
+          menu: "Regular Loans",
           icon: "bi bi-cash-coin",
           permission: "Loans-View",
           subMenu: [
@@ -101,6 +101,15 @@ function Sidebar({ isCollapsed }) {
                 .replace(/\s+/g, "-")
                 .toLowerCase()}-applications/${loan?._id}`,
             })),
+          ],
+        },
+        {
+          menu: "Payday Loans",
+          icon: "bi bi-cash",
+          permission: "Loans-View",
+          subMenu: [
+            { name: "Applications", path: "/payday-loan-applications" },
+           
           ],
         },
       ],
@@ -183,6 +192,23 @@ function Sidebar({ isCollapsed }) {
           icon: "bi bi-file",
           permission: "Documents-View",
         },
+        {
+          menu: "Payday Loan",
+          icon: "bi bi-clipboard-check",
+          permission: "Documents-View",
+          subMenu: [
+            {
+              name: "Loan Configration",
+              path: "/payday-loan-configration",
+              permission: "Terms & Condition-View",
+            },
+            {
+              name: "Loan Purpose",
+              path: "/loan-purpose",
+              permission: "Privacy Policy-View",
+            },
+          ],
+        },
       ],
     },
     {
@@ -200,7 +226,7 @@ function Sidebar({ isCollapsed }) {
           icon: "bi bi-question-circle",
           permission: "FAQ'S-View",
         },
-         {
+        {
           menu: "Support Ticket",
           icon: "bi bi-file-earmark-text",
           permission: "System Management-View",
