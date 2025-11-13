@@ -103,3 +103,44 @@ export const getEmisListServ = async (payload) => {
     throw error;
   }
 };
+
+export const paydayLoanApplicationListServ = async (payload) => {
+  try {
+    const response = await axios.post(BASE_URL + "payday-loan-application/list", payload);
+    return response;
+  } catch (error) {
+    // Handle error (e.g., log or throw an error)
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+};
+export const paydayLoanStatsServ = async () => {
+  try {
+    const response = await axios.get(BASE_URL + "payday-loan-application/stats");
+    return response;
+  } catch (error) {
+    // Handle error (e.g., log or throw an error)
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+};
+export const paydayDeleteLoanApplicationServ = async (id) => {
+  try {
+    const response = await axios.delete(BASE_URL + "payday-loan-application/delete/"+id);
+    return response;
+  } catch (error) {
+    // Handle error (e.g., log or throw an error)
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+};
+export const createPaydayLoanApplicationServ = async (payload) => {
+  try {
+    const response = await axios.post(BASE_URL + "payday-loan-application/create", payload);
+    return response;
+  } catch (error) {
+    // Handle error (e.g., log or throw an error)
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+};

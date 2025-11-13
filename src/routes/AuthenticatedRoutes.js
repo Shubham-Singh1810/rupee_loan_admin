@@ -86,6 +86,7 @@ import LoanPurpose from "../pages/SupportManagement/LoanPurpose";
 import PaydayLoanApplication from "../pages/PaydayLoanManagement/PaydayLoanApplicationList";
 import UpdateLoanRequirement from "../pages/PayDayLoanType/UpdateLoanRequirement";
 import SystemConfigration from "../pages/SystemManagement/SystemConfigration";
+import CreatePayDayApplication from "../pages/PaydayLoanManagement/CreatePayDayApplication";
 
 function AuthenticatedRoutes() {
   return (
@@ -278,11 +279,11 @@ function AuthenticatedRoutes() {
         <Route
           element={<ProtectedRoute allowedPermissions={["Tickets-View"]} />}
         >
-        <Route path="/all-tickets" element={<AllTicket />} />
-        <Route path="/ticket-categories" element={<TicketCategories />} />
-        <Route path="/opened-tickets" element={<OpenTicket />} />
-        <Route path="/closed-tickets" element={<ClosedTicket />} />
-        <Route path="/chat-details/:id" element={<ChatBox />} />
+          <Route path="/all-tickets" element={<AllTicket />} />
+          <Route path="/ticket-categories" element={<TicketCategories />} />
+          <Route path="/opened-tickets" element={<OpenTicket />} />
+          <Route path="/closed-tickets" element={<ClosedTicket />} />
+          <Route path="/chat-details/:id" element={<ChatBox />} />
         </Route>
 
         {/* faq */}
@@ -299,11 +300,15 @@ function AuthenticatedRoutes() {
         {/* Profile */}
         <Route path="/my-profile" element={<Profile />} />
         <Route path="/permissions" element={<Permissions />} />
+       <Route path="/create-payday-loan" element={<CreatePayDayApplication />} /> 
       </Route>
 
       {/* Unauthorized & 404 */}
       <Route path="/unauthorized" element={<Unauthorized />} />
       <Route path="*" element={<NotFound />} />
+
+      
+
     </Routes>
   );
 }

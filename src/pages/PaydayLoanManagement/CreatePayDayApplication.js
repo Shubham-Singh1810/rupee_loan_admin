@@ -2,9 +2,14 @@ import { useState, useEffect } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import {
-  loanTypeListServ,
   createLoanApplicationServ,
+  loanTypeListServ,
 } from "../../services/loan.services";
+
+import {
+  createPaydayLoanApplicationServ,
+  
+} from "../../services/loanApplication.services";
 import { getUserListServ } from "../../services/user.service";
 import { getBranchListServ } from "../../services/branch.service";
 import { getAdminListServ } from "../../services/commandCenter.services";
@@ -16,621 +21,397 @@ function CreatePayDayApplication() {
   const { globalState } = useGlobalState();
   const navigate = useNavigate();
 
-  const [loanTypeList, setLoanTypeList] = useState([]);
+  const [loanPurposeList, setLoanPurposeList] = useState([]);
   const [branchList, setBranchList] = useState([]);
   const [userList, setUserList] = useState([]);
   const [adminList, setAdminList] = useState([]);
-  const [selectedLoanType, setSelectedLoanType] = useState(null);
-  const [selectedUser, setSelectedUser] = useState(null);
   const [submitBtnLoader, setSubmitBtnLoader] = useState(false);
 
   const initialValues = {
     userId: "",
-    loanId: "",
+    loanPurposeId: "",
     branchId: "",
     assignedAdminId: "",
+    fullName: "",
+    email: "",
+    dob: "",
+    gender: "",
+    educationQ: "",
+    maritalStatus: "",
+    empType: "",
+    cmpName: "",
+    monthlyIncome: "",
+    nextSalary: "",
+    pincode: "",
+    area: "",
+    currentAddress: "",
+    currentAddressOwnership: "",
+    whoYouliveWith: "",
+    adharFrontend: "",
+    adharBack: "",
+    pan: "",
+    selfie: "",
+    bankVerificationMode: "",
     loanAmount: "",
-    loanTenuare: "",
-    loanTenuareType: "",
-    intrestRate: "",
-    intrestRateType: "",
-    repaymentFrequency: "",
-    repaymentFrequencyType: "",
-    startDate: "",
-    endDate: "",
-    collateralDetails: [],
-    documents: [],
-    panNumber: "",
-    creditScore: "",
+    tenure: "",
+    residenceProofType: "",
+    residenceProof: "",
+    referenceName: "",
+    referenceRelation: "",
+    referencePhone: "",
+    bankName: "",
+    acountNumber: "",
+    ifscCode: "",
+    eSign: "",
   };
 
-  // ---------------------- Yup Validation ----------------------
   const validationSchema = Yup.object().shape({
-    loanId: Yup.string().required("Loan Type is required"),
-    branchId: Yup.string().required("Branch is required"),
     userId: Yup.string().required("User is required"),
-    assignedAdminId: Yup.string(),
-    loanAmount: Yup.number()
-      .typeError("Loan Amount must be a number")
-      .required("Loan Amount is required")
-      .positive("Loan Amount must be positive"),
-    loanTenuare: Yup.number()
-      .typeError("Tenure must be a number")
-      .required("Tenure is required")
-      .positive("Tenure must be positive"),
-    loanTenuareType: Yup.string()
-      .oneOf(["days", "months", "years"], "Invalid Tenure Type")
-      .required("Tenure Type is required"),
-    intrestRate: Yup.number()
-      .typeError("Interest Rate must be a number")
-      .required("Interest Rate is required")
-      .min(1, "Interest Rate must be greater than 0"),
-    intrestRateType: Yup.string()
-      .oneOf(
-        ["flat", "reducing", "simple", "compound"],
-        "Invalid Interest Type"
-      )
-      .required("Interest Type is required"),
-    repaymentFrequency: Yup.number()
-      .typeError("Repayment Frequency must be a number")
-      .required("Repayment Frequency is required")
-      .positive("Repayment Frequency must be positive"),
-    repaymentFrequencyType: Yup.string()
-      .oneOf(["days", "months"], "Invalid Frequency Type")
-      .required("Repayment Frequency Type is required"),
-    startDate: Yup.date(),
-    endDate: Yup.date(),
-    collateralDetails: Yup.array().of(
-      Yup.object().shape({
-        name: Yup.string().required("Collateral Name is required"),
-        description: Yup.string().required(
-          "Collateral Description is required"
-        ),
-      })
-    ),
-    documents: Yup.array().of(
-      Yup.object().shape({
-        name: Yup.string().required("Document Name is required"),
-        image: Yup.mixed().required("Document File is required"),
-      })
-    ),
-    panNumber: Yup.string().required("PAN Number is required"),
-    creditScore: Yup.string().required("Credit score is required"),
+    loanPurposeId: Yup.string().required("Loan purpose is required"),
+    branchId: Yup.string().required("Branch is required"),
+    fullName: Yup.string().required("Full name is required"),
+    email: Yup.string().email("Invalid email").required("Email is required"),
+    dob: Yup.string().required("Date of Birth is required"),
+    gender: Yup.string().required("Gender is required"),
+    monthlyIncome: Yup.string().required("Monthly Income is required"),
+    loanAmount: Yup.string().required("Loan Amount is required"),
+    tenure: Yup.string().required("Tenure is required"),
   });
 
-  // ---------------------- API calls ----------------------
-  const getLoanTypeListFunc = async () => {
-    try {
-      const response = await loanTypeListServ();
-      if (response?.data?.statusCode == "200")
-        setLoanTypeList(response?.data?.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const getBranchListFunc = async () => {
-    try {
-      const response = await getBranchListServ();
-      if (response?.data?.statusCode == "200")
-        setBranchList(response?.data?.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const getUserListFunc = async () => {
-    try {
-      const response = await getUserListServ();
-      if (response?.data?.statusCode == "200")
-        setUserList(response?.data?.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const getAdminListFunc = async () => {
-    try {
-      const response = await getAdminListServ();
-      if (response?.data?.statusCode == "200")
-        setAdminList(response?.data?.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
+  // ---------------------- API Calls ----------------------
   useEffect(() => {
-    getLoanTypeListFunc();
+    getLoanPurposeFunc();
     getBranchListFunc();
     getUserListFunc();
     getAdminListFunc();
   }, []);
 
-  // ---------------------- Form Submit ----------------------
+  const getLoanPurposeFunc = async () => {
+    try {
+      const response = await loanTypeListServ();
+      if (response?.data?.statusCode === "200") {
+        setLoanPurposeList(response?.data?.data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const getBranchListFunc = async () => {
+    try {
+      const response = await getBranchListServ();
+      if (response?.data?.statusCode === "200") {
+        setBranchList(response?.data?.data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const getUserListFunc = async () => {
+    try {
+      const response = await getUserListServ();
+      if (response?.data?.statusCode === "200") {
+        setUserList(response?.data?.data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const getAdminListFunc = async () => {
+    try {
+      const response = await getAdminListServ();
+      if (response?.data?.statusCode === "200") {
+        setAdminList(response?.data?.data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // ---------------------- Submit ----------------------
   const handleSubmit = async (values) => {
     setSubmitBtnLoader(true);
     try {
       const fd = new FormData();
-
-      // 🔹 Append normal fields
       Object.keys(values).forEach((key) => {
-        if (key !== "documents" && key !== "collateralDetails") {
-          fd.append(key, values[key]);
-        }
+        fd.append(key, values[key]);
       });
-
-      // 🔹 Collateral details
-      if (values.collateralDetails?.length > 0) {
-        fd.append(
-          "collateralDetails",
-          JSON.stringify(values.collateralDetails)
-        );
-      }
-
-      // 🔹 Documents
-      if (values.documents?.length > 0) {
-        const docsMeta = values.documents.map((doc) => ({ name: doc.name }));
-        fd.append("documentsMeta", JSON.stringify(docsMeta));
-
-        values.documents.forEach((doc) => {
-          if (doc.image instanceof File || doc.image instanceof Blob) {
-            fd.append("documents", doc.image);
-          }
-        });
-      }
-
       fd.append("createdBy", globalState?.user?._id);
 
-      const response = await createLoanApplicationServ(fd);
-      if (response?.data?.statusCode == "200") {
+      const response = await createPaydayLoanApplicationServ({...values, createdBy:globalState?.user?._id});
+      if (response?.data?.data) {
         toast.success(response?.data?.message);
-        navigate("/all-applications");
+        navigate("/payday-loan-applications");
+      } else {
+        toast.error("Something went wrong!");
       }
     } catch (error) {
-      console.error("Submit Error:", error);
-      toast.error("Something went wrong!");
+      console.error(error);
+      toast.error("Failed to create loan application");
     }
     setSubmitBtnLoader(false);
   };
 
-  // ---------------------- JSX ----------------------
+  // ---------------------- UI Structure ----------------------
+  const paydaySections = [
+    {
+      title: "Main Details",
+      fields: [
+        {
+          label: "User",
+          name: "userId",
+          type: "select",
+          // options: userList.map((u) => ({
+          //   value: u._id,
+          //   label: u.firstName || u.fullName || u.email,
+          // })),
+          options: [
+            {
+              value: "6913587e42b47cdc19465c41",
+              label: "Agent User",
+            },
+          ],
+        },
+        {
+          label: "Loan Purpose",
+          name: "loanPurposeId",
+          type: "select",
+          // options: loanPurposeList.map((l) => ({
+          //   value: l._id,
+          //   label: l.name,
+          // })),
+          options: [
+            {
+              value: "6913587e42b47cdc19465c41",
+              label: "Party Funds",
+            },
+          ],
+        },
+        {
+          label: "Branch",
+          name: "branchId",
+          type: "select",
+          // options: branchList.map((b) => ({
+          //   value: b._id,
+          //   label: b.name,
+          // })),
+          options: [
+            {
+              value: "68e3bf7d0cd8f3959388eec7",
+              label: "Mohali Branch",
+            },
+          ],
+        },
+        {
+          label: "Assigned Admin",
+          name: "assignedAdminId",
+          type: "select",
+          // options: adminList.map((a) => ({
+          //   value: a._id,
+          //   label: a.name,
+          // })),
+          options: [
+            {
+              value: "68e3c7ff1d952806b960b6af",
+              label: "James S",
+            },
+          ],
+        },
+        { label: "Loan Amount", name: "loanAmount", type: "number" },
+        { label: "Tenure (Days)", name: "tenure", type: "number" },
+      ],
+    },
+    {
+      title: "Check Eligibility",
+      fields: [
+        { label: "Full Name", name: "fullName", type: "text" },
+        { label: "Email", name: "email", type: "email" },
+        { label: "Date of Birth", name: "dob", type: "date" },
+        {
+          label: "Gender",
+          name: "gender",
+          type: "select",
+          options: [
+            { value: "male", label: "Male" },
+            { value: "female", label: "Female" },
+            { value: "other", label: "Other" },
+          ],
+        },
+        {
+          label: "Education Qualification",
+          name: "educationQ",
+          type: "select",
+          options: [
+            { value: "Undergraduate", label: "Undergraduate" },
+            { value: "Graduate", label: "Graduate" },
+            { value: "Postgraduate", label: "Postgraduate" },
+          ],
+        },
+        {
+          label: "Marital Status",
+          name: "maritalStatus",
+          type: "select",
+          options: [
+            { value: "Single", label: "Single" },
+            { value: "Married", label: "Married" },
+          ],
+        },
+        { label: "Employment Type", name: "empType", type: "select", options: [
+            { value: "Sallaired", label: "Sallaired" },
+            { value: "Individual", label: "Individual" },
+          ], },
+        { label: "Company Name", name: "cmpName", type: "text" },
+        { label: "Monthly Income", name: "monthlyIncome", type: "text" },
+        { label: "Next Salary Date", name: "nextSalary", type: "date" },
+        { label: "Pincode", name: "pincode", type: "number" },
+        { label: "Area", name: "area", type: "text" },
+        { label: "Current Address", name: "currentAddress", type: "text" },
+        {
+          label: "Ownership of Current Address",
+          name: "currentAddressOwnership",
+          type: "select",
+          options: [
+            { value: "Company Provided", label: "Company Provided" },
+            { value: "Owned", label: "Owned" },
+            { value: "Rented", label: "Rented" },
+            { value: "Other", label: "Other" },
+          ],
+        },
+        { label: "Who You Live With", name: "whoYouliveWith", type: "select", options: [
+            { value: "Family", label: "Family" },
+            { value: "Friends", label: "Friends" },
+            { value: "Alone", label: "Alone" },
+           
+          ], },
+      ],
+    },
+    {
+      title: "E-KYC",
+      fields: [
+        { label: "Upload Aadhar (Front)", name: "adharFrontend", type: "file" },
+        { label: "Upload Aadhar (Back)", name: "adharBack", type: "file" },
+        { label: "Upload PAN", name: "pan", type: "file" },
+      ],
+    },
+
+    {
+      title: "Bank Statement",
+      fields: [
+        {
+          label: "Upload bank statement",
+          name: "bankVerificationMode",
+          type: "file",
+        },
+      ],
+    },
+    {
+      title: "Residence Proof",
+      fields: [
+        { label: "Proof Type", name: "residenceProofType", type: "select", options: [
+            { value: "Rent Aggrement", label: "Rent Aggrement" },
+            
+           
+          ],  },
+        {
+          label: "Upload Residence Proof",
+          name: "residenceProof",
+          type: "file",
+        },
+      ],
+    },
+    {
+      title: "Reference",
+      fields: [
+        { label: "Name", name: "referenceName", type: "text" },
+        { label: "Relation", name: "referenceRelation", type: "text" },
+        { label: "Phone", name: "referencePhone", type: "text" },
+      ],
+    },
+    {
+      title: "Banking Details",
+      fields: [
+        { label: "Bank Name", name: "bankName", type: "text" },
+        { label: "Account Holder Name", name: "acountHolderName", type: "text" },
+        { label: "Account Number", name: "acountNumber", type: "text" },
+        { label: "IFSC Code", name: "ifscCode", type: "text" },
+      ],
+    },
+    {
+      title: "E-Sign",
+      fields: [{ label: "Upload E-Sign", name: "eSign", type: "file" }],
+    },
+  ];
+
   return (
-    <div className="container-fluid">
-      <div className="col-lg-12 p-4">
-        <h5 className="mb-3">Create New Loan Application</h5>
+    <div className="container-fluid p-4">
+      <h5 className="mb-3">Create Payday Loan Application</h5>
 
-        <Formik
-          initialValues={initialValues}
-          validationSchema={validationSchema}
-          onSubmit={handleSubmit}
-        >
-          {({ values, setFieldValue }) => (
-            <Form>
-              {/* ---------------- Main Section ---------------- */}
-              <div className="form-section shadow-sm mb-3">
-                <div className="form-section-header">Main</div>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        onSubmit={handleSubmit}
+      >
+        {({ setFieldValue }) => (
+          <Form>
+            {paydaySections.map((section, idx) => (
+              <div className="form-section shadow-sm mb-4" key={idx}>
+                <div className="form-section-header fw-bold mb-3">
+                  {section.title}
+                </div>
                 <div className="form-section-body row g-3">
-                  {/* Loan Type */}
-                  <div className="col-md-6">
-                    <label className="form-label">Loan Type</label>
-                    <Field
-                      as="select"
-                      name="loanId"
-                      className="form-control"
-                      onChange={(e) => {
-                        const selectedId = e.target.value;
-                        const selectedObj = loanTypeList.find(
-                          (loan) => loan._id === selectedId
-                        );
-                        setSelectedLoanType(selectedObj || null);
-                        setFieldValue("loanId", selectedId);
-                        // reset collateral & documents if loan type changes
-                        setFieldValue("collateralDetails", []);
-                        setFieldValue("documents", []);
-                         // 🔹 Auto fill loan details
-      if (selectedObj) {
-        setFieldValue("intrestRate", selectedObj.intrestRate || "");
-        setFieldValue("intrestRateType", selectedObj.intrestType || "");
-        
-       
-      } else {
-        setFieldValue("intrestRate", "");
-        setFieldValue("intrestRateType", "");
-       
-     
-      }
-                      }}
-                    >
-                      <option value="">Select</option>
-                      {loanTypeList?.map((v, i) => (
-                        <option key={i} value={v._id}>
-                          {v.name}
-                        </option>
-                      ))}
-                    </Field>
-                    <ErrorMessage
-                      name="loanId"
-                      component="div"
-                      className="text-danger small"
-                    />
-                  </div>
-
-                  {/* Branch */}
-                  <div className="col-md-6">
-                    <label className="form-label">Branch</label>
-                    <Field as="select" name="branchId" className="form-control">
-                      <option value="">Select</option>
-                      {branchList?.map((v, i) => (
-                        <option key={i} value={v._id}>
-                          {v.name}
-                        </option>
-                      ))}
-                    </Field>
-                    <ErrorMessage
-                      name="branchId"
-                      component="div"
-                      className="text-danger small"
-                    />
-                  </div>
-
-                  {/* User */}
-                  <div className="col-md-6">
-                    <label className="form-label">User</label>
-                    <Field
-                      as="select"
-                      name="userId"
-                      className="form-control"
-                      onChange={(e) => {
-                        const selectedId = e.target.value;
-                        const selectedObj = userList.find(
-                          (user) => user._id === selectedId
-                        );
-                        setFieldValue("userId", selectedId);
-                        setSelectedUser(selectedObj || null);
-                        if (selectedObj) {
-                          setFieldValue(
-                            "panNumber",
-                            selectedObj.panNumber || ""
-                          );
-                          setFieldValue(
-                            "creditScore",
-                            selectedObj.creditScore || ""
-                          );
-                        } else {
-                          setFieldValue("panNumber", "");
-                          setFieldValue("creditScore", "");
-                        }
-                      }}
-                    >
-                      <option value="">Select</option>
-                      {userList?.map((v, i) => (
-                        <option key={i} value={v._id}>
-                          {v.firstName + " " + v.lastName}
-                        </option>
-                      ))}
-                    </Field>
-                    <ErrorMessage
-                      name="userId"
-                      component="div"
-                      className="text-danger small"
-                    />
-                  </div>
-
-                  {/* Assigned Admin */}
-                  <div className="col-md-6">
-                    <label className="form-label">Assigned To</label>
-                    <Field
-                      as="select"
-                      name="assignedAdminId"
-                      className="form-control"
-                    >
-                      <option value="">Select</option>
-                      {adminList?.map((v, i) => (
-                        <option key={i} value={v._id}>
-                          {v.firstName + " " + v.lastName}
-                        </option>
-                      ))}
-                    </Field>
-                    <ErrorMessage
-                      name="assignedAdminId"
-                      component="div"
-                      className="text-danger small"
-                    />
-                  </div>
-                  {selectedUser && (
-                    <>
-                      <div className="col-md-6">
-                        <label className="form-label">PAN Number</label>
+                  {section.fields.map((f, i) => (
+                    <div className="col-md-6" key={i}>
+                      <label className="form-label">{f.label}</label>
+                      {f.type === "select" ? (
                         <Field
+                          as="select"
+                          name={f.name}
                           className="form-control"
-                          type="text"
-                          name="panNumber"
-                          placeholder="Enter PAN Number"
+                        >
+                          <option value="">Select</option>
+                          {f.options?.map((opt, j) => (
+                            <option key={j} value={opt.value}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </Field>
+                      ) : f.type === "file" ? (
+                        <input
+                          type="file"
+                          className="form-control"
+                          onChange={(e) =>
+                            setFieldValue(f.name, e.target.files[0])
+                          }
                         />
-                        <ErrorMessage
-                          name="panNumber"
-                          component="div"
-                          className="text-danger small"
-                        />
-                      </div>
-
-                      <div className="col-md-6">
-                        <label className="form-label">Credit Score</label>
+                      ) : (
                         <Field
+                          type={f.type}
+                          name={f.name}
                           className="form-control"
-                          type="number"
-                          name="creditScore"
-                          placeholder="Enter Credit Score"
                         />
-                        <ErrorMessage
-                          name="creditScore"
-                          component="div"
-                          className="text-danger small"
-                        />
-                      </div>
-                    </>
-                  )}
+                      )}
+                      <ErrorMessage
+                        name={f.name}
+                        component="div"
+                        className="text-danger mt-1"
+                      />
+                    </div>
+                  ))}
                 </div>
               </div>
-
-              {/* ---------------- Loan Details Section ---------------- */}
-              <div className="form-section shadow-sm mb-3">
-                <div className="form-section-header">Loan Details</div>
-                <div className="form-section-body row g-3">
-                  {/* Loan Amount */}
-                  <div className="col-md-7">
-                    <label className="form-label">Loan Amount</label>
-                    <Field
-                      className="form-control"
-                      type="number"
-                      name="loanAmount"
-                      placeholder="Enter loan amount"
-                    />
-                    <ErrorMessage
-                      name="loanAmount"
-                      component="div"
-                      className="text-danger small"
-                    />
-                  </div>
-
-                  {/* Tenure */}
-                  <div className="col-md-6">
-                    <label className="form-label">Tenure</label>
-                    <Field
-                      className="form-control"
-                      type="number"
-                      name="loanTenuare"
-                      placeholder="Enter loan tenure"
-                    />
-                    <ErrorMessage
-                      name="loanTenuare"
-                      component="div"
-                      className="text-danger small"
-                    />
-                  </div>
-
-                  {/* Tenure Type */}
-                  <div className="col-md-6">
-                    <label className="form-label">Tenure Type</label>
-                    <Field
-                      as="select"
-                      name="loanTenuareType"
-                      className="form-control"
-                    >
-                      <option value="">Select</option>
-                      <option value="days">Days</option>
-                      <option value="months">Months</option>
-                      <option value="years">Years</option>
-                    </Field>
-                    <ErrorMessage
-                      name="loanTenuareType"
-                      component="div"
-                      className="text-danger small"
-                    />
-                  </div>
-
-                  {/* Interest Rate */}
-                  <div className="col-md-6">
-                    <label className="form-label">Interest Rate</label>
-                    <Field
-                      className="form-control"
-                      type="number"
-                      name="intrestRate"
-                      placeholder="Enter interest rate"
-                    />
-                    <ErrorMessage
-                      name="intrestRate"
-                      component="div"
-                      className="text-danger small"
-                    />
-                  </div>
-
-                  {/* Interest Type */}
-                  <div className="col-md-6">
-                    <label className="form-label">Interest Type</label>
-                    <Field
-                      as="select"
-                      name="intrestRateType"
-                      className="form-control"
-                    >
-                      <option value="">Select</option>
-                      <option value="flat">Flat</option>
-                      <option value="reducing">Reducing</option>
-                      <option value="simple">Simple</option>
-                      <option value="compound">Compound</option>
-                    </Field>
-                    <ErrorMessage
-                      name="intrestRateType"
-                      component="div"
-                      className="text-danger small"
-                    />
-                  </div>
-
-                  {/* Repayment Frequency */}
-                  <div className="col-md-6">
-                    <label className="form-label">Repayment Frequency</label>
-                    <Field
-                      className="form-control"
-                      type="number"
-                      name="repaymentFrequency"
-                      placeholder="Enter repayment frequency"
-                    />
-                    <ErrorMessage
-                      name="repaymentFrequency"
-                      component="div"
-                      className="text-danger small"
-                    />
-                  </div>
-
-                  {/* Repayment Frequency Type */}
-                  <div className="col-md-6">
-                    <label className="form-label">Frequency Type</label>
-                    <Field
-                      as="select"
-                      name="repaymentFrequencyType"
-                      className="form-control"
-                    >
-                      <option value="">Select</option>
-                      <option value="days">Days</option>
-                      <option value="months">Months</option>
-                    </Field>
-                    <ErrorMessage
-                      name="repaymentFrequencyType"
-                      component="div"
-                      className="text-danger small"
-                    />
-                  </div>
-
-                  {/* Start Date */}
-                  <div className="col-md-6">
-                    <label className="form-label">Start Date</label>
-                    <Field
-                      className="form-control"
-                      type="date"
-                      name="startDate"
-                    />
-                    <ErrorMessage
-                      name="startDate"
-                      component="div"
-                      className="text-danger small"
-                    />
-                  </div>
-
-                  {/* End Date */}
-                  <div className="col-md-6">
-                    <label className="form-label">End Date</label>
-                    <Field
-                      className="form-control"
-                      type="date"
-                      name="endDate"
-                    />
-                    <ErrorMessage
-                      name="endDate"
-                      component="div"
-                      className="text-danger small"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* ---------------- Collateral Section ---------------- */}
-              {selectedLoanType &&
-                selectedLoanType?.collateralRequired &&
-                selectedLoanType?.collateralTypes?.[0]?.split(",")?.length >
-                  0 && (
-                  <div className="form-section shadow-sm mb-3">
-                    <div className="form-section-header">
-                      Collateral Details
-                    </div>
-                    {(Array.isArray(selectedLoanType.collateralTypes)
-                      ? selectedLoanType.collateralTypes[0]?.split(",")
-                      : selectedLoanType.collateralTypes.split(",")
-                    )?.map((v, i) => (
-                      <div className="form-section-body row g-3" key={i}>
-                        <div className="col-md-12">
-                          <label className="form-label mt-3">
-                            {v} Description
-                          </label>
-                          <textarea
-                            className="form-control"
-                            placeholder={`Enter ${v} details`}
-                            rows={3}
-                            value={
-                              values.collateralDetails[i]?.description || ""
-                            }
-                            onChange={(e) => {
-                              const newCollaterals = [
-                                ...values.collateralDetails,
-                              ];
-                              newCollaterals[i] = {
-                                name: v,
-                                description: e.target.value,
-                              };
-                              setFieldValue(
-                                "collateralDetails",
-                                newCollaterals
-                              );
-                            }}
-                          />
-                          <ErrorMessage
-                            name={`collateralDetails[${i}].description`}
-                            component="div"
-                            className="text-danger small"
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-              {/* ---------------- Documents Section ---------------- */}
-              {selectedLoanType &&
-                selectedLoanType?.documentRequired?.length > 0 && (
-                  <div className="form-section shadow-sm mb-3">
-                    <div className="form-section-header">
-                      Required Documents
-                    </div>
-                    <div className="form-section-body row g-3">
-                      {selectedLoanType?.documentRequired?.map((v, i) => (
-                        <div className="col-md-6" key={i}>
-                          <label className="form-label">Upload {v}</label>
-                          <input
-                            className="form-control"
-                            type="file"
-                            onChange={(e) => {
-                              const newDocs = [...values.documents];
-                              newDocs[i] = {
-                                name: v,
-                                image: e.target.files[0],
-                              };
-                              setFieldValue("documents", newDocs);
-                            }}
-                          />
-                          <ErrorMessage
-                            name={`documents[${i}].image`}
-                            component="div"
-                            className="text-danger small"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-              {/* ---------------- Submit Button ---------------- */}
-              <div className="d-flex justify-content-end">
-                <button
-                  type="submit"
-                  style={{ width: "180px" }}
-                  className={`btn bgThemePrimary mt-3 ${
-                    submitBtnLoader ? "opacity-50" : ""
-                  }`}
-                  disabled={submitBtnLoader}
-                >
-                  {submitBtnLoader ? "Saving ..." : "Submit"}
-                </button>
-              </div>
-            </Form>
-          )}
-        </Formik>
-      </div>
+            ))}
+            <button
+              type="submit"
+              className="btn bgThemePrimary w-100"
+              disabled={submitBtnLoader}
+            >
+              {submitBtnLoader ? "Submitting..." : "Submit"}
+            </button>
+          </Form>
+        )}
+      </Formik>
     </div>
   );
 }
