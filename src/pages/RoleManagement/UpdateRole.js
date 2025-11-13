@@ -68,16 +68,22 @@ function UpdateRole() {
       list: [
         {
           menu: "Users",
-          permissions: ["View", "Create", "Edit", "Delete"],
+          permissions: ["View", "Create", "Edit", "Delete", "Approve"],
         },
       ],
     },
     {
       title: "Loan Management",
-      list: [
+       list: [
         {
-          menu: "Loans",
-          permissions: ["View", "Create", "Edit", "Delete"],
+          menu: "Regular Loans",
+
+           permissions: ["View", "Create", "Edit", "Delete"],
+        },
+        {
+          menu: "Payday Loans",
+
+           permissions: ["View", "Create", "Edit", "Delete"],
         },
       ],
     },
@@ -102,6 +108,10 @@ function UpdateRole() {
     {
       title: "System Management",
       list: [
+        {
+          menu: "System Configration",
+          permissions: ["View",  "Edit"],
+        },
         {
           menu: "Loan Type",
           permissions: ["View", "Create", "Edit", "Delete"],

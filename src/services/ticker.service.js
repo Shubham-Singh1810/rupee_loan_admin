@@ -53,6 +53,16 @@ export const ticketCategoryAddServ = async (payload) => {
     throw error;
   }
 };
+export const ticketAddServ = async (payload) => {
+  try {
+    const response = await axios.post(BASE_URL + "ticket/create", payload);
+    return response;
+  } catch (error) {
+    // Handle error (e.g., log or throw an error)
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+};
 export const ticketCategoryUpdateServ = async (payload) => {
   try {
     const response = await axios.put(BASE_URL + "ticket-category/update", payload);

@@ -6,7 +6,10 @@ import {
   ticketCategoryUpdateServ,
   ticketCategoryAddServ,
   ticketCategoryDeleteServ,
+  getTicketCategoryListServ,
+  ticketAddServ,
 } from "../../services/ticker.service";
+import { getUserListServ } from "../../services/user.service";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import NoDataScreen from "../../components/NoDataScreen";
@@ -51,27 +54,17 @@ function AllTicket() {
     getListFunc();
   }, [payload]);
   const [addFormData, setAddFormData] = useState({
-    name: "",
-    phone: "",
-    contactPerson: "",
-    status: "",
-    address: "",
-    city: "",
-    state: "",
-    pincode: "",
+    subject: "",
     description: "",
+    userId: "",
+    ticketCategoryId: "",
     show: false,
   });
   const [editFormData, setEditFormData] = useState({
-    name: "",
-    phone: "",
-    contactPerson: "",
-    status: "",
-    address: "",
-    city: "",
-    state: "",
-    pincode: "",
+    subject: "",
     description: "",
+    userId: "",
+    ticketCategoryId: "",
     _id: "",
   });
   const renderProfile = (status) => {
@@ -125,24 +118,21 @@ function AllTicket() {
       toast.error("Internal Server error");
     }
   };
-  const CategorySchema = Yup.object().shape({
-    name: Yup.string().required("Name is required"),
-    status: Yup.boolean().required("Status is required"),
+  const SupportTicketSchema = Yup.object().shape({
+    subject: Yup.string().required("Subject is required"),
+    userId: Yup.string().required("User is required"),
+    ticketCategoryId: Yup.string().required("Category is required"),
+    description: Yup.string(),
   });
-  const handleAddCategory = async (value) => {
+  const handleAddSupportTicket = async (value) => {
     try {
-      let response = await ticketCategoryAddServ(value);
+      let response = await ticketAddServ(value);
       if (response?.data?.statusCode == "200") {
         setAddFormData({
-          name: "",
-          phone: "",
-          contactPerson: "",
-          status: "",
-          address: "",
-          city: "",
-          state: "",
-          pincode: "",
+          subject: "",
           description: "",
+          userId: "",
+          ticketCategoryId: "",
           show: false,
         });
         toast.success(response?.data?.message);
@@ -154,7 +144,7 @@ function AllTicket() {
       toast?.error("Internal Server Error!");
     }
   };
-  const handleUpdateCategory = async (value) => {
+  const handleUpdateSupportTicket = async (value) => {
     try {
       let response = await ticketCategoryUpdateServ({
         ...value,
@@ -175,7 +165,32 @@ function AllTicket() {
       toast?.error("Internal Server Error!");
     }
   };
-
+  const [ticketCategoryList, setTicketCategoryList] = useState([]);
+  const getTicketCategoryListFunc = async () => {
+    try {
+      let response = await getTicketCategoryListServ({ status: true });
+      if (response?.data?.statusCode == "200") {
+        setTicketCategoryList(response?.data?.data);
+      }
+    } catch (error) {
+      console.log("Something went wrong");
+    }
+  };
+  const [userList, setUserList] = useState([]);
+  const getUserListFunc = async () => {
+    try {
+      let response = await getUserListServ({ isUserApproved: true });
+      if (response?.data?.statusCode == "200") {
+        setUserList(response?.data?.data);
+      }
+    } catch (error) {
+      console.log("Something went wrong");
+    }
+  };
+  useEffect(() => {
+    getTicketCategoryListFunc();
+    getUserListFunc();
+  }, []);
   return (
     <div className="container-fluid user-table py-3">
       {/* KPIs */}
@@ -288,7 +303,7 @@ function AllTicket() {
           </div>
           <button
             className="btn  bgThemePrimary shadow-sm"
-            onClick={() => toast.info("Work in progress")}
+            onClick={() => setAddFormData({ ...addFormData, show: true })}
           >
             + Add Ticket
           </button>
@@ -310,6 +325,7 @@ function AllTicket() {
                   <th>Subject</th>
                   <th>Assigned To</th>
                   <th>Category</th>
+                  <th>Description</th>
                   <th className="text-center">Created At</th>
 
                   <th className="text-center">Status</th>
@@ -340,6 +356,9 @@ function AllTicket() {
                             <Skeleton width={100} />
                           </td>
 
+                          <td>
+                            <Skeleton width={100} />
+                          </td>
                           <td>
                             <Skeleton width={100} />
                           </td>
@@ -394,7 +413,7 @@ function AllTicket() {
                               </div>
                             </div>
                           </td>
-                          <td>{v?.subject}</td>
+                          <td style={{width:"150px"}}>{v?.subject}</td>
                           <td>
                             {v?.assignedTo ? (
                               <div className="d-flex align-items-center">
@@ -437,6 +456,7 @@ function AllTicket() {
                             )}
                           </td>
                           <td>{v?.ticketCategoryId?.name}</td>
+                          <td style={{width:"150px"}}>{v?.description || "N/A"}</td>
                           <td className="text-center">
                             {moment(v?.createdAt).format("DD-MM-YYYY")}
                           </td>
@@ -477,7 +497,6 @@ function AllTicket() {
               className="modal-content"
               style={{
                 borderRadius: "8px",
-
                 width: "400px",
               }}
             >
@@ -491,14 +510,14 @@ function AllTicket() {
                 >
                   <div className="w-100 px-2">
                     <div className="d-flex justify-content-between align-items-center">
-                      <h5 className="">Add Category</h5>
+                      <h5 className="">Add Ticket</h5>
                       <img
                         onClick={() =>
                           setAddFormData({
-                            name: "",
-
-                            status: "",
-
+                            subject: "",
+                            description: "",
+                            userId: "",
+                            ticketCategoryId: "",
                             show: false,
                           })
                         }
@@ -510,13 +529,14 @@ function AllTicket() {
                     {/* ✅ Formik Form Start */}
                     <Formik
                       initialValues={{
-                        name: "",
-
-                        status: "",
+                        subject: "",
+                        description: "",
+                        userId: "",
+                        ticketCategoryId: "",
                       }}
-                      validationSchema={CategorySchema}
+                      validationSchema={SupportTicketSchema}
                       onSubmit={(values) => {
-                        handleAddCategory(values);
+                        handleAddSupportTicket(values);
                       }}
                     >
                       {({ isSubmitting }) => (
@@ -525,15 +545,15 @@ function AllTicket() {
                             {/* Name */}
                             <div className="col-12">
                               <label className="mt-3">
-                                Name<span className="text-danger">*</span>
+                                Subject<span className="text-danger">*</span>
                               </label>
                               <Field
                                 className="form-control"
                                 type="text"
-                                name="name"
+                                name="subject"
                               />
                               <ErrorMessage
-                                name="name"
+                                name="subject"
                                 component="div"
                                 className="text-danger"
                               />
@@ -542,19 +562,64 @@ function AllTicket() {
                             {/* Status */}
                             <div className="col-12">
                               <label className="mt-3">
-                                Status<span className="text-danger">*</span>
+                                Category<span className="text-danger">*</span>
                               </label>
                               <Field
                                 as="select"
                                 className="form-control"
-                                name="status"
+                                name="ticketCategoryId"
                               >
-                                <option value="">Select Status</option>
-                                <option value={true}>Active</option>
-                                <option value={false}>Inactive</option>
+                                <option value="">Select Category</option>
+                                {ticketCategoryList?.map((v, i) => {
+                                  return (
+                                    <option value={v?._id}>{v?.name}</option>
+                                  );
+                                })}
                               </Field>
                               <ErrorMessage
-                                name="status"
+                                name="ticketCategoryId"
+                                component="div"
+                                className="text-danger"
+                              />
+                            </div>
+                            <div className="col-12">
+                              <label className="mt-3">
+                                User<span className="text-danger">*</span>
+                              </label>
+                              <Field
+                                as="select"
+                                className="form-control"
+                                name="userId"
+                              >
+                                <option value="">Select User</option>
+                                {userList?.map((v, i) => {
+                                  return (
+                                    <option value={v?._id}>
+                                      {v?.firstName + " " + v?.lastName}
+                                    </option>
+                                  );
+                                })}
+                              </Field>
+                              <ErrorMessage
+                                name="userId"
+                                component="div"
+                                className="text-danger"
+                              />
+                            </div>
+                            <div className="col-12">
+                              <label className="mt-3">
+                                Description
+                                <span className="text-danger">*</span>
+                              </label>
+                              <Field
+                                as="textarea"
+                                className="form-control"
+                                name="description"
+                                rows="4"
+                                placeholder="Enter description here..."
+                              />
+                              <ErrorMessage
+                                name="description"
                                 component="div"
                                 className="text-danger"
                               />
@@ -581,112 +646,7 @@ function AllTicket() {
         </div>
       )}
       {addFormData?.show && <div className="modal-backdrop fade show"></div>}
-      {editFormData?._id && (
-        <div
-          className="modal fade show d-flex align-items-center justify-content-center"
-          tabIndex="-1"
-        >
-          <div className="modal-dialog">
-            <div
-              className="modal-content"
-              style={{
-                borderRadius: "8px",
-                width: "400px",
-              }}
-            >
-              <div className="modal-body">
-                <div
-                  style={{
-                    wordWrap: "break-word",
-                    whiteSpace: "pre-wrap",
-                  }}
-                  className="d-flex justify-content-center w-100"
-                >
-                  <div className="w-100 px-2">
-                    <div className="d-flex justify-content-between align-items-center">
-                      <h5 className="">Update Branch</h5>
-                      <img
-                        onClick={() =>
-                          setEditFormData({
-                            show: false,
-                            name: "",
 
-                            status: "",
-                          })
-                        }
-                        src="https://cdn-icons-png.flaticon.com/128/2734/2734822.png"
-                        style={{ height: "20px", cursor: "pointer" }}
-                      />
-                    </div>
-
-                    {/* ✅ Formik Form Start */}
-                    <Formik
-                      initialValues={{
-                        name: editFormData?.name || "",
-
-                        status: editFormData?.status?.toString() || "",
-                      }}
-                      validationSchema={CategorySchema}
-                      onSubmit={(values) => {
-                        handleUpdateCategory(values);
-                      }}
-                      enableReinitialize
-                    >
-                      {({ isSubmitting, dirty }) => (
-                        <Form>
-                          <div className="row">
-                            <div className="col-12">
-                              <label className="mt-3">Name</label>
-                              <Field
-                                className="form-control"
-                                type="text"
-                                name="name"
-                              />
-                              <ErrorMessage
-                                name="name"
-                                component="div"
-                                className="text-danger"
-                              />
-                            </div>
-                            <div className="col-12">
-                              <label className="mt-3">Status</label>
-                              <Field
-                                as="select"
-                                className="form-control"
-                                name="status"
-                              >
-                                <option value="">Select Status</option>
-                                <option value={true}>Active</option>
-                                <option value={false}>Inactive</option>
-                              </Field>
-                              <ErrorMessage
-                                name="status"
-                                component="div"
-                                className="text-danger"
-                              />
-                            </div>
-                          </div>
-
-                          {/* Submit */}
-                          <button
-                            className="btn bgThemePrimary  w-100 mt-3"
-                            type="submit"
-                            disabled={isSubmitting || !dirty}
-                          >
-                            {isSubmitting ? "Updating..." : "Update"}
-                          </button>
-                        </Form>
-                      )}
-                    </Formik>
-                    {/* ✅ Formik Form End */}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-      {editFormData?._id && <div className="modal-backdrop fade show"></div>}
       <ConfirmDeleteModal
         show={showConfirm}
         handleClose={() => setShowConfirm(false)}

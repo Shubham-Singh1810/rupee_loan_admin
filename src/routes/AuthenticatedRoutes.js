@@ -85,6 +85,7 @@ import UpdateUser from "../pages/UserManagement/UpdateUser";
 import LoanPurpose from "../pages/SupportManagement/LoanPurpose";
 import PaydayLoanApplication from "../pages/PaydayLoanManagement/PaydayLoanApplicationList";
 import UpdateLoanRequirement from "../pages/PayDayLoanType/UpdateLoanRequirement";
+import SystemConfigration from "../pages/SystemManagement/SystemConfigration";
 
 function AuthenticatedRoutes() {
   return (
@@ -183,9 +184,12 @@ function AuthenticatedRoutes() {
           />
         </Route>
 
-         <Route element={<ProtectedRoute allowedPermissions={["Loans-View"]} />}>
+        <Route element={<ProtectedRoute allowedPermissions={["Loans-View"]} />}>
           <Route path="/:loanName/:loanId" element={<ApplicationList />} />
-          <Route path="/payday-loan-applications" element={<PaydayLoanApplication />} />
+          <Route
+            path="/payday-loan-applications"
+            element={<PaydayLoanApplication />}
+          />
           <Route
             path="/create-application"
             element={<CreateLoanApplication />}
@@ -224,12 +228,22 @@ function AuthenticatedRoutes() {
         >
           <Route path="/loan-type-list" element={<LoanTypeList />} />
         </Route>
-        
-        
+
         <Route
           element={<ProtectedRoute allowedPermissions={["Loan Type-Edit"]} />}
         >
-          <Route path="/payday-loan-configration" element={<UpdateLoanRequirement />} />
+          <Route
+            path="/payday-loan-configration"
+            element={<UpdateLoanRequirement />}
+          />
+        </Route>
+        {/* System configration */}
+        <Route
+          element={
+            <ProtectedRoute allowedPermissions={["System Configration-View"]} />
+          }
+        >
+          <Route path="/system-configration" element={<SystemConfigration />} />
         </Route>
 
         {/* Policies & System */}
@@ -261,15 +275,15 @@ function AuthenticatedRoutes() {
         </Route>
 
         {/* Tickets */}
-        {/* <Route
+        <Route
           element={<ProtectedRoute allowedPermissions={["Tickets-View"]} />}
-        > */}
+        >
         <Route path="/all-tickets" element={<AllTicket />} />
         <Route path="/ticket-categories" element={<TicketCategories />} />
         <Route path="/opened-tickets" element={<OpenTicket />} />
         <Route path="/closed-tickets" element={<ClosedTicket />} />
         <Route path="/chat-details/:id" element={<ChatBox />} />
-        {/* </Route> */}
+        </Route>
 
         {/* faq */}
         <Route element={<ProtectedRoute allowedPermissions={["FAQ'S-View"]} />}>

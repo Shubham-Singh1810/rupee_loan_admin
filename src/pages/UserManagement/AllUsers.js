@@ -13,7 +13,10 @@ import { toast } from "react-toastify";
 import Pagination from "../../components/Pagination";
 import moment from "moment";
 import ConfirmDeleteModal from "../../components/ConfirmDeleteModal";
+import { useGlobalState } from "../../GlobalProvider";
 function AllUsers() {
+  const { globalState } = useGlobalState();
+  const permissions = globalState?.user?.role?.permissions || [];
   const [list, setList] = useState([]);
   const navigate = useNavigate();
   const [showSkelton, setShowSkelton] = useState(false);
@@ -238,6 +241,74 @@ function AllUsers() {
               />
             </form>
           </div>
+          <div className="dropdown me-2">
+            <button
+              className="btn btn-light dropdown-toggle border height37"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+              style={{
+                width: "200px",
+                fontSize: "14px",
+              }}
+            >
+              {payload?.profileStatus == "registered"
+                ? "Registered"
+                : payload?.profileStatus == "verified"
+                ? "Verified"
+                : "Select Profile Status"}
+            </button>
+            <ul className="dropdown-menu">
+              <li>
+                <button
+                  className="dropdown-item"
+                  onClick={() => setPayload({ ...payload, profileStatus: "" })}
+                >
+                  Select Profile Status
+                </button>
+              </li>
+              <li>
+                <button
+                  className="dropdown-item"
+                  onClick={() =>
+                    setPayload({ ...payload, profileStatus: "registered" })
+                  }
+                >
+                  Registered
+                </button>
+              </li>
+              <li>
+                <button
+                  className="dropdown-item"
+                  onClick={() =>
+                    setPayload({ ...payload, profileStatus: "verified" })
+                  }
+                >
+                  Verified
+                </button>
+              </li>
+              <li>
+                <button
+                  className="dropdown-item"
+                  onClick={() =>
+                    setPayload({ ...payload, profileStatus: "active" })
+                  }
+                >
+                  Active
+                </button>
+              </li>
+              <li>
+                <button
+                  className="dropdown-item"
+                  onClick={() =>
+                    setPayload({ ...payload, profileStatus: "blocked" })
+                  }
+                >
+                  Blocked
+                </button>
+              </li>
+            </ul>
+          </div>
           <button
             className="btn bgThemePrimary shadow-sm"
             onClick={() => navigate("/create-user")}
@@ -263,8 +334,14 @@ function AllUsers() {
 
                   <th className="text-center">Profile Status</th>
                   <th className="text-center">Created By</th>
-                  <th className="text-center">Manage</th>
-                  <th style={{ textAlign: "center" }}>Action</th>
+                  {permissions?.includes("Users-Approve") && (
+                    <th style={{ textAlign: "center" }}>Manage</th>
+                  )}
+
+                  {(permissions?.includes("Users-Edit") ||
+                    permissions?.includes("Users-Delete")) && (
+                    <th style={{ textAlign: "center" }}>Action</th>
+                  )}
                 </tr>
               </thead>
               <tbody>
@@ -292,12 +369,18 @@ function AllUsers() {
                           <td className="text-center">
                             <Skeleton width={100} />
                           </td>
-                          <td className="text-center">
-                            <Skeleton width={100} />
-                          </td>
-                          <td className="text-center">
-                            <Skeleton width={100} />
-                          </td>
+
+                          {permissions?.includes("Users-Approve") && (
+                            <td className="text-center">
+                              <Skeleton width={100} />
+                            </td>
+                          )}
+                          {(permissions?.includes("Users-Edit") ||
+                            permissions?.includes("Users-Delete")) && (
+                            <td className="text-center">
+                              <Skeleton width={100} />
+                            </td>
+                          )}
                         </tr>
                       );
                     })
@@ -360,7 +443,8 @@ function AllUsers() {
                               </span>
                             )}
                           </td>
-                          <td className="text-center">
+                          {permissions?.includes("Users-Approve") && (
+                            <td className="text-center">
                             {v?.isUserApproved ? (
                               <button
                                 className="status-toggle approved"
@@ -376,13 +460,20 @@ function AllUsers() {
                                 className="status-toggle pending bg-secondary"
                                 onClick={() => updateStatusFunc(v?._id, true)}
                               >
-                                <span style={{ fontSize: "10px",  }}>
-                                  Pending
+                                <span style={{ fontSize: "10px" }}>
+                                  Inactive
                                 </span>
                                 <div className="circle "></div>
                               </button>
                             )}
                           </td>
+                          )}
+                          
+                          {/* <td style={{ textAlign: "center" }}>
+                            
+                            
+                            
+                          </td> */}
                           <td style={{ textAlign: "center" }}>
                             <a
                               onClick={() =>
@@ -392,13 +483,16 @@ function AllUsers() {
                             >
                               <i class="bi bi-eye fs-6"></i>
                             </a>
-                            <a
+                            {permissions?.includes("Users-Edit") && (
+                              <a
                               onClick={() => navigate("/update-user/" + v?._id)}
                               className="text-primary text-decoration-underline mx-2"
                             >
                               <i class="bi bi-pencil fs-6"></i>
                             </a>
-                            <a
+                            )}
+                            {permissions?.includes("Users-Delete") && (
+                              <a
                               onClick={() => {
                                 setDeleteId(v?._id);
                                 setShowConfirm(true);
@@ -407,6 +501,7 @@ function AllUsers() {
                             >
                               <i class="bi bi-trash fs-6"></i>
                             </a>
+                            )}
                           </td>
                         </tr>
                       );

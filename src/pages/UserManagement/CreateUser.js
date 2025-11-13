@@ -46,7 +46,7 @@ function CreateUser() {
         formData.append(key, values[key]);
       });
       formData.append("createdBy", globalState?.user?._id);
-      formData.append("profileStatus", "inActive");
+      formData.append("isUserApproved", false);
       let response = await createUserServ(formData);
       if (response?.data?.statusCode == "200") {
         toast.success(response?.data?.message);

@@ -12,7 +12,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useGlobalState } from "../../GlobalProvider";
 
-function CreateLoanApplication() {
+function CreatePayDayApplication() {
   const { globalState } = useGlobalState();
   const navigate = useNavigate();
 
@@ -635,4 +635,4 @@ function CreateLoanApplication() {
   );
 }
 
-export default CreateLoanApplication;
+export default CreatePayDayApplication;

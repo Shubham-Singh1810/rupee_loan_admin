@@ -57,7 +57,7 @@ function AssignRole() {
       list: [
         {
           menu: "Users",
-          permissions: ["View", "Create", "Edit", "Delete"],
+          permissions: ["View", "Create", "Edit", "Delete", "Approve"],
           
         },
       ],
@@ -66,7 +66,12 @@ function AssignRole() {
       title: "Loan Management",
       list: [
         {
-          menu: "Loans",
+          menu: "Regular Loans",
+
+           permissions: ["View", "Create", "Edit", "Delete"],
+        },
+        {
+          menu: "Payday Loans",
 
            permissions: ["View", "Create", "Edit", "Delete"],
         },
@@ -93,6 +98,10 @@ function AssignRole() {
     {
       title: "System Management",
       list: [
+        {
+          menu: "System Configration",
+          permissions: ["View",  "Edit"],
+        },
         {
           menu: "Loan Type",
           permissions: ["View", "Create", "Edit", "Delete"],
@@ -155,7 +164,6 @@ function AssignRole() {
           });
         });
       } else {
-        // tick करने पर → सब add कर दो
         current[title] = ["View"];
         list.forEach((menu) => {
           if (menu.permissions) current[menu.menu] = [...menu.permissions];

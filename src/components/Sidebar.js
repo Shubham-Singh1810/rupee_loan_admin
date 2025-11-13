@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { loanTypeListServ } from "../services/loan.services";
 import { useGlobalState } from "../GlobalProvider";
+import { getSystemConfigrationDetailsServ } from "../services/systemConfigration.services";
 
 function Sidebar({ isCollapsed }) {
   const { globalState } = useGlobalState();
@@ -26,7 +27,58 @@ function Sidebar({ isCollapsed }) {
     getListFunc();
   }, []);
 
+  const [systemConfigrationDetails, setSystemConfigrationDetails] = useState({
+    isPaydayLoanActive: "",
+    isRegularLoanActive: "",
+  });
+  const getConfigrationDetailsFunc = async () => {
+    try {
+      let response = await getSystemConfigrationDetailsServ();
+      if (response?.data?.statusCode == "200") {
+        setSystemConfigrationDetails({
+          isPaydayLoanActive: response?.data?.data?.isPaydayLoanActive,
+          isRegularLoanActive: response?.data?.data?.isRegularLoanActive,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    getConfigrationDetailsFunc();
+  }, []);
   // Map menus with required permissions
+  const renderLoan = () => {
+     {
+      return {
+        title: "Loan Management",
+        list: [
+          systemConfigrationDetails?.isRegularLoanActive && {
+            menu: "Regular Loans",
+            icon: "bi bi-cash-coin",
+            permission: "Loans-View",
+            subMenu: [
+              { name: "All Loans", path: "/all-applications" },
+              ...list?.map((loan) => ({
+                name: loan?.name,
+                path: `/${loan?.name
+                  .replace(/\s+/g, "-")
+                  .toLowerCase()}-applications/${loan?._id}`,
+              })),
+            ],
+          },
+          systemConfigrationDetails?.isPaydayLoanActive && {
+            menu: "Payday Loans",
+            icon: "bi bi-cash",
+            permission: "Payday Loans-View",
+            path: "/payday-loan-applications" 
+            
+          },
+        ].filter(Boolean), // ✅ removes `false` or `undefined` items
+      };
+    }
+  };
+
   const navItems = [
     {
       title: "Dashboard",
@@ -86,34 +138,8 @@ function Sidebar({ isCollapsed }) {
         },
       ],
     },
-    {
-      title: "Loan Management",
-      list: [
-        {
-          menu: "Regular Loans",
-          icon: "bi bi-cash-coin",
-          permission: "Loans-View",
-          subMenu: [
-            { name: "All Loans", path: "/all-applications" },
-            ...list?.map((loan) => ({
-              name: loan?.name,
-              path: `/${loan?.name
-                .replace(/\s+/g, "-")
-                .toLowerCase()}-applications/${loan?._id}`,
-            })),
-          ],
-        },
-        {
-          menu: "Payday Loans",
-          icon: "bi bi-cash",
-          permission: "Loans-View",
-          subMenu: [
-            { name: "Applications", path: "/payday-loan-applications" },
-           
-          ],
-        },
-      ],
-    },
+    renderLoan(),
+
     {
       title: "Fund Management",
       list: [
@@ -140,10 +166,16 @@ function Sidebar({ isCollapsed }) {
       title: "System Management",
       list: [
         {
+          menu: "System Configration",
+          path: "/system-configration",
+          icon: "bi bi-gear",
+          permission: "System Configration-View",
+        },
+        {
           menu: "Loan Type",
           path: "/loan-type-list",
           icon: "bi bi-ui-checks-grid",
-          permission: "Loan Type-View",
+          permission: "Regular Loans-View",
         },
         {
           menu: "Role Management",
@@ -195,17 +227,17 @@ function Sidebar({ isCollapsed }) {
         {
           menu: "Payday Loan",
           icon: "bi bi-clipboard-check",
-          permission: "Documents-View",
+          permission: "Payday Loans-View",
           subMenu: [
             {
               name: "Loan Configration",
               path: "/payday-loan-configration",
-              permission: "Terms & Condition-View",
+              permission: "Payday Loans-View",
             },
             {
               name: "Loan Purpose",
               path: "/loan-purpose",
-              permission: "Privacy Policy-View",
+              permission: "Payday Loans-View",
             },
           ],
         },
