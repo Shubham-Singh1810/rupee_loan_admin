@@ -830,7 +830,7 @@ function AdminList() {
                               />
                             </div>
                             <div className="col-6">
-                              <label className="form-label">Branch</label>
+                              <label className="form-label mt-3 mb-0" >Branch</label>
                               <MultiSelect
                                 options={branchList.map((v) => ({
                                   value: v?._id,
@@ -1099,7 +1099,7 @@ function AdminList() {
 
                             {/* Branch */}
                             <div className="col-6">
-                              <label className="form-label">Branch</label>
+                              <label className="form-label mt-3 mb-0">Branch</label>
                               <MultiSelect
                                 options={branchList.map((v) => ({
                                   value: v?._id,

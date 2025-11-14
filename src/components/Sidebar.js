@@ -171,12 +171,13 @@ function Sidebar({ isCollapsed }) {
           icon: "bi bi-gear",
           permission: "System Configration-View",
         },
-        {
-          menu: "Loan Type",
-          path: "/loan-type-list",
-          icon: "bi bi-ui-checks-grid",
-          permission: "Regular Loans-View",
-        },
+        
+        // {
+        //   menu: "Loan Type",
+        //   path: "/loan-type-list",
+        //   icon: "bi bi-ui-checks-grid",
+        //   permission: "Regular Loans-View",
+        // },
         {
           menu: "Role Management",
           icon: "bi bi-key",

@@ -14,17 +14,10 @@ function UserEmployementDetails() {
   const params = useParams();
   const [showSkelton, setShowSkelton] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    pincode: "",
-    address: "",
-    state: "",
-    city: "",
-    dob: "",
-    gender: "",
-    profilePic: "",
+    creditScore: "",
+    monthlyIncome: "",
+    annualIncome: "",
+    employementType: "",
   });
   const getUserDetailsFunc = async (id) => {
     setShowSkelton(true);
@@ -34,18 +27,10 @@ function UserEmployementDetails() {
         setDetails(response?.data?.data);
         let userDetails = response?.data?.data;
         setFormData({
-          firstName: userDetails?.firstName,
-          lastName: userDetails?.lastName,
-          email: userDetails?.email,
-          phone: userDetails?.phone,
-          pincode: userDetails?.pincode,
-          address: userDetails?.address,
-          state: userDetails?.state,
-          city: userDetails?.city,
-          dob: userDetails?.dob,
-          gender: userDetails?.gender,
-          profilePic: "",
-          profilePrev: userDetails?.profilePrev,
+          creditScore: userDetails?.creditScore,
+          monthlyIncome: userDetails?.monthlyIncome,
+          annualIncome: userDetails?.annualIncome,
+          employementType: userDetails?.employementType,
         });
       }
     } catch (error) {
@@ -78,13 +63,13 @@ function UserEmployementDetails() {
       path: `/user-loan-history/${params?.id}`,
       img: "https://cdn-icons-png.flaticon.com/128/6619/6619116.png",
     },
+    // {
+    //   name: "Scheduled EMIs",
+    //   path: `/user-emis/${params?.id}`,
+    //   img: "https://cdn-icons-png.flaticon.com/128/15233/15233273.png",
+    // },
     {
-      name: "Scheduled EMIs",
-      path: `/user-emis/${params?.id}`,
-      img: "https://cdn-icons-png.flaticon.com/128/15233/15233273.png",
-    },
-    {
-      name: "Transection History",
+      name: "Transaction History",
       path: `/user-transection-history/${params?.id}`,
       img: "https://cdn-icons-png.flaticon.com/128/879/879890.png",
     },
@@ -108,7 +93,7 @@ function UserEmployementDetails() {
             <h6 className="text-secondary">ID: {details?.code}</h6>
           </div>
         </div>
-        <div>
+        {/* <div>
           <select className="form-select">
             <option value="">Update Status</option>
             <option value="registered">Registered</option>
@@ -116,7 +101,7 @@ function UserEmployementDetails() {
             <option value="active">Active</option>
             <option value="blocked">Block</option>
           </select>
-        </div>
+        </div> */}
       </div>
       {/* Tabs */}
       <div className="d-flex justify-content-between align-items-center w-100">
@@ -162,20 +147,13 @@ function UserEmployementDetails() {
             <div className="row g-3">
               <div className="col-md-6">
                 <label className="form-label">Employement Type</label>
-                <select
+                <input
+                  type="text"
                   className="form-control"
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      employmentType: e?.target?.value,
-                    })
-                  }
-                >
-                  <option value="">Select</option>
-                  <option value="government">Government</option>
-                  <option value="private">Private</option>
-                  <option value="self-employed">Self Employed</option>
-                </select>
+                  value={formData?.employementType}
+                  readOnly={!isEditable}
+                  style={{ background: !isEditable ? "whitesmoke" : "white" }}
+                />
               </div>
               <div className="col-md-6">
                 <label className="form-label">Credit Score</label>
@@ -199,7 +177,10 @@ function UserEmployementDetails() {
                   readOnly={!isEditable}
                   style={{ background: !isEditable ? "whitesmoke" : "white" }}
                   onChange={(e) =>
-                    setFormData({ ...formData, monthlyIncome: e?.target?.value })
+                    setFormData({
+                      ...formData,
+                      monthlyIncome: e?.target?.value,
+                    })
                   }
                 />
               </div>
@@ -217,7 +198,7 @@ function UserEmployementDetails() {
                 />
               </div>
 
-              <div className="d-flex justify-content-end">
+              {/* <div className="d-flex justify-content-end">
                 <div
                   className="btn btn-secondary mx-2"
                   onClick={() => {
@@ -235,7 +216,7 @@ function UserEmployementDetails() {
                 >
                   Submit
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

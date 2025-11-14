@@ -14,11 +14,8 @@ function UserDocuments() {
   const params = useParams();
   const [showSkelton, setShowSkelton] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    panNumber:"",
-    aadharNumber:"",
-    profilePic: "",
+    panNumber: "",
+    aadharNumber: "",
   });
   const getUserDetailsFunc = async (id) => {
     setShowSkelton(true);
@@ -28,12 +25,8 @@ function UserDocuments() {
         setDetails(response?.data?.data);
         let userDetails = response?.data?.data;
         setFormData({
-          firstName: userDetails?.firstName,
-          lastName: userDetails?.lastName,
-          aadharNumber:userDetails?.aadharNumber,
-          panNumber:userDetails?.panNumber,
-          profilePic: "",
-          profilePrev: userDetails?.profilePrev,
+          panNumber: userDetails?.panNumber,
+          aadharNumber: userDetails?.aadharNumber,
         });
       }
     } catch (error) {
@@ -66,13 +59,13 @@ function UserDocuments() {
       path: `/user-loan-history/${params?.id}`,
       img: "https://cdn-icons-png.flaticon.com/128/6619/6619116.png",
     },
+    // {
+    //   name: "Scheduled EMIs",
+    //   path: `/user-emis/${params?.id}`,
+    //   img: "https://cdn-icons-png.flaticon.com/128/15233/15233273.png",
+    // },
     {
-      name: "Scheduled EMIs",
-      path: `/user-emis/${params?.id}`,
-      img: "https://cdn-icons-png.flaticon.com/128/15233/15233273.png",
-    },
-    {
-      name: "Transection History",
+      name: "Transaction History",
       path: `/user-transection-history/${params?.id}`,
       img: "https://cdn-icons-png.flaticon.com/128/879/879890.png",
     },
@@ -91,12 +84,12 @@ function UserDocuments() {
           />
           <div className="ms-3">
             <h5 className="mb-1">
-              {details?.firstName + " " + details?.lastName}
+              {details?.firstName  + " " + details?.lastName}
             </h5>
             <h6 className="text-secondary">ID: {details?.code}</h6>
           </div>
         </div>
-        <div>
+        {/* <div>
           <select className="form-select">
             <option value="">Update Status</option>
             <option value="registered">Registered</option>
@@ -104,7 +97,7 @@ function UserDocuments() {
             <option value="active">Active</option>
             <option value="blocked">Block</option>
           </select>
-        </div>
+        </div> */}
       </div>
       {/* Tabs */}
       <div className="d-flex justify-content-between align-items-center w-100">
@@ -175,7 +168,7 @@ function UserDocuments() {
                 />
               </div>
 
-              <div className="d-flex justify-content-end">
+              {/* <div className="d-flex justify-content-end">
                 <div
                   className="btn btn-secondary mx-2"
                   onClick={() => {
@@ -193,7 +186,7 @@ function UserDocuments() {
                 >
                   Submit
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

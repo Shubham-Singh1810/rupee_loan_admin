@@ -328,9 +328,11 @@ function CreateUser() {
                       className="form-select"
                     >
                       <option value="">Select</option>
-                      <option value="government">Government</option>
-                      <option value="private">Private</option>
-                      <option value="self-employed">Self Employed</option>
+                      <option value="Private Sector">Private Sector</option>
+                      <option value="Government Sector">Government Sector</option>
+                      <option value="Self-Employed">Self-Employed</option>
+                      <option value="Freelancer / Independent Contractor">Freelancer / Independent Contractor</option>
+                      <option value="Daily Wage / Labor Worker">Daily Wage / Labor Worker</option>
                     </Field>
                     <ErrorMessage
                       name="employementType"

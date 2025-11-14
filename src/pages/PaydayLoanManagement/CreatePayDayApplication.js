@@ -1,15 +1,8 @@
 import { useState, useEffect } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import {
-  createLoanApplicationServ,
-  loanTypeListServ,
-} from "../../services/loan.services";
-
-import {
-  createPaydayLoanApplicationServ,
-  
-} from "../../services/loanApplication.services";
+import { getLoanPurposeServ } from "../../services/loanPurpose.service";
+import { createPaydayLoanApplicationServ } from "../../services/loanApplication.services";
 import { getUserListServ } from "../../services/user.service";
 import { getBranchListServ } from "../../services/branch.service";
 import { getAdminListServ } from "../../services/commandCenter.services";
@@ -88,8 +81,11 @@ function CreatePayDayApplication() {
 
   const getLoanPurposeFunc = async () => {
     try {
-      const response = await loanTypeListServ();
-      if (response?.data?.statusCode === "200") {
+      const response = await getLoanPurposeServ({
+        pageCount: 100,
+        status: true,
+      });
+      if (response?.data?.statusCode == "200") {
         setLoanPurposeList(response?.data?.data);
       }
     } catch (error) {
@@ -99,8 +95,11 @@ function CreatePayDayApplication() {
 
   const getBranchListFunc = async () => {
     try {
-      const response = await getBranchListServ();
-      if (response?.data?.statusCode === "200") {
+      const response = await getBranchListServ({
+        pageCount: 100,
+        status: true,
+      });
+      if (response?.data?.statusCode == "200") {
         setBranchList(response?.data?.data);
       }
     } catch (error) {
@@ -110,8 +109,11 @@ function CreatePayDayApplication() {
 
   const getUserListFunc = async () => {
     try {
-      const response = await getUserListServ();
-      if (response?.data?.statusCode === "200") {
+      const response = await getUserListServ({
+        pageCount: 100,
+        isUserApproved: true,
+      });
+      if (response?.data?.statusCode == "200") {
         setUserList(response?.data?.data);
       }
     } catch (error) {
@@ -121,8 +123,8 @@ function CreatePayDayApplication() {
 
   const getAdminListFunc = async () => {
     try {
-      const response = await getAdminListServ();
-      if (response?.data?.statusCode === "200") {
+      const response = await getAdminListServ({ pageCount: 100, status: true });
+      if (response?.data?.statusCode == "200") {
         setAdminList(response?.data?.data);
       }
     } catch (error) {
@@ -140,7 +142,10 @@ function CreatePayDayApplication() {
       });
       fd.append("createdBy", globalState?.user?._id);
 
-      const response = await createPaydayLoanApplicationServ({...values, createdBy:globalState?.user?._id});
+      const response = await createPaydayLoanApplicationServ({
+        ...values,
+        createdBy: globalState?.user?._id,
+      });
       if (response?.data?.data) {
         toast.success(response?.data?.message);
         navigate("/payday-loan-applications");
@@ -163,68 +168,44 @@ function CreatePayDayApplication() {
           label: "User",
           name: "userId",
           type: "select",
-          // options: userList.map((u) => ({
-          //   value: u._id,
-          //   label: u.firstName || u.fullName || u.email,
-          // })),
-          options: [
-            {
-              value: "6913587e42b47cdc19465c41",
-              label: "Agent User",
-            },
-          ],
+          options: userList.map((u) => ({
+            value: u._id,
+            label: u.firstName || u.phone,
+          })),
         },
         {
           label: "Loan Purpose",
           name: "loanPurposeId",
           type: "select",
-          // options: loanPurposeList.map((l) => ({
-          //   value: l._id,
-          //   label: l.name,
-          // })),
-          options: [
-            {
-              value: "6913587e42b47cdc19465c41",
-              label: "Party Funds",
-            },
-          ],
+          options: loanPurposeList.map((l) => ({
+            value: l._id,
+            label: l.name,
+          })),
         },
         {
           label: "Branch",
           name: "branchId",
           type: "select",
-          // options: branchList.map((b) => ({
-          //   value: b._id,
-          //   label: b.name,
-          // })),
-          options: [
-            {
-              value: "68e3bf7d0cd8f3959388eec7",
-              label: "Mohali Branch",
-            },
-          ],
+          options: branchList.map((b) => ({
+            value: b._id,
+            label: b.name,
+          })),
         },
         {
           label: "Assigned Admin",
           name: "assignedAdminId",
           type: "select",
-          // options: adminList.map((a) => ({
-          //   value: a._id,
-          //   label: a.name,
-          // })),
-          options: [
-            {
-              value: "68e3c7ff1d952806b960b6af",
-              label: "James S",
-            },
-          ],
+          options: adminList.map((a) => ({
+            value: a._id,
+            label: a.firstName,
+          })),
         },
         { label: "Loan Amount", name: "loanAmount", type: "number" },
         { label: "Tenure (Days)", name: "tenure", type: "number" },
       ],
     },
     {
-      title: "Check Eligibility",
+      title: "Basic Eligibility",
       fields: [
         { label: "Full Name", name: "fullName", type: "text" },
         { label: "Email", name: "email", type: "email" },
@@ -244,9 +225,27 @@ function CreatePayDayApplication() {
           name: "educationQ",
           type: "select",
           options: [
-            { value: "Undergraduate", label: "Undergraduate" },
-            { value: "Graduate", label: "Graduate" },
-            { value: "Postgraduate", label: "Postgraduate" },
+            {
+              value: "10th Pass / Matriculation",
+              label: "10th Pass / Matriculation",
+            },
+            {
+              value: "12th Pass / Higher Secondary",
+              label: "12th Pass / Higher Secondary",
+            },
+            { value: "Diploma / ITI", label: "Diploma / ITI" },
+            {
+              value: "Graduate (Bachelor’s Degree)",
+              label: "Graduate (Bachelor’s Degree)",
+            },
+            {
+              value: "Post Graduate (Master’s Degree)",
+              label: "Post Graduate (Master’s Degree)",
+            },
+            {
+              value: "Professional Degree (CA / CS / MBBS / LLB / etc.)",
+              label: "Professional Degree (CA / CS / MBBS / LLB / etc.)",
+            },
           ],
         },
         {
@@ -257,14 +256,38 @@ function CreatePayDayApplication() {
             { value: "Single", label: "Single" },
             { value: "Married", label: "Married" },
           ],
+        }, 
+      ],
+    },
+    {
+      title: "Employment Details",
+      fields: [
+        {
+          label: "Employment Type",
+          name: "empType",
+          type: "select",
+          options: [
+            { value: "Private Sector", label: "Private Sector" },
+            { value: "Government Sector", label: "Government Sector" },
+            { value: "Self-Employed", label: "Self-Employed" },
+            {
+              value: "Freelancer / Independent Contractor",
+              label: "Freelancer / Independent Contractor",
+            },
+            {
+              value: "Daily Wage / Labor Worker",
+              label: "Daily Wage / Labor Worker",
+            },
+          ],
         },
-        { label: "Employment Type", name: "empType", type: "select", options: [
-            { value: "Sallaired", label: "Sallaired" },
-            { value: "Individual", label: "Individual" },
-          ], },
         { label: "Company Name", name: "cmpName", type: "text" },
         { label: "Monthly Income", name: "monthlyIncome", type: "text" },
         { label: "Next Salary Date", name: "nextSalary", type: "date" },
+      ],
+    },
+    {
+      title: "Address Details",
+      fields: [
         { label: "Pincode", name: "pincode", type: "number" },
         { label: "Area", name: "area", type: "text" },
         { label: "Current Address", name: "currentAddress", type: "text" },
@@ -279,12 +302,16 @@ function CreatePayDayApplication() {
             { value: "Other", label: "Other" },
           ],
         },
-        { label: "Who You Live With", name: "whoYouliveWith", type: "select", options: [
+        {
+          label: "Who You Live With",
+          name: "whoYouliveWith",
+          type: "select",
+          options: [
             { value: "Family", label: "Family" },
             { value: "Friends", label: "Friends" },
             { value: "Alone", label: "Alone" },
-           
-          ], },
+          ],
+        },
       ],
     },
     {
@@ -309,11 +336,12 @@ function CreatePayDayApplication() {
     {
       title: "Residence Proof",
       fields: [
-        { label: "Proof Type", name: "residenceProofType", type: "select", options: [
-            { value: "Rent Aggrement", label: "Rent Aggrement" },
-            
-           
-          ],  },
+        {
+          label: "Proof Type",
+          name: "residenceProofType",
+          type: "select",
+          options: [{ value: "Rent Aggrement", label: "Rent Aggrement" }],
+        },
         {
           label: "Upload Residence Proof",
           name: "residenceProof",
@@ -333,7 +361,11 @@ function CreatePayDayApplication() {
       title: "Banking Details",
       fields: [
         { label: "Bank Name", name: "bankName", type: "text" },
-        { label: "Account Holder Name", name: "acountHolderName", type: "text" },
+        {
+          label: "Account Holder Name",
+          name: "acountHolderName",
+          type: "text",
+        },
         { label: "Account Number", name: "acountNumber", type: "text" },
         { label: "IFSC Code", name: "ifscCode", type: "text" },
       ],

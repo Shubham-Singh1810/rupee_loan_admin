@@ -121,7 +121,7 @@ function UserEmis() {
       img: "https://cdn-icons-png.flaticon.com/128/15233/15233273.png",
     },
     {
-      name: "Transection History",
+      name: "Transaction History",
       path: `/user-transection-history/${params?.id}`,
       img: "https://cdn-icons-png.flaticon.com/128/879/879890.png",
     },

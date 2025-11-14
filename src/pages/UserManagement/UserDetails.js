@@ -78,13 +78,9 @@ function UserDetails() {
       path: `/user-loan-history/${params?.id}`,
       img: "https://cdn-icons-png.flaticon.com/128/6619/6619116.png",
     },
+    
     {
-      name: "Pending EMI's",
-      path: `/user-emis/${params?.id}`,
-      img: "https://cdn-icons-png.flaticon.com/128/15233/15233273.png",
-    },
-    {
-      name: "Transection History",
+      name: "Transaction History",
       path: `/user-transection-history/${params?.id}`,
       img: "https://cdn-icons-png.flaticon.com/128/879/879890.png",
     },
@@ -108,7 +104,7 @@ function UserDetails() {
             <h6 className="text-secondary">ID: {details?.code}</h6>
           </div>
         </div>
-        <div>
+        {/* <div>
           <select className="form-select">
             <option value="">Update Status</option>
             <option value="registered">Registered</option>
@@ -116,7 +112,7 @@ function UserDetails() {
             <option value="active">Active</option>
             <option value="blocked">Block</option>
           </select>
-        </div>
+        </div> */}
       </div>
       {/* Tabs */}
       <div className="d-flex justify-content-between align-items-center w-100">
@@ -259,10 +255,10 @@ function UserDetails() {
                   onChange={(e)=>setFormData({...formData, address:e?.target?.value})}
                 />
               </div>
-              <div className="d-flex justify-content-end">
+              {/* <div className="d-flex justify-content-end">
                 <div className="btn btn-secondary mx-2" onClick={()=>{setIsEditable(!isEditable); isEditable ? toast.info("Fields are set to be readonly"): toast.info("You can now start editing the fields")}}>Enable Editing</div>
                 <div className="btn bgThemePrimary" onClick={()=>toast.info("Work in progress")}>Submit</div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

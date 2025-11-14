@@ -19,7 +19,8 @@ function Pagination({ payload, setPayload, totalCount }) {
   };
 
   // options for per page dropdown
-  const pageOptions = [20, 50, 100].filter((opt) => opt <= totalCount);
+  // const pageOptions = [20, 50, 100, 500].filter((opt) => opt <= totalCount);
+  const pageOptions = [20, 50, 100, 500];
 
   return (
     <div className="pagination-container">

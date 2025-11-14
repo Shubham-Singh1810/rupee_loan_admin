@@ -690,10 +690,11 @@ function CreateLoan() {
                         <label className="form-label">Employement Type</label>
                         <MultiSelect
                           options={[
-                            { value: "Government", label: "Government" },
-                            { value: "Private", label: "Private" },
+                             { value: "Private Sector", label: "Private Sector" },
+                            { value: "Government Sector", label: "Government Sector" },
                             { value: "Self-Employed", label: "Self-Employed" },
-                            { value: "Any", label: "Any" },
+                            { value: "Freelancer / Independent Contractor", label: "Freelancer / Independent Contractor" },
+                            { value: "Daily Wage / Labor Worker", label: "Daily Wage / Labor Worker" },
                           ]}
                           value={values.employmentTypesAllowed.map((v) => ({
                             value: v,

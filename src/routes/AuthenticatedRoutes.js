@@ -277,7 +277,7 @@ function AuthenticatedRoutes() {
 
         {/* Tickets */}
         <Route
-          element={<ProtectedRoute allowedPermissions={["Tickets-View"]} />}
+          element={<ProtectedRoute allowedPermissions={["All Ticket-View"]} />}
         >
           <Route path="/all-tickets" element={<AllTicket />} />
           <Route path="/ticket-categories" element={<TicketCategories />} />
