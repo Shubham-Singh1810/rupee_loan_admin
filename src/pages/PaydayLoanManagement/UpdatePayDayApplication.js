@@ -2,25 +2,29 @@ import { useState, useEffect } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { getLoanPurposeServ } from "../../services/loanPurpose.service";
-import { createPaydayLoanApplicationServ } from "../../services/loanApplication.services";
+import {
+  getPaydayLoanApplicationServ,
+  updatePaydayLoanApplicationServ,
+} from "../../services/loanApplication.services";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 import { getUserListServ } from "../../services/user.service";
 import { getBranchListServ } from "../../services/branch.service";
 import { getAdminListServ } from "../../services/commandCenter.services";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useGlobalState } from "../../GlobalProvider";
 
-function CreatePayDayApplication() {
+function UpdatePayDayApplication() {
   const { globalState } = useGlobalState();
   const navigate = useNavigate();
-
   const [loanPurposeList, setLoanPurposeList] = useState([]);
   const [branchList, setBranchList] = useState([]);
   const [userList, setUserList] = useState([]);
   const [adminList, setAdminList] = useState([]);
   const [submitBtnLoader, setSubmitBtnLoader] = useState(false);
 
-  const initialValues = {
+  const [initialValues, setInitialValues] = useState({
     userId: "",
     loanPurposeId: "",
     branchId: "",
@@ -56,7 +60,7 @@ function CreatePayDayApplication() {
     acountNumber: "",
     ifscCode: "",
     eSign: "",
-  };
+  });
 
   const validationSchema = Yup.object().shape({
     userId: Yup.string().required("User is required"),
@@ -72,11 +76,80 @@ function CreatePayDayApplication() {
   });
 
   // ---------------------- API Calls ----------------------
+  const params = useParams();
+  const [showSkelton, setShowSkelton] = useState(false);
+  const getPaydayDetailsFunc = async () => {
+    setShowSkelton(true);
+    try {
+      let response = await getPaydayLoanApplicationServ(params?.id);
+
+      if (response?.data?.statusCode == "200") {
+        const data = response?.data?.data;
+
+        setInitialValues({
+          userId: data.userId?._id || "",
+          loanPurposeId: data.loanPurposeId?._id || "",
+          branchId: data.branchId?._id || "",
+          assignedAdminId: data.assignedAdminId?._id || "",
+          fullName: data.fullName || "",
+          email: data.email || "",
+          dob: data.dob?.substring(0, 10) || "",
+          gender: data.gender || "",
+          educationQ: data.educationQ || "",
+          maritalStatus: data.maritalStatus || "",
+          empType: data.empType || "",
+          cmpName: data.cmpName || "",
+          monthlyIncome: data.monthlyIncome || "",
+          nextSalary: data.nextSalary?.substring(0, 10) || "",
+          pincode: data.pincode || "",
+          area: data.area || "",
+          currentAddress: data.currentAddress || "",
+          currentAddressOwnership: data.currentAddressOwnership || "",
+          whoYouliveWith: data.whoYouliveWith || "",
+
+          // FILES will not be pre-filled
+          adharFrontend: "",
+          adharFrontendPrev: data.adharFrontend || "",
+
+          adharBack: "",
+          adharBackPrev: data.adharBack || "",
+
+          pan: "",
+          panPrev: data.pan || "",
+
+          bankVerificationMode: "",
+          bankVerificationModePrev: data.bankVerificationMode || "",
+
+          residenceProof: "",
+          residenceProofPrev: data.residenceProof || "",
+
+          eSign: "",
+          eSignPrev: data.eSign || "",
+
+          loanAmount: data.loanAmount || "",
+          tenure: data.tenure || "",
+          residenceProofType: data.residenceProofType || "",
+          referenceName: data.referenceName || "",
+          referenceRelation: data.referenceRelation || "",
+          referencePhone: data.referencePhone || "",
+          bankName: data.bankName || "",
+          acountNumber: data.acountNumber || "",
+          acountHolderName: data?.acountHolderName || "",
+          ifscCode: data.ifscCode || "",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    setShowSkelton(false);
+  };
+
   useEffect(() => {
     getLoanPurposeFunc();
     getBranchListFunc();
     getUserListFunc();
     getAdminListFunc();
+    getPaydayDetailsFunc();
   }, []);
 
   const getLoanPurposeFunc = async () => {
@@ -140,11 +213,9 @@ function CreatePayDayApplication() {
       Object.keys(values).forEach((key) => {
         fd.append(key, values[key]);
       });
-      fd.append("createdBy", globalState?.user?._id);
+      fd.append("_id", params?.id);
 
-      const response = await createPaydayLoanApplicationServ(
-        fd
-      );
+      const response = await updatePaydayLoanApplicationServ(fd);
       if (response?.data?.data) {
         toast.success(response?.data?.message);
         navigate("/payday-loan-applications");
@@ -255,7 +326,7 @@ function CreatePayDayApplication() {
             { value: "Single", label: "Single" },
             { value: "Married", label: "Married" },
           ],
-        }, 
+        },
       ],
     },
     {
@@ -377,81 +448,110 @@ function CreatePayDayApplication() {
 
   return (
     <div className="container-fluid p-4">
-      <h5 className="mb-3">Create Payday Loan Application</h5>
-
-       <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
-        {({ setFieldValue, values }) => (
-          <Form>
-            {paydaySections.map((section, idx) => (
-              <div className="form-section shadow-sm mb-4" key={idx}>
-                <div className="form-section-header fw-bold mb-3">
-                  {section.title}
-                </div>
-                <div className="form-section-body row g-3">
-                  {section.fields.map((f, i) => (
-                    <div className="col-md-6" key={i}>
-                      <label className="form-label">{f.label}</label>
-
-                      {/* ------- SELECT ------ */}
-                      {f.type === "select" ? (
-                        <Field as="select" name={f.name} className="form-control">
-                          <option value="">Select</option>
-                          {f.options?.map((opt, j) => (
-                            <option key={j} value={opt.value}>
-                              {opt.label}
-                            </option>
-                          ))}
-                        </Field>
-                      ) : f.type === "file" ? (
-                        <>
-                        <div>
-                           {values[f.name + "Prev"] && (
-                            <img
-                              src={values[f.name + "Prev"]}
-                              alt="preview"
-                              className="img-thumbnail mb-2"
-                              style={{ height: "120px" }}
-                            />
-                          )}
-                        </div>
-                          <input
-                            type="file"
-                            className="form-control"
-                            onChange={(e) => {
-                              setFieldValue(f.name, e.target.files[0]);
-                              setFieldValue(
-                                f.name + "Prev",
-                                URL.createObjectURL(e.target.files[0])
-                              );
-                            }}
-                          />
-
-                          {/* ----------- Preview ---------- */}
-                         
-                        </>
-                      ) : (
-                        <Field type={f.type} name={f.name} className="form-control" />
-                      )}
-
-                      <ErrorMessage
-                        name={f.name}
-                        component="div"
-                        className="text-danger mt-1"
-                      />
-                    </div>
-                  ))}
-                </div>
+      <h5 className="mb-3">Update Payday Loan Application</h5>
+      {showSkelton ? (
+        <div className="row border bg-light px-2 py-4  rounded">
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]?.map((v, i) => {
+            return (
+              <div className="col-6 mb-3">
+                <Skeleton width={150} height={20} />
+                <div className="mt-1"></div>
+                <Skeleton width="100%" height={35} />
               </div>
-            ))}
+            );
+          })}
+        </div>
+      ) : (
+        <Formik
+          enableReinitialize={true}
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ setFieldValue, values }) => (
+            <Form>
+              {paydaySections.map((section, idx) => (
+                <div className="form-section shadow-sm mb-4" key={idx}>
+                  <div className="form-section-header fw-bold mb-3">
+                    {section.title}
+                  </div>
+                  <div className="form-section-body row g-3">
+                    {section.fields.map((f, i) => (
+                      <div className="col-md-6" key={i}>
+                        <label className="form-label">{f.label}</label>
 
-            <button type="submit" className="btn bgThemePrimary w-100" disabled={submitBtnLoader}>
-              {submitBtnLoader ? "Submitting..." : "Submit"}
-            </button>
-          </Form>
-        )}
-      </Formik>
+                        {/* ------- SELECT ------ */}
+                        {f.type === "select" ? (
+                          <Field
+                            as="select"
+                            name={f.name}
+                            className="form-control"
+                          >
+                            <option value="">Select</option>
+                            {f.options?.map((opt, j) => (
+                              <option key={j} value={opt.value}>
+                                {opt.label}
+                              </option>
+                            ))}
+                          </Field>
+                        ) : f.type === "file" ? (
+                          <>
+                            <div>
+                              {values[f.name + "Prev"] && (
+                                <img
+                                  src={values[f.name + "Prev"]}
+                                  alt="preview"
+                                  className="img-thumbnail mb-2"
+                                  style={{ height: "120px" }}
+                                />
+                              )}
+                            </div>
+                            <input
+                              type="file"
+                              className="form-control"
+                              onChange={(e) => {
+                                setFieldValue(f.name, e.target.files[0]);
+                                setFieldValue(
+                                  f.name + "Prev",
+                                  URL.createObjectURL(e.target.files[0])
+                                );
+                              }}
+                            />
+
+                            {/* ----------- Preview ---------- */}
+                          </>
+                        ) : (
+                          <Field
+                            type={f.type}
+                            name={f.name}
+                            className="form-control"
+                          />
+                        )}
+
+                        <ErrorMessage
+                          name={f.name}
+                          component="div"
+                          className="text-danger mt-1"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+              <button
+                type="submit"
+                className="btn bgThemePrimary w-100"
+                disabled={submitBtnLoader}
+              >
+                {submitBtnLoader ? "Submitting..." : "Submit"}
+              </button>
+            </Form>
+          )}
+        </Formik>
+      )}
     </div>
   );
 }
 
-export default CreatePayDayApplication;
+export default UpdatePayDayApplication;

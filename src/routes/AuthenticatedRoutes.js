@@ -87,6 +87,8 @@ import PaydayLoanApplication from "../pages/PaydayLoanManagement/PaydayLoanAppli
 import UpdateLoanRequirement from "../pages/PayDayLoanType/UpdateLoanRequirement";
 import SystemConfigration from "../pages/SystemManagement/SystemConfigration";
 import CreatePayDayApplication from "../pages/PaydayLoanManagement/CreatePayDayApplication";
+import UpdatePayDayApplication from "../pages/PaydayLoanManagement/UpdatePayDayApplication";
+import PaydayLoanDetails from "../pages/PaydayLoanManagement/PaydayLoanDetails";
 
 function AuthenticatedRoutes() {
   return (
@@ -301,6 +303,8 @@ function AuthenticatedRoutes() {
         <Route path="/my-profile" element={<Profile />} />
         <Route path="/permissions" element={<Permissions />} />
        <Route path="/create-payday-loan" element={<CreatePayDayApplication />} /> 
+       <Route path="/update-payday-loan/:id" element={<UpdatePayDayApplication />} /> 
+       <Route path="/payday-loan-details/:id" element={<PaydayLoanDetails />} /> 
       </Route>
 
       {/* Unauthorized & 404 */}

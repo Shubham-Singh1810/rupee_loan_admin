@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import TopNav from "../../components/TopNav";
 import {
-  loanApplicationListServ,
-  deleteLoanApplicationServ,
-  getLoanStatsServ,
   paydayLoanApplicationListServ,
   paydayLoanStatsServ,
-  paydayDeleteLoanApplicationServ
+  paydayDeleteLoanApplicationServ,
 } from "../../services/loanApplication.services";
+import { getUserListServ } from "../../services/user.service";
+import { getBranchListServ } from "../../services/branch.service";
+import { getAdminListServ } from "../../services/commandCenter.services";
+import { getLoanPurposeServ } from "../../services/loanPurpose.service";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import NoDataScreen from "../../components/NoDataScreen";
@@ -19,21 +20,19 @@ import Pagination from "../../components/Pagination";
 import { useNavigate, useParams } from "react-router-dom";
 function PaydayLoanApplicationList() {
   const navigate = useNavigate();
-  const params = useParams();
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [list, setList] = useState([]);
   const [showSkelton, setShowSkelton] = useState(false);
   const [showStatsSkelton, setShowStatsSkelton] = useState(false);
   const [payload, setPayload] = useState({
-    searchKey: "",
     pageNo: 1,
     pageCount: 20,
     status: "",
-    loanId: "",
   });
   const [documentCount, setDocumentCount] = useState();
   const getListFunc = async () => {
+    setFilterPayload({ ...filterPayload, show: false });
     if (list?.length == 0) {
       setShowSkelton(true);
     }
@@ -47,7 +46,6 @@ function PaydayLoanApplicationList() {
     }
     setShowSkelton(false);
   };
-
   useEffect(() => {
     getListFunc();
   }, [payload]);
@@ -165,24 +163,83 @@ function PaydayLoanApplicationList() {
       toast.error("Internal Server error");
     }
   };
-
-  const statusLabels = {
-    "": "Select Status",
-    pending: "New Request",
-    approved: "Approved",
-    rejected: "Rejected",
-    disbursed: "Disbursed",
-    completed: "Completed",
-    true: "Active",
-    false: "Inactive",
+  const [filterPayload, setFilterPayload] = useState({
+    show: false,
+    status: "",
+    branchId: "",
+    userId: "",
+    loanPurposeId: "",
+    assignedAdminId: "",
+    processingStatus: "",
+  });
+  const [loanPurposeList, setLoanPurposeList] = useState([]);
+  const [branchList, setBranchList] = useState([]);
+  const [userList, setUserList] = useState([]);
+  const [adminList, setAdminList] = useState([]);
+  useEffect(() => {
+    getLoanPurposeFunc();
+    getBranchListFunc();
+    getUserListFunc();
+    getAdminListFunc();
+  }, []);
+  const getLoanPurposeFunc = async () => {
+    try {
+      const response = await getLoanPurposeServ({
+        pageCount: 100,
+        status: true,
+      });
+      if (response?.data?.statusCode == "200") {
+        setLoanPurposeList(response?.data?.data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
+  const getBranchListFunc = async () => {
+    try {
+      const response = await getBranchListServ({
+        pageCount: 100,
+        status: true,
+      });
+      if (response?.data?.statusCode == "200") {
+        setBranchList(response?.data?.data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const getUserListFunc = async () => {
+    try {
+      const response = await getUserListServ({
+        pageCount: 100,
+        isUserApproved: true,
+      });
+      if (response?.data?.statusCode == "200") {
+        setUserList(response?.data?.data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const getAdminListFunc = async () => {
+    try {
+      const response = await getAdminListServ({ pageCount: 100, status: true });
+      if (response?.data?.statusCode == "200") {
+        setAdminList(response?.data?.data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
   return (
     <div className="container-fluid py-3">
       {/* User Header */}
       <div className="row g-3">
         {/* Loan Applications */}
-        {showSkelton
+        {showStatsSkelton
           ? [1, 2, 3, 4, 5, 6]?.map((v, i) => {
               return (
                 <div className="col-12 col-sm-6 col-lg-4">
@@ -226,121 +283,155 @@ function PaydayLoanApplicationList() {
       <div className="d-flex justify-content-between align-items-center my-4">
         <h4 className="mb-0">All Applications</h4>
         <div className="d-flex align-items-center">
-          <div className="dropdown me-2">
-            <button
-              className="btn btn-light dropdown-toggle border height37"
-              type="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-              style={{
-                width: "150px",
-                fontSize: "14px",
-              }}
-            >
-              {statusLabels[payload?.status] ?? "Select Status"}
-            </button>
-            <ul className="dropdown-menu">
-              <li>
-                <button
-                  className="dropdown-item"
-                  onClick={() => setPayload({ ...payload, status: "" })}
-                >
-                  Select Status
-                </button>
-              </li>
-              <li>
-                <button
-                  className="dropdown-item"
-                  onClick={() => setPayload({ ...payload, status: "pending" })}
-                >
-                  New Request
-                </button>
-              </li>
-              <li>
-                <button
-                  className="dropdown-item"
-                  onClick={() => setPayload({ ...payload, status: "approved" })}
-                >
-                  Approved
-                </button>
-              </li>
-              <li>
-                <button
-                  className="dropdown-item"
-                  onClick={() => setPayload({ ...payload, status: "rejected" })}
-                >
-                  Rejected
-                </button>
-              </li>
-              <li>
-                <button
-                  className="dropdown-item"
-                  onClick={() =>
-                    setPayload({ ...payload, status: "disbursed" })
-                  }
-                >
-                  Disbursed
-                </button>
-              </li>
-              <li>
-                <button
-                  className="dropdown-item"
-                  onClick={() =>
-                    setPayload({ ...payload, status: "completed" })
-                  }
-                >
-                  Completed
-                </button>
-              </li>
-            </ul>
-          </div>
-          {/* <div className="dropdown me-2">
-            <button
-              className="btn btn-light dropdown-toggle border height37"
-              type="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-              style={{
-                width: "150px",
-                fontSize: "14px",
-              }}
-            >
-              {payload?.status === true
-                ? "Active"
-                : payload?.status === false
-                ? "Inactive"
-                : "Select Loan Type"}
-            </button>
-            <ul className="dropdown-menu">
-              <li>
-                <button
-                  className="dropdown-item"
-                  onClick={() => setPayload({ ...payload, status: "" })}
-                >
-                  Select Loan Type
-                </button>
-              </li>
-              <li>
-                <button
-                  className="dropdown-item"
-                  onClick={() => setPayload({ ...payload, status: "true" })}
-                >
-                  Active
-                </button>
-              </li>
-              <li>
-                <button
-                  className="dropdown-item"
-                  onClick={() => setPayload({ ...payload, status: "false" })}
-                >
-                  Inactive
-                </button>
-              </li>
-            </ul>
-          </div> */}
+          {filterPayload.status ||
+          filterPayload.userId ||
+          filterPayload.branchId ||
+          filterPayload.loanPurposeId ||
+          filterPayload.assignedAdminId ||
+          filterPayload.processingStatus ? (
+            <div className="d-flex flex-wrap gap-2 my-3">
+              {/* Status */}
+              {filterPayload.status && (
+                <span className="badge bg-primary d-flex align-items-center">
+                  Status: {filterPayload.status}
+                  <i
+                    className="bi bi-x ms-2"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      setFilterPayload({ ...filterPayload, status: "" });
+                      setPayload({ ...payload, status: "" });
+                    }}
+                  />
+                </span>
+              )}
 
+              {/* Customer */}
+              {filterPayload.userId && (
+                <span className="badge bg-success d-flex align-items-center">
+                  Customer:{" "}
+                  {
+                    userList.find((u) => u._id === filterPayload.userId)
+                      ?.firstName
+                  }
+                  <i
+                    className="bi bi-x ms-2"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      setFilterPayload({ ...filterPayload, userId: "" });
+                      setPayload({ ...payload, userId: "" });
+                    }}
+                  />
+                </span>
+              )}
+
+              {/* Branch */}
+              {filterPayload.branchId && (
+                <span className="badge bg-info d-flex align-items-center">
+                  Branch:{" "}
+                  {
+                    branchList.find((b) => b._id === filterPayload.branchId)
+                      ?.name
+                  }
+                  <i
+                    className="bi bi-x ms-2"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      setFilterPayload({ ...filterPayload, branchId: "" });
+                      setPayload({ ...payload, branchId: "" });
+                    }}
+                  />
+                </span>
+              )}
+
+              {/* Loan Purpose */}
+              {filterPayload.loanPurposeId && (
+                <span className="badge bg-warning d-flex align-items-center">
+                  Loan Purpose:{" "}
+                  {
+                    loanPurposeList.find(
+                      (l) => l._id === filterPayload.loanPurposeId
+                    )?.name
+                  }
+                  <i
+                    className="bi bi-x ms-2"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      setFilterPayload({ ...filterPayload, loanPurposeId: "" });
+                      setPayload({ ...payload, loanPurposeId: "" });
+                    }}
+                  />
+                </span>
+              )}
+
+              {/* Assigned Admin */}
+              {filterPayload.assignedAdminId && (
+                <span className="badge bg-secondary d-flex align-items-center">
+                  Assigned:{" "}
+                  {
+                    adminList.find(
+                      (a) => a._id === filterPayload.assignedAdminId
+                    )?.firstName
+                  }
+                  <i
+                    className="bi bi-x ms-2"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      setFilterPayload({
+                        ...filterPayload,
+                        assignedAdminId: "",
+                      });
+                      setPayload({ ...payload, assignedAdminId: "" });
+                    }}
+                  />
+                </span>
+              )}
+
+              {/* Processing Status */}
+              {filterPayload.processingStatus && (
+                <span className="badge bg-danger d-flex align-items-center">
+                  Processing: {filterPayload.processingStatus}
+                  <i
+                    className="bi bi-x ms-2"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      setFilterPayload({
+                        ...filterPayload,
+                        processingStatus: "",
+                      });
+                      setPayload({ ...payload, processingStatus: "" });
+                    }}
+                  />
+                </span>
+              )}
+              <button
+                className="btn btn-sm btn-outline-danger ms-2"
+                onClick={() => {
+                  const reset = {
+                    show: false,
+                    status: "",
+                    branchId: "",
+                    userId: "",
+                    loanPurposeId: "",
+                    assignedAdminId: "",
+                    processingStatus: "",
+                  };
+                  setFilterPayload(reset);
+                  setPayload({ ...payload, ...reset });
+                }}
+              >
+                Clear All
+              </button>
+            </div>
+          ) : (
+            <button
+              className="btn btn-light shadow-sm  px-3"
+              onClick={() => setFilterPayload({ ...filterPayload, show: true })}
+            >
+              Filter <i className="bi bi-filter ms-2" />
+            </button>
+          )}
           <button
-            className="btn bgThemePrimary shadow-sm"
+            className="btn bgThemePrimary shadow-sm ms-3"
             onClick={() => navigate("/create-payday-loan")}
           >
             + Add Loan
@@ -375,7 +466,6 @@ function PaydayLoanApplicationList() {
                   ? [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]?.map((v, i) => {
                       return (
                         <tr key={i}>
-                         
                           <td>
                             <Skeleton width={100} />
                           </td>
@@ -448,7 +538,7 @@ function PaydayLoanApplicationList() {
                               </div>
                             </div>
                           </td>
-                          
+
                           <td>{v?.loanAmount}</td>
                           <td>{v?.tenure || "N/A"} days</td>
                           <td className="text-center">
@@ -463,16 +553,14 @@ function PaydayLoanApplicationList() {
                           {/* <td className="text-center">{moment(v?.lastLogin).format("DD MMM, YYYY")}</td> */}
                           <td style={{ textAlign: "center" }}>
                             <a
-                              onClick={() =>
-                                navigate("/create-payday-loan")
-                              }
+                              onClick={() => navigate("/payday-loan-details/"+v?._id)}
                               className="text-primary text-decoration-underline me-2"
                             >
                               <i class="bi bi-eye fs-6"></i>
                             </a>
                             <a
                               onClick={() =>
-                                navigate("/create-payday-loan")
+                                navigate("/update-payday-loan/" + v?._id)
                               }
                               className="text-primary text-decoration-underline me-2"
                             >
@@ -502,6 +590,197 @@ function PaydayLoanApplicationList() {
           </div>
         </div>
       </div>
+      {filterPayload?.show && (
+        <div
+          className="modal fade show d-flex align-items-center justify-content-center"
+          tabIndex="-1"
+        >
+          <div className="modal-dialog">
+            <div
+              className="modal-content"
+              style={{
+                borderRadius: "8px",
+
+                width: "700px",
+              }}
+            >
+              <div className="modal-body">
+                <div
+                  style={{
+                    wordWrap: "break-word",
+                    whiteSpace: "pre-wrap",
+                  }}
+                  className="d-flex justify-content-center w-100"
+                >
+                  <div className="w-100 px-2">
+                    <div className="d-flex justify-content-between align-items-center">
+                      <h5 className="">Filter</h5>
+                      <img
+                        onClick={() =>
+                          setFilterPayload({ ...filterPayload, show: false })
+                        }
+                        src="https://cdn-icons-png.flaticon.com/128/2734/2734822.png"
+                        style={{ height: "20px", cursor: "pointer" }}
+                      />
+                    </div>
+                    <div className="row">
+                      <div className="col-6 mb-2">
+                        <label>Status</label>
+                        <select
+                          className="form-control"
+                          onChange={(e) =>
+                            setFilterPayload({
+                              ...filterPayload,
+                              status: e?.target?.value,
+                            })
+                          }
+                        >
+                          <option value="">Select</option>
+                          <option value="pending">New Request</option>
+                          <option value="approved">Approved</option>
+                          <option value="disbursed">Disbursed</option>
+                          <option value="rejected">Rejected</option>
+                          <option value="overdue">overdue</option>
+                          <option value="completed">Completed</option>
+                        </select>
+                      </div>
+                      <div className="col-6 mb-2">
+                        <label>Customer</label>
+                        <select
+                          className="form-control"
+                          onChange={(e) =>
+                            setFilterPayload({
+                              ...filterPayload,
+                              userId: e?.target?.value,
+                            })
+                          }
+                        >
+                          <option value="">Select</option>
+                          {userList?.map((v, i) => {
+                            return (
+                              <option value={v?._id}>
+                                {v?.firstName + " " + v?.lastName}
+                              </option>
+                            );
+                          })}
+                        </select>
+                      </div>
+                      <div className="col-6 mb-2">
+                        <label>Branch</label>
+                        <select
+                          className="form-control"
+                          onChange={(e) =>
+                            setFilterPayload({
+                              ...filterPayload,
+                              branchId: e?.target?.value,
+                            })
+                          }
+                        >
+                          <option value="">Select</option>
+
+                          {branchList?.map((v, i) => {
+                            return <option value={v?._id}>{v?.name}</option>;
+                          })}
+                        </select>
+                      </div>
+                      <div className="col-6 mb-2">
+                        <label>Loan Purpose</label>
+                        <select
+                          className="form-control"
+                          onChange={(e) =>
+                            setFilterPayload({
+                              ...filterPayload,
+                              loanPurposeId: e?.target?.value,
+                            })
+                          }
+                        >
+                          <option value="">Select</option>
+                          {loanPurposeList?.map((v, i) => {
+                            return <option value={v?._id}>{v?.name}</option>;
+                          })}
+                        </select>
+                      </div>
+                      <div className="col-6 mb-2">
+                        <label>Assigned To</label>
+                        <select
+                          className="form-control"
+                          onChange={(e) =>
+                            setFilterPayload({
+                              ...filterPayload,
+                              assignedAdminId: e?.target?.value,
+                            })
+                          }
+                        >
+                          <option value="">Select</option>
+                          {adminList?.map((v, i) => {
+                            return (
+                              <option value={v?._id}>
+                                {v?.firstName + " " + v?.lastName}
+                              </option>
+                            );
+                          })}
+                        </select>
+                      </div>
+                      <div className="col-6 mb-3">
+                        <label>Processing Status</label>
+                        <select
+                          className="form-control"
+                          onChange={(e) =>
+                            setFilterPayload({
+                              ...filterPayload,
+                              processingStatus: e?.target?.value,
+                            })
+                          }
+                        >
+                          <option value="">Select</option>
+                          <option value="checkEligibility">New Request</option>
+                          <option value="ekyc">E-kyc</option>
+                          <option value="selfie">Selfie</option>
+                          <option value="bankStatement">Bank Statement</option>
+                          <option value="loanOffer">Loan Offer</option>
+                          <option value="residenceProof">
+                            Residence Proof
+                          </option>
+                          <option value="reference">Reference</option>
+                          <option value="bankDetails">Bank Details</option>
+                          <option value="eSign">E-Sign</option>
+                        </select>
+                      </div>
+                      <div className="d-flex justify-content-end">
+                        <button
+                          className="btn btn-danger me-2"
+                          onClick={() =>
+                            setFilterPayload({
+                              show: false,
+                              status: "",
+                              branchId: "",
+                              userId: "",
+                              loanPurposeId: "",
+                              assignedAdminId: "",
+                              processingStatus: "",
+                            })
+                          }
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          className="btn bgThemePrimary px-3"
+                          onClick={() =>
+                            setPayload({ ...payload, ...filterPayload })
+                          }
+                        >
+                          Apply
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {filterPayload.show && <div className="modal-backdrop fade show"></div>}
       <ConfirmDeleteModal
         show={showConfirm}
         handleClose={() => setShowConfirm(false)}
