@@ -25,7 +25,7 @@ export const getLoanPurposeServ = async (formData) => {
 };
 export const addLoanPurposeServ = async (formData) => {
   try {
-    const response = await axios.post(BASE_URL + "loan-purpose/create", formData);
+    const response = await axios.post(BASE_URL + "loan-purpose/create", formData, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -35,7 +35,7 @@ export const addLoanPurposeServ = async (formData) => {
 };
 export const updateLoanPurposeServ = async (formData) => {
   try {
-    const response = await axios.put(BASE_URL + "loan-purpose/update", formData);
+    const response = await axios.put(BASE_URL + "loan-purpose/update", formData, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)

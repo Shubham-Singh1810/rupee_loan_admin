@@ -37,7 +37,6 @@ function LoanPurpose() {
     if (list?.length == 0) {
       setShowSkelton(true);
     }
-
     try {
       let response = await getLoanPurposeServ(payload);
       if (response?.data?.statusCode == "200") {
@@ -55,16 +54,18 @@ function LoanPurpose() {
   }, [payload]);
   const [addFormData, setAddFormData] = useState({
     name: "",
-
+    description: "",
+    img: "",
+    imgPrev: "",
     status: "",
-
     show: false,
   });
   const [editFormData, setEditFormData] = useState({
     name: "",
-
+    description: "",
+    img: "",
+    imgPrev: "",
     status: "",
-
     _id: "",
   });
   const renderProfile = (status) => {
@@ -118,20 +119,30 @@ function LoanPurpose() {
       toast.error("Internal Server error");
     }
   };
-  const BranchSchema = Yup.object().shape({
+  const LoanPurposeSchema = Yup.object().shape({
     name: Yup.string().required("Name is required"),
-
+    description: Yup.string().required("Description is required"),
     status: Yup.string().required("Status is required"),
   });
-  const handleAddLoanPurpose = async (value) => {
+  const handleAddLoanPurpose = async (values) => {
     try {
-      let response = await addLoanPurposeServ(value);
+      const formData = new FormData();
+      Object.keys(values).forEach((key) => {
+        if (key === "img") {
+          if (values.img instanceof File) {
+            formData.append("img", values.img);
+          }
+        } else {
+          formData.append(key, values[key]);
+        }
+      });
+      let response = await addLoanPurposeServ(formData);
       if (response?.data?.statusCode == "200") {
         setAddFormData({
           name: "",
-
           status: "",
-
+          description: "",
+          img: "",
           show: false,
         });
         toast.success(response?.data?.message);
@@ -143,18 +154,26 @@ function LoanPurpose() {
       toast?.error("Internal Server Error!");
     }
   };
-  const handleUpdateLoanPurpose = async (value) => {
+  const handleUpdateLoanPurpose = async (values) => {
     try {
-      let response = await updateLoanPurposeServ({
-        ...value,
-        _id: editFormData?._id,
+      const formData = new FormData();
+      Object.keys(values).forEach((key) => {
+        if (key === "img") {
+          if (values.img instanceof File) {
+            formData.append("img", values.img);
+          }
+        } else {
+          formData.append(key, values[key]);
+        }
       });
+      formData.append("_id", editFormData?._id);
+      let response = await updateLoanPurposeServ(formData);
       if (response?.data?.statusCode == "200") {
         setEditFormData({
           name: "",
-
+          description: "",
           status: "",
-
+          img: "",
           _id: "",
         });
         toast.success(response?.data?.message);
@@ -298,10 +317,10 @@ function LoanPurpose() {
               <thead className="table-light">
                 <tr>
                   <th className="">Sr No.</th>
+                  <th className="">Icon</th>
                   <th>Name</th>
-
+                  <th>Description</th>
                   <th className="text-center">Status</th>
-
                   <th style={{ textAlign: "center" }}>Action</th>
                 </tr>
               </thead>
@@ -319,7 +338,12 @@ function LoanPurpose() {
                           <td>
                             <Skeleton width={100} />
                           </td>
-
+                          <td>
+                            <Skeleton width={100} />
+                          </td>
+                          <td>
+                            <Skeleton width={100} />
+                          </td>
                           <td>
                             <Skeleton width={100} />
                           </td>
@@ -333,9 +357,23 @@ function LoanPurpose() {
                             {i + 1 + (payload?.pageNo - 1) * payload?.pageCount}
                           </td>
                           <td>
+                            <div className="d-flex align-items-center">
+                              <img
+                                src={
+                                  v?.img ||
+                                  "https://cdn-icons-png.flaticon.com/128/10446/10446694.png"
+                                }
+                                alt="User"
+                                className="rounded-circle me-2"
+                                width={40}
+                                height={40}
+                              />
+                            </div>
+                          </td>
+                          <td>
                             <h6 style={{ fontSize: "14px" }}>{v?.name}</h6>{" "}
                           </td>
-
+                          <td style={{ width: "600px" }}>{v?.description}</td>
                           <td className="text-center">
                             {renderProfile(v?.status)}
                           </td>
@@ -346,9 +384,9 @@ function LoanPurpose() {
                                 onClick={() =>
                                   setEditFormData({
                                     name: v?.name,
-
+                                    img: v?.img,
                                     status: v?.status,
-
+                                    description: v?.description,
                                     _id: v?._id,
                                   })
                                 }
@@ -414,10 +452,11 @@ function LoanPurpose() {
                         onClick={() =>
                           setAddFormData({
                             name: "",
-
+                            description: "",
                             status: "",
-
                             show: false,
+                            img: "",
+                            imgPrev: "",
                           })
                         }
                         src="https://cdn-icons-png.flaticon.com/128/2734/2734822.png"
@@ -429,18 +468,54 @@ function LoanPurpose() {
                     <Formik
                       initialValues={{
                         name: "",
-
+                        description: "",
+                        img: "",
                         status: "",
+                        imgPrev: "",
                       }}
-                      validationSchema={BranchSchema}
+                      validationSchema={LoanPurposeSchema}
                       onSubmit={(values) => {
                         handleAddLoanPurpose(values);
                       }}
                     >
-                      {({ isSubmitting }) => (
+                      {({ isSubmitting, values, setFieldValue }) => (
                         <Form>
                           <div className="row">
-                            {/* Name */}
+                            <div className="col-md-12 text-center my-auto">
+                              <input
+                                type="file"
+                                id="img"
+                                accept="image/*"
+                                style={{ display: "none" }}
+                                onChange={(e) =>
+                                  setFieldValue("img", e.target.files[0])
+                                }
+                              />
+                              <label htmlFor="img" className="cursor-pointer">
+                                <img
+                                  src={
+                                    values.img
+                                      ? URL.createObjectURL(values.img)
+                                      : "https://cdn-icons-png.flaticon.com/128/10446/10446694.png"
+                                  }
+                                  alt="img"
+                                  style={{
+                                    width: "100px",
+                                    height: "100px",
+                                    borderRadius: "50%",
+                                    objectFit: "cover",
+                                  }}
+                                />
+                              </label>
+                              <div>
+                                <small>Upload Icon</small>
+                              </div>
+                              <ErrorMessage
+                                name="img"
+                                component="div"
+                                className="text-danger small"
+                              />
+                            </div>
                             <div className="col-12">
                               <label className="mt-3">
                                 Name<span className="text-danger">*</span>
@@ -452,6 +527,23 @@ function LoanPurpose() {
                               />
                               <ErrorMessage
                                 name="name"
+                                component="div"
+                                className="text-danger"
+                              />
+                            </div>
+                            <div className="col-12">
+                              <label className="mt-3">
+                                Description{" "}
+                                <span className="text-danger">*</span>
+                              </label>
+                              <Field
+                                as="textarea"
+                                className="form-control"
+                                name="description"
+                                rows="3"
+                              />
+                              <ErrorMessage
+                                name="description"
                                 component="div"
                                 className="text-danger"
                               />
@@ -478,7 +570,6 @@ function LoanPurpose() {
                               />
                             </div>
                           </div>
-
                           {/* Submit */}
                           <button
                             className="btn bgThemePrimary w-100 mt-3"
@@ -542,21 +633,59 @@ function LoanPurpose() {
                     <Formik
                       initialValues={{
                         name: editFormData?.name || "",
-
+                        description: editFormData?.description || "",
                         status: editFormData?.status?.toString() || "",
+                        img: "",
+                        imgPrev: editFormData?.img || "",
                       }}
-                      validationSchema={BranchSchema}
+                      validationSchema={LoanPurposeSchema}
                       onSubmit={(values) => {
                         handleUpdateLoanPurpose(values);
                       }}
                       enableReinitialize
                     >
-                      {({ isSubmitting, dirty }) => (
+                      {({ isSubmitting, dirty, values, setFieldValue }) => (
                         <Form>
                           <div className="row">
-                            {/* Name */}
+                            <div className="col-md-12 text-center my-auto">
+                              <input
+                                type="file"
+                                id="img"
+                                accept="image/*"
+                                style={{ display: "none" }}
+                                onChange={(e) =>
+                                  setFieldValue("img", e.target.files[0])
+                                }
+                              />
+                              <label htmlFor="img" className="cursor-pointer">
+                                <img
+                                  src={
+                                    values.img
+                                      ? URL.createObjectURL(values.img)
+                                      : values?.imgPrev ? values?.imgPrev: "https://cdn-icons-png.flaticon.com/128/10446/10446694.png"
+                                  }
+                                  alt="img"
+                                  style={{
+                                    width: "100px",
+                                    height: "100px",
+                                    borderRadius: "50%",
+                                    objectFit: "cover",
+                                  }}
+                                />
+                              </label>
+                              <div>
+                                <small>Upload Icon</small>
+                              </div>
+                              <ErrorMessage
+                                name="img"
+                                component="div"
+                                className="text-danger small"
+                              />
+                            </div>
                             <div className="col-12">
-                              <label className="mt-3">Name</label>
+                              <label className="mt-3">
+                                Name<span className="text-danger">*</span>
+                              </label>
                               <Field
                                 className="form-control"
                                 type="text"
@@ -568,10 +697,27 @@ function LoanPurpose() {
                                 className="text-danger"
                               />
                             </div>
-
-                            {/* Status */}
                             <div className="col-12">
-                              <label className="mt-3">Status</label>
+                              <label className="mt-3">
+                                Description{" "}
+                                <span className="text-danger">*</span>
+                              </label>
+                              <Field
+                                as="textarea"
+                                className="form-control"
+                                name="description"
+                                rows="3"
+                              />
+                              <ErrorMessage
+                                name="description"
+                                component="div"
+                                className="text-danger"
+                              />
+                            </div>
+                            <div className="col-12">
+                              <label className="mt-3">
+                                Status<span className="text-danger">*</span>
+                              </label>
                               <Field
                                 as="select"
                                 className="form-control"
