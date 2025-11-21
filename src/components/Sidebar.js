@@ -131,8 +131,7 @@ function Sidebar({ isCollapsed }) {
             { name: "Active Users", path: "/active-users" },
             { name: "Verified Users", path: "/verified-users" },
             { name: "Newly Registered", path: "/newly-registered-users" },
-            { name: "Active Loan Users", path: "/active-loan-users" },
-            { name: "Users With Balance", path: "/users-with-balance" },
+            // { name: "Active Loan Users", path: "/active-loan-users" },
             { name: "Blocked Users", path: "/blocked-users" },
           ],
         },
@@ -214,12 +213,6 @@ function Sidebar({ isCollapsed }) {
           ],
         },
         {
-          menu: "Notify",
-          path: "/notify",
-          icon: "bi bi-bell",
-          permission: "Notify-View",
-        },
-        {
           menu: "Documents",
           path: "/documents",
           icon: "bi bi-file",
@@ -241,6 +234,29 @@ function Sidebar({ isCollapsed }) {
               permission: "Payday Loans-View",
             },
           ],
+        },
+      ],
+    },
+     {
+      title: "Broadcast Management",
+      list: [
+        {
+          menu: "Notification Settings",
+          path: "/notification-settings",
+          icon: "bi bi-telephone",
+          permission: "Contact Queries-View",
+        },
+        {
+          menu: "Notify",
+          path: "/notify",
+          icon: "bi bi-question-circle",
+          permission: "FAQ'S-View",
+        },
+        {
+          menu: "Schedule Remainders",
+          icon: "bi bi-file-earmark-text",
+          permission: "System Management-View",
+          path: "/schedule-remainders",
         },
       ],
     },

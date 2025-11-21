@@ -52,7 +52,7 @@ import PrivacyPolicy from "../pages/Policy/PrivacyPolicy";
 import CookieePolicy from "../pages/Policy/CookieePolicy";
 
 // Notification
-import Notify from "../pages/Notification/Notify";
+import Notify from "../pages/BroadcastManagement/Notify";
 
 // Support Management
 import ContactQueryList from "../pages/SupportManagement/ContactQueryList";
@@ -89,6 +89,8 @@ import SystemConfigration from "../pages/SystemManagement/SystemConfigration";
 import CreatePayDayApplication from "../pages/PaydayLoanManagement/CreatePayDayApplication";
 import UpdatePayDayApplication from "../pages/PaydayLoanManagement/UpdatePayDayApplication";
 import PaydayLoanDetails from "../pages/PaydayLoanManagement/PaydayLoanDetails";
+import NotificationSettings from "../pages/BroadcastManagement/NotificationSettings";
+import ScheduleRemainders from "../pages/BroadcastManagement/ScheduleRemainders";
 
 function AuthenticatedRoutes() {
   return (
@@ -299,20 +301,32 @@ function AuthenticatedRoutes() {
           <Route path="/update-role/:id" element={<UpdateRole />} />
         </Route>
 
+        <Route element={<ProtectedRoute allowedPermissions={["Roles-View"]} />}>
+          <Route path="/notification-settings" element={<NotificationSettings/>} />
+          <Route path="/notify" element={<Notify/>} />
+          <Route path="/schedule-remainders" element={<ScheduleRemainders />} />
+        </Route>
+
         {/* Profile */}
         <Route path="/my-profile" element={<Profile />} />
         <Route path="/permissions" element={<Permissions />} />
-       <Route path="/create-payday-loan" element={<CreatePayDayApplication />} /> 
-       <Route path="/update-payday-loan/:id" element={<UpdatePayDayApplication />} /> 
-       <Route path="/payday-loan-details/:id" element={<PaydayLoanDetails />} /> 
+        <Route
+          path="/create-payday-loan"
+          element={<CreatePayDayApplication />}
+        />
+        <Route
+          path="/update-payday-loan/:id"
+          element={<UpdatePayDayApplication />}
+        />
+        <Route
+          path="/payday-loan-details/:id"
+          element={<PaydayLoanDetails />}
+        />
       </Route>
 
       {/* Unauthorized & 404 */}
       <Route path="/unauthorized" element={<Unauthorized />} />
       <Route path="*" element={<NotFound />} />
-
-      
-
     </Routes>
   );
 }

@@ -242,6 +242,7 @@ function UpdatePayDayApplication() {
             value: u._id,
             label: u.firstName || u.phone,
           })),
+          required: true
         },
         {
           label: "Loan Purpose",
@@ -251,6 +252,7 @@ function UpdatePayDayApplication() {
             value: l._id,
             label: l.name,
           })),
+          required: true
         },
         {
           label: "Branch",
@@ -260,6 +262,7 @@ function UpdatePayDayApplication() {
             value: b._id,
             label: b.name,
           })),
+          required: true
         },
         {
           label: "Assigned Admin",
@@ -270,16 +273,16 @@ function UpdatePayDayApplication() {
             label: a.firstName,
           })),
         },
-        { label: "Loan Amount", name: "loanAmount", type: "number" },
-        { label: "Tenure (Days)", name: "tenure", type: "number" },
+        { label: "Loan Amount", name: "loanAmount", type: "number", required: true },
+        { label: "Tenure (Days)", name: "tenure", type: "number", required: true },
       ],
     },
     {
       title: "Basic Eligibility",
       fields: [
-        { label: "Full Name", name: "fullName", type: "text" },
-        { label: "Email", name: "email", type: "email" },
-        { label: "Date of Birth", name: "dob", type: "date" },
+        { label: "Full Name", name: "fullName", type: "text", required: true },
+        { label: "Email", name: "email", type: "email", required: true },
+        { label: "Date of Birth", name: "dob", type: "date", required: true },
         {
           label: "Gender",
           name: "gender",
@@ -289,6 +292,7 @@ function UpdatePayDayApplication() {
             { value: "female", label: "Female" },
             { value: "other", label: "Other" },
           ],
+          required: true
         },
         {
           label: "Education Qualification",
@@ -351,7 +355,7 @@ function UpdatePayDayApplication() {
           ],
         },
         { label: "Company Name", name: "cmpName", type: "text" },
-        { label: "Monthly Income", name: "monthlyIncome", type: "text" },
+        { label: "Monthly Income", name: "monthlyIncome", type: "text", required: true },
         { label: "Next Salary Date", name: "nextSalary", type: "date" },
       ],
     },
@@ -478,7 +482,7 @@ function UpdatePayDayApplication() {
                   <div className="form-section-body row g-3">
                     {section.fields.map((f, i) => (
                       <div className="col-md-6" key={i}>
-                        <label className="form-label">{f.label}</label>
+                         <label className="form-label"> {f.label} {f.required && <span className="text-danger">*</span>}</label>
 
                         {/* ------- SELECT ------ */}
                         {f.type === "select" ? (

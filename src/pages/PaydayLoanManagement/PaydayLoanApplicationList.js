@@ -5,6 +5,7 @@ import {
   paydayLoanApplicationListServ,
   paydayLoanStatsServ,
   paydayDeleteLoanApplicationServ,
+  updatePaydayLoanApplicationServ,
 } from "../../services/loanApplication.services";
 import { getUserListServ } from "../../services/user.service";
 import { getBranchListServ } from "../../services/branch.service";
@@ -234,6 +235,30 @@ function PaydayLoanApplicationList() {
       console.error(error);
     }
   };
+  const [btnLoader, setBtnLoader] = useState(false);
+  const updateStatusFunc = async (payload) => {
+    setBtnLoader(true);
+    try {
+      let response = await updatePaydayLoanApplicationServ(payload);
+      if (response?.data?.statusCode == "200") {
+        toast.success(response?.data?.message);
+        getListFunc();
+        setRejectPopup({
+          _id: "",
+          rejectReason: "",
+          status: "rejected",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    setBtnLoader(false);
+  };
+  const [rejectPopup, setRejectPopup] = useState({
+    _id: "",
+    rejectReason: "",
+    status: "rejected",
+  });
   return (
     <div className="container-fluid py-3">
       {/* User Header */}
@@ -459,6 +484,7 @@ function PaydayLoanApplicationList() {
                   <th className="text-center">Assigned To</th>
 
                   <th style={{ textAlign: "center" }}>Action</th>
+                  <th style={{ textAlign: "center" }}>View/Edit</th>
                 </tr>
               </thead>
               <tbody>
@@ -495,6 +521,9 @@ function PaydayLoanApplicationList() {
                           <td>
                             <Skeleton width={100} />
                           </td>
+                          <td>
+                            <Skeleton width={100} />
+                          </td>
                           <td className="text-center">
                             <Skeleton width={100} />
                           </td>
@@ -510,9 +539,9 @@ function PaydayLoanApplicationList() {
                           <td>
                             {i + 1 + (payload?.pageNo - 1) * payload?.pageCount}
                           </td>
-                          <td>{v?.code}</td>
-                          <td>{v?.loanPurposeId?.name}</td>
-                          <td>{v?.branchId?.name}</td>
+                          <td>{v?.code || "-"}</td>
+                          <td>{v?.loanPurposeId?.name || "-"}</td>
+                          <td>{v?.branchId?.name || "-"}</td>
                           <td>
                             <div className="d-flex align-items-center">
                               <img
@@ -532,28 +561,60 @@ function PaydayLoanApplicationList() {
                                   style={{ fontSize: "12px" }}
                                   className="mb-0"
                                 >
-                                  {v?.fullName}
+                                  {v?.fullName || "-"}
                                 </h6>{" "}
-                                <p className="mb-0">{v?.userId?.phone}</p>
+                                <p className="mb-0">
+                                  {v?.userId?.phone || "-"}
+                                </p>
                               </div>
                             </div>
                           </td>
 
-                          <td>{v?.loanAmount}</td>
-                          <td>{v?.tenure || "N/A"} days</td>
+                          <td>{v?.loanAmount || "-"}</td>
+                          <td>{v?.tenure || "-"}</td>
                           <td className="text-center">
                             {renderProfile(v?.status)}
                           </td>
                           <td className="text-center">
-                            {v?.assignedAdminId?.firstName +
-                              " " +
-                              v?.assignedAdminId?.lastName}
+                            {v?.assignedAdminId
+                              ? v?.assignedAdminId?.firstName +
+                                " " +
+                                v?.assignedAdminId?.lastName
+                              : "-"}
+                          </td>
+                          <td className="text-center">
+                            {(v?.status == "pending" ||
+                              v?.status == "rejected" ||
+                              v?.status == "approved") && (
+                              <select
+                                className="loanActionSelect"
+                                onChange={(e) => {
+                                  e?.target?.value == "approved"
+                                    ? updateStatusFunc({
+                                        _id: v?._id,
+                                        status: "approved",
+                                      })
+                                    : setRejectPopup({
+                                        _id: v?._id,
+                                        rejectReason: "",
+                                        status: "rejected",
+                                      });
+                                }}
+                                value={v?.status}
+                              >
+                                <option value="">Pending</option>
+                                <option value="approved">Approve</option>
+                                <option value="rejected">Reject</option>
+                              </select>
+                            )}
                           </td>
 
                           {/* <td className="text-center">{moment(v?.lastLogin).format("DD MMM, YYYY")}</td> */}
                           <td style={{ textAlign: "center" }}>
                             <a
-                              onClick={() => navigate("/payday-loan-details/"+v?._id)}
+                              onClick={() =>
+                                navigate("/payday-loan-details/" + v?._id)
+                              }
                               className="text-primary text-decoration-underline me-2"
                             >
                               <i class="bi bi-eye fs-6"></i>
@@ -781,6 +842,93 @@ function PaydayLoanApplicationList() {
         </div>
       )}
       {filterPayload.show && <div className="modal-backdrop fade show"></div>}
+      {rejectPopup?._id && (
+        <div
+          className="modal fade show d-flex align-items-center justify-content-center"
+          tabIndex="-1"
+        >
+          <div className="modal-dialog">
+            <div
+              className="modal-content"
+              style={{
+                borderRadius: "8px",
+
+                width: "350px",
+              }}
+            >
+              <div className="modal-body">
+                <div
+                  style={{
+                    wordWrap: "break-word",
+                    whiteSpace: "pre-wrap",
+                  }}
+                  className="d-flex justify-content-center w-100"
+                >
+                  <div className="w-100 px-2">
+                    <div className="d-flex justify-content-between align-items-center">
+                      <h5 className="">Reject Confirm</h5>
+                      <img
+                        onClick={() =>
+                          setRejectPopup({
+                            _id: "",
+                            rejectReason: "",
+                            status: "rejected",
+                          })
+                        }
+                        src="https://cdn-icons-png.flaticon.com/128/2734/2734822.png"
+                        style={{ height: "20px", cursor: "pointer" }}
+                      />
+                    </div>
+                    <div className="row">
+                      <div className="col-12 mb-2">
+                        <label>Reason*</label>
+                        <textarea
+                          className="form-control"
+                          rows={3}
+                          onChange={(e) =>
+                            setRejectPopup({
+                              ...rejectPopup,
+                              rejectReason: e?.target?.value,
+                            })
+                          }
+                        />
+                      </div>
+
+                      <div className="d-flex justify-content-end">
+                        {rejectPopup?.rejectReason ? (
+                          btnLoader ? (
+                            <button
+                              className="btn bgThemePrimary w-100 mt-2"
+                              style={{ opacity: "0.5" }}
+                            >
+                              Confirm...
+                            </button>
+                          ) : (
+                            <button
+                              className="btn bgThemePrimary w-100 mt-2"
+                              onClick={() => updateStatusFunc(rejectPopup)}
+                            >
+                              Confirm
+                            </button>
+                          )
+                        ) : (
+                          <button
+                            className="btn bgThemePrimary w-100 mt-2"
+                            style={{ opacity: "0.5" }}
+                          >
+                            Confirm
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {rejectPopup._id && <div className="modal-backdrop fade show"></div>}
       <ConfirmDeleteModal
         show={showConfirm}
         handleClose={() => setShowConfirm(false)}

@@ -164,9 +164,10 @@ function CreatePayDayApplication() {
       title: "Main Details",
       fields: [
         {
-          label: "User",
+          label: `User`,
           name: "userId",
           type: "select",
+          required: true,
           options: userList.map((u) => ({
             value: u._id,
             label: u.firstName || u.phone,
@@ -180,6 +181,7 @@ function CreatePayDayApplication() {
             value: l._id,
             label: l.name,
           })),
+          required: true
         },
         {
           label: "Branch",
@@ -189,6 +191,7 @@ function CreatePayDayApplication() {
             value: b._id,
             label: b.name,
           })),
+          required: true
         },
         {
           label: "Assigned Admin",
@@ -199,16 +202,16 @@ function CreatePayDayApplication() {
             label: a.firstName,
           })),
         },
-        { label: "Loan Amount", name: "loanAmount", type: "number" },
-        { label: "Tenure (Days)", name: "tenure", type: "number" },
+        { label: "Loan Amount", name: "loanAmount", type: "number", required: true },
+        { label: "Tenure (Days)", name: "tenure", type: "number", required: true },
       ],
     },
     {
       title: "Basic Eligibility",
       fields: [
-        { label: "Full Name", name: "fullName", type: "text" },
-        { label: "Email", name: "email", type: "email" },
-        { label: "Date of Birth", name: "dob", type: "date" },
+        { label: "Full Name", name: "fullName", type: "text", required: true },
+        { label: "Email", name: "email", type: "email", required: true },
+        { label: "Date of Birth", name: "dob", type: "date", required: true },
         {
           label: "Gender",
           name: "gender",
@@ -218,6 +221,7 @@ function CreatePayDayApplication() {
             { value: "female", label: "Female" },
             { value: "other", label: "Other" },
           ],
+          required: true
         },
         {
           label: "Education Qualification",
@@ -280,7 +284,7 @@ function CreatePayDayApplication() {
           ],
         },
         { label: "Company Name", name: "cmpName", type: "text" },
-        { label: "Monthly Income", name: "monthlyIncome", type: "text" },
+        { label: "Monthly Income", name: "monthlyIncome", type: "text", required: true },
         { label: "Next Salary Date", name: "nextSalary", type: "date" },
       ],
     },
@@ -390,7 +394,7 @@ function CreatePayDayApplication() {
                 <div className="form-section-body row g-3">
                   {section.fields.map((f, i) => (
                     <div className="col-md-6" key={i}>
-                      <label className="form-label">{f.label}</label>
+                      <label className="form-label"> {f.label} {f.required && <span className="text-danger">*</span>}</label>
 
                       {/* ------- SELECT ------ */}
                       {f.type === "select" ? (

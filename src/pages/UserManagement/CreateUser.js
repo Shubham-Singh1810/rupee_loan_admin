@@ -131,7 +131,7 @@ function CreateUser() {
                     />
                   </div>
                   <div className="col-md-4">
-                    <label className="form-label">First Name</label>
+                    <label className="form-label">First Name <span className="text-danger">*</span></label>
                     <Field
                       type="text"
                       name="firstName"
@@ -145,7 +145,7 @@ function CreateUser() {
                     />
                   </div>
                   <div className="col-md-4">
-                    <label className="form-label">Last Name</label>
+                    <label className="form-label">Last Name <span className="text-danger">*</span></label>
                     <Field
                       type="text"
                       name="lastName"
@@ -159,7 +159,7 @@ function CreateUser() {
                     />
                   </div>
                   <div className="col-md-4">
-                    <label className="form-label">Email</label>
+                    <label className="form-label">Email <span className="text-danger">*</span></label>
                     <Field
                       type="email"
                       name="email"
@@ -173,7 +173,7 @@ function CreateUser() {
                     />
                   </div>
                   <div className="col-md-4">
-                    <label className="form-label">Phone</label>
+                    <label className="form-label">Phone <span className="text-danger">*</span></label>
                     <div className="input-group">
                       {/* Country Code Dropdown */}
                       <Field
@@ -205,7 +205,7 @@ function CreateUser() {
                   </div>
 
                   <div className="col-md-4">
-                    <label className="form-label">DOB</label>
+                    <label className="form-label">Date Of Birth <span className="text-danger">*</span></label>
                     <Field type="date" name="dob" className="form-control" />
                     <ErrorMessage
                       name="dob"
@@ -214,7 +214,7 @@ function CreateUser() {
                     />
                   </div>
                   <div className="col-md-4">
-                    <label className="form-label">Gender</label>
+                    <label className="form-label">Gender <span className="text-danger">*</span></label>
                     <Field as="select" name="gender" className="form-select">
                       <option value="">Select</option>
                       <option value="male">Male</option>
@@ -236,7 +236,7 @@ function CreateUser() {
                 <div className="form-section-header">Address Details</div>
                 <div className="form-section-body row g-3">
                   <div className="col-md-4">
-                    <label className="form-label">State</label>
+                    <label className="form-label">State <span className="text-danger">*</span></label>
                     <Field type="text" name="state" className="form-control" />
                     <ErrorMessage
                       name="state"
@@ -245,7 +245,7 @@ function CreateUser() {
                     />
                   </div>
                   <div className="col-md-4">
-                    <label className="form-label">City</label>
+                    <label className="form-label">City <span className="text-danger">*</span></label>
                     <Field type="text" name="city" className="form-control" />
                     <ErrorMessage
                       name="city"
@@ -254,7 +254,7 @@ function CreateUser() {
                     />
                   </div>
                   <div className="col-md-4">
-                    <label className="form-label">Pincode</label>
+                    <label className="form-label">Pincode <span className="text-danger">*</span></label>
                     <Field
                       type="text"
                       name="pincode"
@@ -267,7 +267,7 @@ function CreateUser() {
                     />
                   </div>
                   <div className="col-md-12">
-                    <label className="form-label">Address</label>
+                    <label className="form-label">Address <span className="text-danger">*</span></label>
                     <Field
                       as="textarea"
                       name="address"
@@ -321,7 +321,7 @@ function CreateUser() {
                 <div className="form-section-header">Employment Details</div>
                 <div className="form-section-body row g-3">
                   <div className="col-md-6">
-                    <label className="form-label">Employment Type</label>
+                    <label className="form-label">Employment Type <span className="text-danger">*</span></label>
                     <Field
                       as="select"
                       name="employementType"
@@ -341,7 +341,7 @@ function CreateUser() {
                     />
                   </div>
                   <div className="col-md-6">
-                    <label className="form-label">Monthly Income</label>
+                    <label className="form-label">Monthly Income <span className="text-danger">*</span></label>
                     <Field
                       type="number"
                       name="monthlyIncome"
@@ -354,7 +354,7 @@ function CreateUser() {
                     />
                   </div>
                   <div className="col-md-6">
-                    <label className="form-label">Annual Income</label>
+                    <label className="form-label">Annual Income <span className="text-danger">*</span></label>
                     <Field
                       type="number"
                       name="annualIncome"
@@ -367,7 +367,7 @@ function CreateUser() {
                     />
                   </div>
                   <div className="col-md-6">
-                    <label className="form-label">Credit Score</label>
+                    <label className="form-label">Credit Score <span className="text-danger">*</span></label>
                     <Field
                       type="number"
                       name="creditScore"

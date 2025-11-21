@@ -556,7 +556,7 @@ function Documents() {
                           <div className="row">
                             {/* Name */}
                             <div className="col-12">
-                              <label className="mt-3">Name</label>
+                              <label className="mt-3">Name <span className="text-danger">*</span></label>
                               <Field
                                 className="form-control"
                                 type="text"
@@ -571,7 +571,7 @@ function Documents() {
 
                             {/* Status */}
                             <div className="col-12">
-                              <label className="mt-3">Status</label>
+                              <label className="mt-3">Status <span className="text-danger">*</span></label>
                               <Field
                                 as="select"
                                 className="form-control"

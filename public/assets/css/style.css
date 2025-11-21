@@ -784,3 +784,10 @@ a {
   flex-direction: row-reverse;
   background-color: #ffc107; /* Bootstrap warning color */
 }
+.loanActionSelect {
+  font-size: 15px;
+  border: 1px solid gray;
+  font-weight: 400;
+  padding: 2px 5px;
+  color:"gray"
+}
