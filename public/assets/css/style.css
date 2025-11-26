@@ -791,3 +791,16 @@ a {
   padding: 2px 5px;
   color:"gray"
 }
+.notifyMobile img{
+  height: 550px;
+}
+.notificationContent{
+  position: relative;
+  top: -490px;
+  margin-bottom: -490px;
+  left: 22px;
+  width: 230px;
+}
+.notificationContent img{
+  height: 100%;
+}

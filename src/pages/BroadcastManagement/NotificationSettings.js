@@ -1,31 +1,31 @@
 import React, { useEffect, useState } from "react";
-// import {
-//   getNotificationSettingsServ,
-//   updateNotificationSettingsServ,
-// } from "../../services/notificationSetting.services";
+import {
+ getNotificationConfigrationDetailsServ,
+ updateNotificationConfigrationDetailsServ
+} from "../../services/notificationConfigration.services";
 import { toast } from "react-toastify";
 
 function NotificationSettings() {
   const [settings, setSettings] = useState({
-    email: false,
-    sms: false,
-    push: false,
-    notificationList: false,
+    isEmailNotification: false,
+    isSmsNotification: false,
+    isPushNotification: false,
+    isInAppNotification: false,
   });
 
   const [btnLoader, setBtnLoader] = useState(false);
 
   // Get settings from backend
-  const getSettings = async () => {
+  const getSettingsFunc = async () => {
     try {
-        let response
-    //   let response = await getNotificationSettingsServ();
-      if (response?.data?.statusCode === "200") {
+        
+      let response = await getNotificationConfigrationDetailsServ();
+      if (response?.data?.statusCode == "200") {
         setSettings({
-          email: response.data.data.email,
-          sms: response.data.data.sms,
-          push: response.data.data.push,
-          notificationList: response.data.data.notificationList,
+          isEmailNotification: response.data.data.isEmailNotification,
+          isSmsNotification: response.data.data.isSmsNotification,
+          isPushNotification: response.data.data.isPushNotification,
+          isInAppNotification: response.data.data.isInAppNotification,
         });
       }
     } catch (error) {
@@ -34,17 +34,16 @@ function NotificationSettings() {
   };
 
   useEffect(() => {
-    getSettings();
+    getSettingsFunc();
   }, []);
 
   const updateSettings = async () => {
     setBtnLoader(true);
     try {
-    //   let response = await updateNotificationSettingsServ(settings);
-    let response
-      if (response?.data?.statusCode === "200") {
+      let response = await updateNotificationConfigrationDetailsServ(settings);
+      if (response?.data?.statusCode == "200") {
         toast.success(response.data.message);
-        getSettings();
+        getSettingsFunc();
       }
     } catch (error) {
       toast.error("Internal Server Error");
@@ -91,16 +90,16 @@ function NotificationSettings() {
                 </div>
               </div>
 
-               {settings?.email ? <button
+               {settings?.isEmailNotification ? <button
                   className="status-toggle pending bg-success"
                   style={{ width: "50px" }}
-                  onClick={() => setSettings({...settings, email:false})}
+                  onClick={() => setSettings({...settings, isEmailNotification:false})}
                 >
                   <div className="circle"></div>
                 </button>:<button
                   className="status-toggle  bg-secondary"
                   style={{ width: "50px" }}
-                  onClick={() => setSettings({...settings, email:true})}
+                  onClick={() => setSettings({...settings, isEmailNotification:true})}
                 >
                   <div className="circle"></div>
                 </button>}
@@ -131,16 +130,16 @@ function NotificationSettings() {
                 </div>
               </div>
 
-              {settings?.sms ? <button
+              {settings?.isSmsNotification ? <button
                   className="status-toggle pending bg-success"
                   style={{ width: "50px" }}
-                  onClick={() => setSettings({...settings, sms:false})}
+                  onClick={() => setSettings({...settings, isSmsNotification:false})}
                 >
                   <div className="circle"></div>
                 </button>:<button
                   className="status-toggle  bg-secondary"
                   style={{ width: "50px" }}
-                  onClick={() => setSettings({...settings, sms:true})}
+                  onClick={() => setSettings({...settings, isSmsNotification:true})}
                 >
                   <div className="circle"></div>
                 </button>}
@@ -171,16 +170,16 @@ function NotificationSettings() {
                 </div>
               </div>
 
-              {settings?.push ? <button
+              {settings?.isPushNotification ? <button
                   className="status-toggle pending bg-success"
                   style={{ width: "50px" }}
-                  onClick={() => setSettings({...settings, push:false})}
+                  onClick={() => setSettings({...settings, isPushNotification:false})}
                 >
                   <div className="circle"></div>
                 </button>:<button
                   className="status-toggle  bg-secondary"
                   style={{ width: "50px" }}
-                  onClick={() => setSettings({...settings, push:true})}
+                  onClick={() => setSettings({...settings, isPushNotification:true})}
                 >
                   <div className="circle"></div>
                 </button>}
@@ -211,16 +210,16 @@ function NotificationSettings() {
                 </div>
               </div>
 
-              {settings?.notificationList ? <button
+              {settings?.isInAppNotification ? <button
                   className="status-toggle pending bg-success"
                   style={{ width: "50px" }}
-                  onClick={() => setSettings({...settings, notificationList:false})}
+                  onClick={() => setSettings({...settings, isInAppNotification:false})}
                 >
                   <div className="circle"></div>
                 </button>:<button
                   className="status-toggle  bg-secondary"
                   style={{ width: "50px" }}
-                  onClick={() => setSettings({...settings, notificationList:true})}
+                  onClick={() => setSettings({...settings, isInAppNotification:true})}
                 >
                   <div className="circle"></div>
                 </button>}

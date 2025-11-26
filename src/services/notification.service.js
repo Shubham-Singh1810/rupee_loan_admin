@@ -13,6 +13,16 @@ const getConfig = () => {
     },
   };
 };
+export const createNotifyServ = async (formData) => {
+  try {
+    const response = await axios.post(BASE_URL + "notify/create", formData, getConfig());
+    return response;
+  } catch (error) {
+    // Handle error (e.g., log or throw an error)
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+};
 export const getNotificationServ = async (formData) => {
   try {
     const response = await axios.post(BASE_URL + "notification/list", formData);
