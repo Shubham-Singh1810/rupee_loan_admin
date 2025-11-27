@@ -10,6 +10,9 @@ function Notify() {
     icon: "",
     notifyUserIds: [],
     mode: [],
+    isScheduled:false,
+    date:"",
+    time:""
   });
   const [btnLoader, setBtnLoader] = useState(false);
   const createNotifyFunc = async () => {
@@ -23,6 +26,11 @@ function Notify() {
       }
       fd.append("notifyUserIds", JSON.stringify(formData.notifyUserIds));
       fd.append("mode", JSON.stringify(formData.mode));
+      fd.append("isScheduled", formData.isScheduled);
+      if (formData.isScheduled) {
+        fd.append("date", formData.date);
+        fd.append("time", formData.time);
+      }
       let response = await createNotifyServ(fd);
       if (response?.data?.statusCode == "200") {
         setFormData({
@@ -31,6 +39,9 @@ function Notify() {
           icon: "",
           notifyUserIds: [],
           mode: [],
+          isScheduled:false,
+          date:"",
+          time:""
         });
         toast.success(response?.data?.message);
       }
@@ -42,7 +53,7 @@ function Notify() {
   const [userList, setUserList] = useState([]);
   const getUserListFunc = async () => {
     try {
-      let response = await getUserListServ();
+      let response = await getUserListServ({pageCount:100, isUserApproved:true});
       if (response?.data?.statusCode == "200") {
         setUserList(response?.data?.data);
       }
@@ -196,6 +207,28 @@ function Notify() {
                 ))}
               </div>
             </div>
+            <div className="form-check form-switch mt-3">
+              <input
+                type="checkbox"
+                onChange={() => setFormData({...formData, isScheduled:!formData?.isScheduled})}
+                className="form-check-input"
+                value={formData?.isScheduled}
+              />
+              <label className="form-check-label">
+                Do you want to schedule this notification
+              </label>
+            </div> 
+            {formData?.isScheduled && <div className="mt-3 row">
+             <div className="col-6">
+              <label>Date</label>
+              <input className="form-control" type="date" value={formData?.date} onChange={(e)=>setFormData({...formData, date:e?.target?.value})}/>
+             </div>
+             <div className="col-6">
+              <label>Time</label>
+              <input className="form-control" type="time" value={formData?.time} onChange={(e)=>setFormData({...formData, time:e?.target?.value})}/>
+             </div>
+
+              </div>}
 
             <div className="mt-3">
               {formData?.title &&

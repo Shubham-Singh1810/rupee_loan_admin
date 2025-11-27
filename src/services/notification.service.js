@@ -23,6 +23,16 @@ export const createNotifyServ = async (formData) => {
     throw error;
   }
 };
+export const getNotifyServ = async (formData) => {
+  try {
+    const response = await axios.post(BASE_URL + "notify/list", formData);
+    return response;
+  } catch (error) {
+    // Handle error (e.g., log or throw an error)
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+};
 export const getNotificationServ = async (formData) => {
   try {
     const response = await axios.post(BASE_URL + "notification/list", formData);
@@ -44,16 +54,7 @@ export const deleteNotificationServ = async (id) => {
   }
 };
 
-export const getNotifyServ = async (formData) => {
-  try {
-    const response = await axios.post(BASE_URL + "notify/list", formData);
-    return response;
-  } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
-  }
-};
+
 export const deleteNotifyServ = async (id) => {
   try {
     const response = await axios.delete(BASE_URL + "notify/delete/"+id);

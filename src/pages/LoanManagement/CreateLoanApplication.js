@@ -224,18 +224,20 @@ function CreateLoanApplication() {
                         // reset collateral & documents if loan type changes
                         setFieldValue("collateralDetails", []);
                         setFieldValue("documents", []);
-                         // 🔹 Auto fill loan details
-      if (selectedObj) {
-        setFieldValue("intrestRate", selectedObj.intrestRate || "");
-        setFieldValue("intrestRateType", selectedObj.intrestType || "");
-        
-       
-      } else {
-        setFieldValue("intrestRate", "");
-        setFieldValue("intrestRateType", "");
-       
-     
-      }
+                        // 🔹 Auto fill loan details
+                        if (selectedObj) {
+                          setFieldValue(
+                            "intrestRate",
+                            selectedObj.intrestRate || ""
+                          );
+                          setFieldValue(
+                            "intrestRateType",
+                            selectedObj.intrestType || ""
+                          );
+                        } else {
+                          setFieldValue("intrestRate", "");
+                          setFieldValue("intrestRateType", "");
+                        }
                       }}
                     >
                       <option value="">Select</option>
