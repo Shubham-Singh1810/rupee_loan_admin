@@ -246,6 +246,12 @@ function Sidebar({ isCollapsed }) {
           icon: "bi bi-telephone",
           permission: "Contact Queries-View",
         },
+         {
+          menu: "System Notification",
+          icon: "bi bi-bell",
+          permission: "System Management-View",
+          path: "/system-notification",
+        },
         {
           menu: "Notify",
           path: "/notify",

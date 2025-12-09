@@ -84,6 +84,8 @@ function PaydayLoanDetails() {
           value: details?.loanAmount,
         },
         { label: "Tenure (Days)", name: "tenure", value: details?.tenure },
+        { label: "Processing Fee", name: "processingFee", value: details?.processingFee },
+        { label: "Payable Amount", name: "payable", value: details?.payable },
       ],
     },
     {

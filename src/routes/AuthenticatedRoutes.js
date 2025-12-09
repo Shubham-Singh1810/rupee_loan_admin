@@ -91,6 +91,7 @@ import UpdatePayDayApplication from "../pages/PaydayLoanManagement/UpdatePayDayA
 import PaydayLoanDetails from "../pages/PaydayLoanManagement/PaydayLoanDetails";
 import NotificationSettings from "../pages/BroadcastManagement/NotificationSettings";
 import ScheduleRemainders from "../pages/BroadcastManagement/ScheduleRemainders";
+import SystemNotification from "../pages/BroadcastManagement/SystemNotification";
 
 function AuthenticatedRoutes() {
   return (
@@ -305,6 +306,7 @@ function AuthenticatedRoutes() {
           <Route path="/notification-settings" element={<NotificationSettings/>} />
           <Route path="/notify" element={<Notify/>} />
           <Route path="/schedule-remainders" element={<ScheduleRemainders />} />
+          <Route path="/system-notification" element={<SystemNotification />} />
         </Route>
 
         {/* Profile */}

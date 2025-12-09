@@ -471,7 +471,7 @@ function UpdateLoanRequirement() {
                       </div>
 
                       <div className="col-md-4">
-                        <label className="form-label">Late Fee</label>
+                        <label className="form-label">Late Fee (%)</label>
                         <Field
                           type="number"
                           name="lateFee"

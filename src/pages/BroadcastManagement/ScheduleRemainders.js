@@ -1,19 +1,17 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  getBranchListServ,
-  handleDeleteBranchServ,
-  handleCreateBranchServ,
-  handleUpdateBranchServ,
-} from "../../services/branch.service";
-import { getNotifyServ } from "../../services/notification.service";
+  getNotifyServ,
+  deleteNotifynServ,
+  updateNotifyServ,
+} from "../../services/notification.service";
+import { getUserListServ } from "../../services/user.service";
+import { MultiSelect } from "react-multi-select-component";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import NoDataScreen from "../../components/NoDataScreen";
 import { toast } from "react-toastify";
 import Pagination from "../../components/Pagination";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
 import moment from "moment";
 import ConfirmDeleteModal from "../../components/ConfirmDeleteModal";
 import { useGlobalState } from "../../GlobalProvider";
@@ -25,9 +23,15 @@ function ScheduleRemainders() {
   const [list, setList] = useState([]);
   const navigate = useNavigate();
   const [showSkelton, setShowSkelton] = useState(false);
-  const [showStatsSkelton, setShowStatsSkelton] = useState(false);
-  const [formData, setFormData] = useState({
+  const [editFormData, setEditFormData] = useState({
+    _id: "",
+    title: "",
+    subTitle: "",
+    date: "",
+    time: "",
+    notifyUserIds: [],
     mode: [],
+    icon: "",
   });
   const [payload, setPayload] = useState({
     searchKey: "",
@@ -52,34 +56,27 @@ function ScheduleRemainders() {
     }
     setShowSkelton(false);
   };
-
+  const [userList, setUserList] = useState([]);
+  const getUserListFunc = async () => {
+    try {
+      let response = await getUserListServ({
+        pageCount: 100,
+        isUserApproved: true,
+      });
+      if (response?.data?.statusCode == "200") {
+        setUserList(response?.data?.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    getUserListFunc();
+  }, []);
   useEffect(() => {
     getListFunc();
   }, [payload]);
-  const [addFormData, setAddFormData] = useState({
-    name: "",
-    phone: "",
-    contactPerson: "",
-    status: "",
-    address: "",
-    city: "",
-    state: "",
-    pincode: "",
-    description: "",
-    show: false,
-  });
-  const [editFormData, setEditFormData] = useState({
-    name: "",
-    phone: "",
-    contactPerson: "",
-    status: "",
-    address: "",
-    city: "",
-    state: "",
-    pincode: "",
-    description: "",
-    _id: "",
-  });
+
   const renderProfile = (isDelivered) => {
     if (isDelivered) {
       return (
@@ -119,7 +116,7 @@ function ScheduleRemainders() {
   ];
   const handleDeleteFunc = async (id) => {
     try {
-      let response = await handleDeleteBranchServ(deleteId);
+      let response = await deleteNotifynServ(deleteId);
       if (response?.data?.statusCode == "200") {
         getListFunc();
         toast.success(response?.data?.message);
@@ -130,75 +127,31 @@ function ScheduleRemainders() {
       toast.error("Internal Server error");
     }
   };
-  const BranchSchema = Yup.object().shape({
-    name: Yup.string().required("Name is required"),
-    phone: Yup.string()
-      .matches(/^[0-9]{10}$/, "Must be a valid 10-digit number")
-      .required("Contact Number is required"),
-    contactPerson: Yup.string().required("Contact Person is required"),
-    status: Yup.string().required("Status is required"),
-    description: Yup.string(),
-    address: Yup.string().required("Address is required"),
-    state: Yup.string().required("State is required"),
-    city: Yup.string().required("City is required"),
-    pincode: Yup.string()
-      .matches(/^[0-9]{6}$/, "Enter valid 6-digit pincode")
-      .required("Pincode is required"),
-  });
-  const handleAddBranch = async (value) => {
+  const [editLoader, setEditLoader] = useState(false);
+  const handleUpdateFunc = async () => {
+    setEditLoader(true);
+
     try {
-      let response = await handleCreateBranchServ(value);
-      if (response?.data?.statusCode == "200") {
-        setAddFormData({
-          name: "",
-          phone: "",
-          contactPerson: "",
-          status: "",
-          address: "",
-          city: "",
-          state: "",
-          pincode: "",
-          description: "",
-          show: false,
-        });
-        toast.success(response?.data?.message);
-        getListFunc();
-      } else {
-        toast?.error("Something went wrong!");
-      }
-    } catch (error) {
-      toast?.error("Internal Server Error!");
-    }
-  };
-  const handleUpdateBranch = async (value) => {
-    try {
-      let response = await handleUpdateBranchServ({
-        ...value,
-        _id: editFormData?._id,
-      });
+      let response = await updateNotifyServ(editFormData);
       if (response?.data?.statusCode == "200") {
         setEditFormData({
-          name: "",
-          phone: "",
-          contactPerson: "",
-          status: "",
-          address: "",
-          city: "",
-          state: "",
-          pincode: "",
-          description: "",
           _id: "",
+          title: "",
+          subTitle: "",
+          date: "",
+          time: "",
+          notifyUserIds: [],
+          mode: [],
+          icon: "",
         });
+        getListFunc()
         toast.success(response?.data?.message);
-        getListFunc();
-      } else {
-        toast?.error("Something went wrong!");
       }
     } catch (error) {
-      toast?.error("Internal Server Error!");
+      toast.error("Internal Server Error");
     }
+    setEditLoader(false);
   };
-
   return (
     <div className="container-fluid user-table py-3">
       {/* KPIs */}
@@ -338,7 +291,7 @@ function ScheduleRemainders() {
                   <th className="text-center">Date & Time</th>
                   <th className="text-center">Mode</th>
                   <th className="text-center">Status</th>
-                  <th className="text-center">Users</th>
+                  
                   {(permissions?.includes("Branches-Edit") ||
                     permissions?.includes("Branches-Delete")) && (
                     <th style={{ textAlign: "center" }}>Action</th>
@@ -366,9 +319,7 @@ function ScheduleRemainders() {
                           <td className="text-center">
                             <Skeleton width={100} />
                           </td>
-                          <td className="text-center">
-                            <Skeleton width={100} />
-                          </td>
+                          
                           <td className="text-center">
                             <Skeleton width={100} />
                           </td>
@@ -429,52 +380,43 @@ function ScheduleRemainders() {
                           <td className="text-center">
                             {renderProfile(v?.isDelivered)}
                           </td>
-                          <td className="text-center">
-                            <a
-                              className="cursor"
-                              // onClick={() => navigate("/view-staff/" + v?._id)}
-                              onClick={() => toast.info("Work in progress")}
-                            >
-                              <u
-                                style={{
-                                  color: "#010a2d",
-                                  fontWeight: "500",
-                                  fontSize: "13px",
-                                }}
-                              >
-                                View Users
-                              </u>
-                            </a>
-                          </td>
+                          
 
                           {/* <td className="text-center">{moment(v?.lastLogin).format("DD MMM, YYYY")}</td> */}
                           <td style={{ textAlign: "center" }}>
                             {v?.isDelivered && "--"}
-                            {permissions?.includes("Branches-Edit") && (
-                              !v?.isDelivered &&
-                              <a
-                                onClick={() =>
-                                  toast.info("Work in progress")
-                                }
-                                className="text-primary text-decoration-underline me-2"
-                              >
-                                <i class="bi bi-pencil fs-6"></i>
-                              </a>
-                            )}
-                            {permissions?.includes("Branches-Delete") && (
-                              !v?.isDelivered &&
-                              <a
-                               
-                                // onClick={() => {
-                                //   setDeleteId(v?._id);
-                                //   setShowConfirm(true);
-                                // }}
-                                onClick={()=>toast.info("Work in progress")}
-                                className="text-danger text-decoration-underline"
-                              >
-                                <i class="bi bi-trash fs-6"></i>
-                              </a>
-                            )}
+                            {permissions?.includes("Branches-Edit") &&
+                              !v?.isDelivered && (
+                                <a
+                                  onClick={() =>
+                                    setEditFormData({
+                                      _id: v?._id,
+                                      title: v?.title,
+                                      subTitle: v?.subTitle,
+                                      date: v?.date,
+                                      time: v?.time,
+                                      notifyUserIds: v?.notifyUserIds,
+                                      mode: v?.mode,
+                                      icon: v?.icon,
+                                    })
+                                  }
+                                  className="text-primary text-decoration-underline me-2"
+                                >
+                                  <i class="bi bi-pencil fs-6"></i>
+                                </a>
+                              )}
+                            {permissions?.includes("Branches-Delete") &&
+                              !v?.isDelivered && (
+                                <a
+                                  onClick={() => {
+                                    setDeleteId(v?._id);
+                                    setShowConfirm(true);
+                                  }}
+                                  className="text-danger text-decoration-underline"
+                                >
+                                  <i class="bi bi-trash fs-6"></i>
+                                </a>
+                              )}
                           </td>
                         </tr>
                       );
@@ -482,6 +424,315 @@ function ScheduleRemainders() {
               </tbody>
             </table>
             {list?.length == 0 && !showSkelton && <NoDataScreen />}
+            {editFormData?._id && (
+              <div
+                className="modal fade show d-flex align-items-center justify-content-center"
+                tabIndex="-1"
+              >
+                <div className="modal-dialog">
+                  <div
+                    className="modal-content"
+                    style={{
+                      borderRadius: "8px",
+
+                      width: "700px",
+                    }}
+                  >
+                    <div className="modal-body">
+                      <div
+                        style={{
+                          wordWrap: "break-word",
+                          whiteSpace: "pre-wrap",
+                        }}
+                        className="d-flex justify-content-center w-100"
+                      >
+                        <div className="w-100 px-2">
+                          <div className="d-flex justify-content-between align-items-center">
+                            <h5 className="">Update Notification</h5>
+                            <img
+                              onClick={() =>
+                                setEditFormData({
+                                  show: false,
+                                  name: "",
+                                  phone: "",
+                                  contactPerson: "",
+                                  status: "",
+                                  address: "",
+                                  city: "",
+                                  state: "",
+                                  pincode: "",
+                                  description: "",
+                                })
+                              }
+                              src="https://cdn-icons-png.flaticon.com/128/2734/2734822.png"
+                              style={{ height: "20px", cursor: "pointer" }}
+                            />
+                          </div>
+                          <div className="row">
+                            <div className="col-3 my-auto ">
+                              <input
+                                type="file"
+                                id="icon"
+                                accept="image/*"
+                                style={{ display: "none" }}
+                                onChange={(e) =>
+                                  setEditFormData({
+                                    ...editFormData,
+                                    icon: e.target.files[0],
+                                  })
+                                }
+                              />
+                              <label htmlFor="icon" className="cursor-pointer">
+                                <img
+                                  src={
+                                    editFormData.icon
+                                      ? typeof editFormData.icon === "string"
+                                        ? editFormData.icon
+                                        : URL.createObjectURL(editFormData.icon)
+                                      : "https://cdn-icons-png.flaticon.com/512/847/847969.png"
+                                  }
+                                  alt="icon"
+                                  style={{
+                                    width: "100px",
+                                    height: "100px",
+                                    borderRadius: "50%",
+                                    objectFit: "cover",
+                                  }}
+                                />
+                              </label>
+                              <div>
+                                <small>Upload Icon</small>
+                              </div>
+                            </div>
+                            <div className="col-9">
+                              <div className="mb-3">
+                                <label>
+                                  Title <span className="text-danger">*</span>
+                                </label>
+                                <input
+                                  className="form-control"
+                                  value={editFormData?.title}
+                                  onChange={(e) =>
+                                    setEditFormData({
+                                      ...editFormData,
+                                      title: e?.target?.value,
+                                    })
+                                  }
+                                />
+                              </div>
+                              <div className="mb-3">
+                                <label>
+                                  Message <span className="text-danger">*</span>
+                                </label>
+                                <textarea
+                                  className="form-control"
+                                  value={editFormData?.subTitle}
+                                  onChange={(e) =>
+                                    setEditFormData({
+                                      ...editFormData,
+                                      subTitle: e?.target?.value,
+                                    })
+                                  }
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="row mb-3">
+                            <div className="col-6">
+                              <label>
+                                Date <span className="text-danger">*</span>
+                              </label>
+                              <input
+                                type="date"
+                                className="form-control"
+                                value={editFormData?.date}
+                                onChange={(e) =>
+                                  setEditFormData({
+                                    ...editFormData,
+                                    date: e?.target?.value,
+                                  })
+                                }
+                              />
+                            </div>
+                            <div className="col-6">
+                              <label>
+                                Time <span className="text-danger">*</span>
+                              </label>
+                              <input
+                                type="time"
+                                className="form-control"
+                                value={editFormData?.time}
+                                onChange={(e) =>
+                                  setEditFormData({
+                                    ...editFormData,
+                                    time: e?.target?.value,
+                                  })
+                                }
+                              />
+                            </div>
+                          </div>
+                          <div className="mb-3">
+                            <label>
+                              Select Users{" "}
+                              <span className="text-danger">*</span>
+                            </label>
+                            <MultiSelect
+                              options={userList.map((v) => ({
+                                value: v?._id,
+                                label: v?.firstName,
+                              }))}
+                              value={
+                                userList
+                                  ?.filter((v) => {
+                                    // ✅ Handle both: when branch is array of objects or array of IDs
+                                    const userIds =
+                                      editFormData?.notifyUserIds?.map((b) =>
+                                        typeof b === "object" ? b._id : b
+                                      );
+                                    return userIds?.includes(v._id);
+                                  })
+                                  ?.map((v) => ({
+                                    value: v._id,
+                                    label: v.firstName,
+                                  })) || []
+                              }
+                              // onChange={(selected) =>
+                              //   setFieldValue(
+                              //     "branch",
+                              //     selected.map((s) => s.value)
+                              //   )
+                              // }
+                              onChange={(selected) =>
+                                setEditFormData({
+                                  ...editFormData,
+                                  notifyUserIds: selected.map((s) => s.value),
+                                })
+                              }
+                              labelledBy="Select User"
+                            />
+                          </div>
+                          <div className="mb-3">
+                            <label>
+                              Select Mode <span className="text-danger">*</span>
+                            </label>
+
+                            <div className="border p-3 rounded">
+                              {[
+                                { id: "allMode", label: "All", value: "all" },
+                                {
+                                  id: "emailMode",
+                                  label: "Email",
+                                  value: "email",
+                                },
+                                {
+                                  id: "textMode",
+                                  label: "Text / SMS",
+                                  value: "text",
+                                },
+                                {
+                                  id: "pushMode",
+                                  label: "Push Notification",
+                                  value: "push",
+                                },
+                                {
+                                  id: "inAppMode",
+                                  label: "In-App Notification",
+                                  value: "in_app",
+                                },
+                              ].map(({ id, label, value }) => (
+                                <div className="form-check mb-2" key={id}>
+                                  <input
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    id={id}
+                                    value={value}
+                                    checked={
+                                      value === "all"
+                                        ? editFormData.mode.length === 4 // 4 actual modes selected
+                                        : editFormData.mode.includes(value)
+                                    }
+                                    onChange={(e) => {
+                                      let newModes = [...editFormData.mode];
+
+                                      if (value === "all") {
+                                        // Select all or unselect all
+                                        if (newModes.length === 4) {
+                                          newModes = [];
+                                        } else {
+                                          newModes = [
+                                            "email",
+                                            "text",
+                                            "push",
+                                            "in_app",
+                                          ];
+                                        }
+                                      } else {
+                                        // Toggle individual mode
+                                        if (newModes.includes(value)) {
+                                          newModes = newModes.filter(
+                                            (m) => m !== value
+                                          );
+                                        } else {
+                                          newModes.push(value);
+                                        }
+                                      }
+
+                                      setEditFormData({
+                                        ...editFormData,
+                                        mode: newModes,
+                                      });
+                                    }}
+                                  />
+                                  <label
+                                    className="form-check-label"
+                                    htmlFor={id}
+                                  >
+                                    {label}
+                                  </label>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          {editFormData?.title &&
+                          editFormData?.subTitle &&
+                          editFormData?.date &&
+                          editFormData?.time &&
+                          editFormData?.notifyUserIds?.length > 0 &&
+                          editFormData?.mode?.length > 0 ? (
+                            editLoader ? (
+                              <button
+                                className="btn bgThemePrimary w-100"
+                                style={{ opacity: "0.5" }}
+                              >
+                                Updating ...
+                              </button>
+                            ) : (
+                              <button
+                                className="btn bgThemePrimary w-100"
+                                onClick={() => handleUpdateFunc()}
+                              >
+                                Update
+                              </button>
+                            )
+                          ) : (
+                            <button
+                              className="btn bgThemePrimary w-100"
+                              style={{ opacity: "0.5" }}
+                            >
+                              Update
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            {editFormData?._id && (
+              <div className="modal-backdrop fade show"></div>
+            )}
             <Pagination
               payload={payload}
               setPayload={setPayload}
@@ -495,8 +746,8 @@ function ScheduleRemainders() {
         show={showConfirm}
         handleClose={() => setShowConfirm(false)}
         handleConfirm={handleDeleteFunc}
-        title="Branch Delete"
-        body="Do you really want to delete this branch?"
+        title="Notification Delete"
+        body="Do you really want to delete this notification?"
       />
     </div>
   );

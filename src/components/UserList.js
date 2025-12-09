@@ -77,6 +77,13 @@ function UserList({profileStatus, title}) {
         </span>
       );
     }
+     if (status == "profileUpdated") {
+      return (
+        <span className="status-badge bg-info-subtle text-success">
+          Profile Updated
+        </span>
+      );
+    }
     if (status == "active") {
       return (
         <span className="status-badge bg-success-subtle text-success">

@@ -235,9 +235,13 @@ function PaydayLoanApplicationList() {
       console.error(error);
     }
   };
-  const [btnLoader, setBtnLoader] = useState(false);
+  const [btnLoader, setBtnLoader] = useState("");
   const updateStatusFunc = async (payload) => {
-    setBtnLoader(true);
+    if (payload?.status=="rejected") {
+      setBtnLoader(true);
+    } else {
+      setBtnLoader(payload._id);
+    }
     try {
       let response = await updatePaydayLoanApplicationServ(payload);
       if (response?.data?.statusCode == "200") {
@@ -478,11 +482,11 @@ function PaydayLoanApplicationList() {
                   <th>Loan Purpose</th>
                   <th>Branch</th>
                   <th>Customer</th>
-                  <th>Amount</th>
+                  <th>Principle</th>
                   <th>Tenure</th>
+                  <th>Payable</th>
                   <th className="text-center">Status</th>
                   <th className="text-center">Assigned To</th>
-
                   <th style={{ textAlign: "center" }}>Action</th>
                   <th style={{ textAlign: "center" }}>View/Edit</th>
                 </tr>
@@ -510,7 +514,9 @@ function PaydayLoanApplicationList() {
                           <td>
                             <Skeleton width={100} />
                           </td>
-
+                          <td>
+                            <Skeleton width={100} />
+                          </td>
                           <td>
                             <Skeleton width={100} />
                           </td>
@@ -571,7 +577,8 @@ function PaydayLoanApplicationList() {
                           </td>
 
                           <td>{v?.loanAmount || "-"}</td>
-                          <td>{v?.tenure || "-"}</td>
+                          <td>{v?.tenure ? v?.tenure + " days" : "-"}</td>
+                          <td>{v?.payable || "-"}</td>
                           <td className="text-center">
                             {renderProfile(v?.status)}
                           </td>
@@ -582,7 +589,7 @@ function PaydayLoanApplicationList() {
                                 v?.assignedAdminId?.lastName
                               : "-"}
                           </td>
-                          <td className="text-center">
+                          {/* <td className="text-center">
                             {(v?.status == "pending" ||
                               v?.status == "rejected" ||
                               v?.status == "approved") && (
@@ -607,6 +614,43 @@ function PaydayLoanApplicationList() {
                                 <option value="rejected">Reject</option>
                               </select>
                             )}
+                          </td> */}
+                          <td>
+                            {btnLoader == v?._id ? (
+                              <button
+                                className="btn btn-sm btn-success me-2"
+                                style={{ width: "75px", opacity: 0.5 }}
+                              >
+                                Saving ...
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() =>
+                                  updateStatusFunc({
+                                    _id: v?._id,
+                                    status: "approved",
+                                  })
+                                }
+                                className="btn btn-sm btn-success me-2"
+                                style={{ width: "75px" }}
+                              >
+                                Approve
+                              </button>
+                            )}
+
+                            <button
+                              className="btn btn-sm btn-danger ms-2"
+                              onClick={() =>
+                                setRejectPopup({
+                                  _id: v?._id,
+                                  rejectReason: "",
+                                  status: "rejected",
+                                })
+                              }
+                              style={{ width: "75px" }}
+                            >
+                              Reject
+                            </button>
                           </td>
 
                           {/* <td className="text-center">{moment(v?.lastLogin).format("DD MMM, YYYY")}</td> */}
