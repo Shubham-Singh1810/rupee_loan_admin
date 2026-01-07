@@ -13,6 +13,7 @@ import {
   addAdminServ,
   updateAdminServ,
 } from "../../services/commandCenter.services";
+import * as XLSX from "xlsx";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import NoDataScreen from "../../components/NoDataScreen";
@@ -44,6 +45,7 @@ function AdminList() {
   const [documentCount, setDocumentCount] = useState();
   const [totalCount, setTotalCount] = useState(0);
   const getListFunc = async () => {
+    setFilterPayload({ ...filterPayload, show: false });
     if (list?.length == 0) {
       setShowSkelton(true);
     }
@@ -147,10 +149,9 @@ function AdminList() {
     status: Yup.string().required("Status is required"),
     role: Yup.string().required("Role is required"),
     branch: Yup.array().of(Yup.string().required()),
-    email: Yup.string().matches(
-    /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
-    "Invalid email format"
-  ).required("Email is required"),
+    email: Yup.string()
+      .matches(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, "Invalid email format")
+      .required("Email is required"),
     profilePic: Yup.mixed(),
   });
   const handleAddAdmin = async (values) => {
@@ -273,6 +274,67 @@ function AdminList() {
   useEffect(() => {
     getRoleListFunc();
   }, []);
+  const [filterPayload, setFilterPayload] = useState({
+    show: false,
+    searchKey: "",
+    status: "",
+    branch: "",
+    role: "",
+  });
+
+  
+   const exportToCSV = () => {
+    if (!list.length) return toast.error("No data to export");
+
+    const headers = [
+      "Name",
+      "Email",
+      "Phone",
+      "Role",
+      "Status",
+      "Branch",
+    ];
+
+    const rows = list.map((v) => [
+      `${v.firstName || ""} ${v.lastName || ""}`,
+      v.email || "",
+      v.phone || "",
+      v.role?.name || "",
+      v.status ? "Active" : "Inactive",
+      v.branch?.map((b) => b.name).join(", ") || "",
+    ]);
+
+    const csv =
+      headers.join(",") +
+      "\n" +
+      rows.map((r) => r.join(",")).join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "Staff_List.csv";
+    link.click();
+  };
+
+  // ---------------- EXPORT EXCEL ----------------
+  const exportToExcel = () => {
+    if (!list.length) return toast.error("No data to export");
+
+    const excelData = list.map((v) => ({
+      Name: `${v.firstName || ""} ${v.lastName || ""}`,
+      Email: v.email || "",
+      Phone: v.phone || "",
+      Role: v.role?.name || "",
+      Status: v.status ? "Active" : "Inactive",
+      Branch: v.branch?.map((b) => b.name).join(", "),
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Admins");
+
+    XLSX.writeFile(workbook, "Staff_List.xlsx");
+  };
   return (
     <div className="container-fluid user-table py-3">
       {/* KPIs */}
@@ -323,145 +385,122 @@ function AdminList() {
       <div className="d-flex justify-content-between align-items-center my-4">
         <h4 className="mb-0">Staff /Agent</h4>
         <div className="d-flex align-items-center">
-          <div className="d-flex align-items-center px-2 user-search">
-            <form className="input-group search ms-2 d-none d-md-flex">
-              <span className="input-group-text input-span">
-                <i className="bi bi-search" />
-              </span>
-              <input
-                type="search"
-                className="form-control search-input"
-                placeholder="Name, email, Phone Number..."
-                value={payload?.searchKey}
-                onChange={(e) =>
-                  setPayload({ ...payload, searchKey: e?.target?.value })
-                }
-              />
-            </form>
-          </div>
-          <div className="dropdown me-2">
+          <div className="dropdown me-3">
             <button
-              className="btn btn-light dropdown-toggle border height37"
+              className="btn btn-secondary dropdown-toggle shadow-sm"
               type="button"
               data-bs-toggle="dropdown"
-              aria-expanded="false"
-              style={{
-                width: "180px",
-                fontSize: "14px",
-              }}
+              style={{ width: "170px" }}
             >
-              {payload?.role
-                ? roleList?.find((b) => b?._id === payload?.role)?.name
-                : "Select Role"}
+              Export
             </button>
+
             <ul className="dropdown-menu">
               <li>
-                <button
-                  className="dropdown-item"
-                  onClick={() => setPayload({ ...payload, role: "" })}
-                >
-                  Select Role
-                </button>
-              </li>
-              {roleList?.map((v, i) => {
-                return (
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={() => setPayload({ ...payload, role: v?._id })}
-                    >
-                      {v?.name}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-          <div className="dropdown me-2">
-            <button
-              className="btn btn-light dropdown-toggle border height37"
-              type="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-              style={{
-                width: "180px",
-                fontSize: "14px",
-              }}
-            >
-              {payload?.branch
-                ? branchList?.find((b) => b?._id === payload?.branch)?.name
-                : "Select Branch"}
-            </button>
-            <ul className="dropdown-menu">
-              <li>
-                <button
-                  className="dropdown-item"
-                  onClick={() => setPayload({ ...payload, branch: "" })}
-                >
-                  Select Branch
-                </button>
-              </li>
-              {branchList?.map((v, i) => {
-                return (
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={() => setPayload({ ...payload, branch: v?._id })}
-                    >
-                      {v?.name}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-          <div className="dropdown me-2">
-            <button
-              className="btn btn-light dropdown-toggle border height37"
-              type="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-              style={{
-                width: "150px",
-                fontSize: "14px",
-              }}
-            >
-              {payload?.status == "true"
-                ? "Active"
-                : payload?.status == "false"
-                ? "Inactive"
-                : "Select Status"}
-            </button>
-            <ul className="dropdown-menu">
-              <li>
-                <button
-                  className="dropdown-item"
-                  onClick={() => setPayload({ ...payload, status: "" })}
-                >
-                  Select Status
+                <button className="dropdown-item" onClick={exportToCSV}>
+                  📄 Export as CSV
                 </button>
               </li>
               <li>
-                <button
-                  className="dropdown-item"
-                  onClick={() => setPayload({ ...payload, status: "true" })}
-                >
-                  Active
-                </button>
-              </li>
-              <li>
-                <button
-                  className="dropdown-item"
-                  onClick={() => setPayload({ ...payload, status: "false" })}
-                >
-                  Inactive
+                <button className="dropdown-item" onClick={exportToExcel}>
+                  📊 Export as Excel
                 </button>
               </li>
             </ul>
           </div>
+          {filterPayload.status ||
+          filterPayload.searchKey ||
+          filterPayload.branchId ||
+          filterPayload.role ? (
+            <div className="d-flex flex-wrap gap-2 my-3">
+              {filterPayload.searchKey && (
+                <span className="badge bg-primary d-flex align-items-center">
+                  Search: {filterPayload.searchKey}
+                  <i
+                    className="bi bi-x ms-2"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      setFilterPayload({ ...filterPayload, searchKey: "" });
+                      setPayload({ ...payload, searchKey: "" });
+                    }}
+                  />
+                </span>
+              )}
+              {filterPayload.status && (
+                <span className="badge bg-primary d-flex align-items-center">
+                  Status: {filterPayload.status ? "Active":"Inactive"}
+                  <i
+                    className="bi bi-x ms-2"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      setFilterPayload({ ...filterPayload, status: "" });
+                      setPayload({ ...payload, status: "" });
+                    }}
+                  />
+                </span>
+              )}
+
+              {/* Branch */}
+              {filterPayload.branch && (
+                <span className="badge bg-info d-flex align-items-center">
+                  Branch:{" "}
+                  {
+                    branchList.find((b) => b._id === filterPayload.branch)
+                      ?.name
+                  }
+                  <i
+                    className="bi bi-x ms-2"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      setFilterPayload({ ...filterPayload, branch: "" });
+                      setPayload({ ...payload, branch: "" });
+                    }}
+                  />
+                </span>
+              )}
+              {filterPayload.role && (
+                <span className="badge bg-info d-flex align-items-center">
+                  Role:{" "}
+                  {roleList.find((b) => b._id === filterPayload.role)?.name}
+                  <i
+                    className="bi bi-x ms-2"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      setFilterPayload({ ...filterPayload, role: "" });
+                      setPayload({ ...payload, role: "" });
+                    }}
+                  />
+                </span>
+              )}
+
+              <button
+                className="btn btn-sm btn-outline-danger ms-2"
+                onClick={() => {
+                  const reset = {
+                    show: false,
+                    status: "",
+                    branchId: "",
+                    searchKey: "",
+                    role: "",
+                  };
+                  setFilterPayload(reset);
+                  setPayload({ ...payload, ...reset });
+                }}
+              >
+                Clear All
+              </button>
+            </div>
+          ) : (
+            <button
+              className="btn btn-light shadow-sm  px-3"
+              onClick={() => setFilterPayload({ ...filterPayload, show: true })}
+            >
+              Filter <i className="bi bi-filter ms-2" />
+            </button>
+          )}
           {permissions?.includes("Staff/Agent-Create") && (
             <button
-              className="btn  bgThemePrimary shadow-sm"
+              className="btn  bgThemePrimary shadow-sm ms-3"
               onClick={() => setAddFormData({ ...addFormData, show: true })}
             >
               + Add Agent
@@ -1180,6 +1219,142 @@ function AdminList() {
         </div>
       )}
       {editFormData?._id && <div className="modal-backdrop fade show"></div>}
+      {filterPayload?.show && (
+        <div
+          className="modal fade show d-flex align-items-center justify-content-center"
+          tabIndex="-1"
+        >
+          <div className="modal-dialog">
+            <div
+              className="modal-content"
+              style={{
+                borderRadius: "8px",
+
+                width: "700px",
+              }}
+            >
+              <div className="modal-body">
+                <div
+                  style={{
+                    wordWrap: "break-word",
+                    whiteSpace: "pre-wrap",
+                  }}
+                  className="d-flex justify-content-center w-100"
+                >
+                  <div className="w-100 px-2">
+                    <div className="d-flex justify-content-between align-items-center">
+                      <h5 className="">Filter</h5>
+                      <img
+                        onClick={() =>
+                          setFilterPayload({ ...filterPayload, show: false })
+                        }
+                        src="https://cdn-icons-png.flaticon.com/128/2734/2734822.png"
+                        style={{ height: "20px", cursor: "pointer" }}
+                      />
+                    </div>
+                    <div className="row">
+                      <div className="col-6 mb-2">
+                        <label>Search</label>
+                        <input
+                          type="search"
+                          className="form-control search-input"
+                          placeholder="Name, email, Phone Number..."
+                          value={filterPayload?.searchKey}
+                          onChange={(e) =>
+                            setFilterPayload({
+                              ...filterPayload,
+                              searchKey: e?.target?.value,
+                            })
+                          }
+                        />
+                      </div>
+                      <div className="col-6 mb-2">
+                        <label>Status</label>
+                        <select
+                          className="form-control"
+                          onChange={(e) =>
+                            setFilterPayload({
+                              ...filterPayload,
+                              status: e?.target?.value,
+                            })
+                          }
+                        >
+                          <option value="">Select</option>
+                          <option value={true}>Active</option>
+                          <option value={false}>Inactive</option>
+                        </select>
+                      </div>
+
+                      <div className="col-6 mb-2">
+                        <label>Branch</label>
+                        <select
+                          className="form-control"
+                          onChange={(e) =>
+                            setFilterPayload({
+                              ...filterPayload,
+                              branch: e?.target?.value,
+                            })
+                          }
+                        >
+                          <option value="">Select</option>
+
+                          {branchList?.map((v, i) => {
+                            return <option value={v?._id}>{v?.name}</option>;
+                          })}
+                        </select>
+                      </div>
+                      <div className="col-6 mb-2">
+                        <label>Role</label>
+                        <select
+                          className="form-control"
+                          onChange={(e) =>
+                            setFilterPayload({
+                              ...filterPayload,
+                              role: e?.target?.value,
+                            })
+                          }
+                        >
+                          <option value="">Select</option>
+
+                          {roleList?.map((v, i) => {
+                            return <option value={v?._id}>{v?.name}</option>;
+                          })}
+                        </select>
+                      </div>
+
+                      <div className="d-flex justify-content-end">
+                        <button
+                          className="btn btn-danger me-2"
+                          onClick={() =>
+                            setFilterPayload({
+                              show: false,
+                              status: "",
+                              branch: "",
+                              role: "",
+                              searchKey: "",
+                            })
+                          }
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          className="btn bgThemePrimary px-3"
+                          onClick={() =>
+                            setPayload({ ...payload, ...filterPayload })
+                          }
+                        >
+                          Apply
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {filterPayload.show && <div className="modal-backdrop fade show"></div>}
 
       <ConfirmDeleteModal
         show={showConfirm}

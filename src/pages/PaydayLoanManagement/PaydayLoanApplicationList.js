@@ -317,38 +317,34 @@ function PaydayLoanApplicationList() {
     document.body.removeChild(link);
   };
 
+  const exportToExcel = () => {
+    if (!list || list.length === 0) {
+      toast.error("No data to export");
+      return;
+    }
 
-const exportToExcel = () => {
-  if (!list || list.length === 0) {
-    toast.error("No data to export");
-    return;
-  }
+    const excelData = list.map((v) => ({
+      "Loan ID": v?.code || "",
+      "Loan Purpose": v?.loanPurposeId?.name || "",
+      Branch: v?.branchId?.name || "",
+      "Customer Name": v?.fullName || "",
+      Mobile: v?.userId?.phone || "",
+      "Loan Amount": v?.loanAmount || "",
+      "Tenure (Days)": v?.tenure || "",
+      "Interest Rate": v?.interestRate || "",
+      "Payable Amount": v?.payable || "",
+      Status: v?.status || "",
+      "Assigned Admin": v?.assignedAdminId
+        ? `${v?.assignedAdminId?.firstName} ${v?.assignedAdminId?.lastName}`
+        : "",
+    }));
 
-  const excelData = list.map((v) => ({
-    "Loan ID": v?.code || "",
-    "Loan Purpose": v?.loanPurposeId?.name || "",
-    "Branch": v?.branchId?.name || "",
-    "Customer Name": v?.fullName || "",
-    "Mobile": v?.userId?.phone || "",
-    "Loan Amount": v?.loanAmount || "",
-    "Tenure (Days)": v?.tenure || "",
-    "Interest Rate": v?.interestRate || "",
-    "Payable Amount": v?.payable || "",
-    "Status": v?.status || "",
-    "Assigned Admin": v?.assignedAdminId
-      ? `${v?.assignedAdminId?.firstName} ${v?.assignedAdminId?.lastName}`
-      : "",
-  }));
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Payday Loans");
 
-  const worksheet = XLSX.utils.json_to_sheet(excelData);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Payday Loans");
-
-  XLSX.writeFile(
-    workbook,
-    `payday-loan-applications-${Date.now()}.xlsx`
-  );
-};
+    XLSX.writeFile(workbook, `payday-loan-applications-${Date.now()}.xlsx`);
+  };
 
   return (
     <div className="container-fluid py-3">
@@ -400,28 +396,28 @@ const exportToExcel = () => {
         <h4 className="mb-0">All Applications</h4>
         <div className="d-flex align-items-center">
           <div className="dropdown me-3">
-  <button
-    className="btn btn-secondary dropdown-toggle shadow-sm"
-    type="button"
-    data-bs-toggle="dropdown"
-    style={{width:"200px"}}
-  >
-    Export
-  </button>
+            <button
+              className="btn btn-secondary dropdown-toggle shadow-sm"
+              type="button"
+              data-bs-toggle="dropdown"
+              style={{ width: "170px" }}
+            >
+              Export
+            </button>
 
-  <ul className="dropdown-menu">
-    <li>
-      <button className="dropdown-item" onClick={exportToCSV}>
-        📄 Export as CSV
-      </button>
-    </li>
-    <li>
-      <button className="dropdown-item" onClick={exportToExcel}>
-        📊 Export as Excel
-      </button>
-    </li>
-  </ul>
-</div>
+            <ul className="dropdown-menu">
+              <li>
+                <button className="dropdown-item" onClick={exportToCSV}>
+                  📄 Export as CSV
+                </button>
+              </li>
+              <li>
+                <button className="dropdown-item" onClick={exportToExcel}>
+                  📊 Export as Excel
+                </button>
+              </li>
+            </ul>
+          </div>
 
           {filterPayload.status ||
           filterPayload.userId ||
