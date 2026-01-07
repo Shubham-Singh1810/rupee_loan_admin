@@ -21,5 +21,15 @@ export const updateNotificationConfigrationDetailsServ = async (formData) => {
     throw error;
   }
 };
+export const notificationEventListServ = async (formData) => {
+  try {
+    const response = await axios.post(BASE_URL + "notification-event/list", formData);
+    return response;
+  } catch (error) {
+    // Handle error (e.g., log or throw an error)
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+};
 
 

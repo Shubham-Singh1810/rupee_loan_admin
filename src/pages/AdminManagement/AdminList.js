@@ -145,8 +145,12 @@ function AdminList() {
       .matches(/^[0-9]{10}$/, "Must be a valid 10-digit number")
       .required("Contact Number is required"),
     status: Yup.string().required("Status is required"),
+    role: Yup.string().required("Role is required"),
     branch: Yup.array().of(Yup.string().required()),
-    email: Yup.string().email("Invalid email").required("Email is required"),
+    email: Yup.string().matches(
+    /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
+    "Invalid email format"
+  ).required("Email is required"),
     profilePic: Yup.mixed(),
   });
   const handleAddAdmin = async (values) => {
@@ -193,7 +197,7 @@ function AdminList() {
       }
     } catch (error) {
       console.error(error);
-      toast.error("Internal Server Error!");
+      toast.error(error?.response?.data?.message);
     }
   };
 
@@ -238,7 +242,7 @@ function AdminList() {
         toast?.error("Something went wrong!");
       }
     } catch (error) {
-      toast?.error("Internal Server Error!");
+      toast?.error(error?.response?.data?.message);
     }
   };
   const [branchList, setBranchList] = useState();
@@ -596,7 +600,7 @@ function AdminList() {
                                     phone: v?.phone,
                                     password: v?.password,
                                     role: v?.role?._id,
-                                    branch: v?.branch,
+                                    branch: v?.branch?.map((b) => b._id),
                                     status: v?.status,
                                     profilePic: v?.profilePic,
                                     _id: v?._id,
@@ -830,7 +834,9 @@ function AdminList() {
                               />
                             </div>
                             <div className="col-6">
-                              <label className="form-label mt-3 mb-0" >Branch</label>
+                              <label className="form-label mt-3 mb-0">
+                                Branch
+                              </label>
                               <MultiSelect
                                 options={branchList.map((v) => ({
                                   value: v?._id,
@@ -951,7 +957,7 @@ function AdminList() {
                         phone: editFormData?.phone || "",
                         profilePic: editFormData?.profilePic || "",
                         status: editFormData?.status?.toString() || "",
-                        branch: editFormData?.branch || "",
+                        branch: editFormData?.branch || [],
                         role: editFormData?.role || "",
                       }}
                       validationSchema={AdminSchema}
@@ -1099,7 +1105,9 @@ function AdminList() {
 
                             {/* Branch */}
                             <div className="col-6">
-                              <label className="form-label mt-3 mb-0">Branch</label>
+                              <label className="form-label mt-3 mb-0">
+                                Branch
+                              </label>
                               <MultiSelect
                                 options={branchList.map((v) => ({
                                   value: v?._id,
@@ -1107,14 +1115,9 @@ function AdminList() {
                                 }))}
                                 value={
                                   branchList
-                                    ?.filter((v) => {
-                                      // ✅ Handle both: when branch is array of objects or array of IDs
-                                      const branchIds = values?.branch?.map(
-                                        (b) =>
-                                          typeof b === "object" ? b._id : b
-                                      );
-                                      return branchIds?.includes(v._id);
-                                    })
+                                    ?.filter((v) =>
+                                      values.branch.includes(v._id)
+                                    )
                                     ?.map((v) => ({
                                       value: v._id,
                                       label: v.name,

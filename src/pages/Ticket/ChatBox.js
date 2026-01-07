@@ -19,6 +19,7 @@ import ConfirmDeleteModal from "../../components/ConfirmDeleteModal";
 import {
   getTicketDetailsServ,
   sendMessageServ,
+  updateTicketServ,
 } from "../../services/ticker.service";
 import { useParams } from "react-router-dom";
 function ChatBox() {
@@ -36,6 +37,20 @@ function ChatBox() {
     } catch (error) {
       console.log(error);
     }
+  };
+  const [closeLoader, setCloseLoader] = useState(false);
+  const updateTicketStatus = async (status) => {
+    setCloseLoader(true)
+    try {
+      let response = await updateTicketServ({_id:params?.id, status: status });
+      if (response?.data?.statusCode == "200") {
+        getTicketDetails();
+        toast.success(response?.data?.message)
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message)
+    }
+     setCloseLoader(false)
   };
   useEffect(() => {
     getTicketDetails();
@@ -139,7 +154,26 @@ function ChatBox() {
                   {ticketDetails?.ticketCategoryId?.name}
                 </h5>
               </div>
-             <button className="btn btn-warning py-2 mt-3 w-100 " onClick={()=>toast.info("Work in progress")}>Mark as closed</button>
+              {
+                closeLoader ? 
+                <button
+                className="btn btn-success py-2 mt-3 w-100 "
+                style={{opacity:"0.5"}}
+              >
+                Updating ...
+              </button>:<>{
+              ticketDetails?.status=="closed" ? <button
+                className="btn btn-success py-2 mt-3 w-100 "
+                onClick={() => updateTicketStatus("open")}
+              >
+                Open Ticket
+              </button>:<button
+                className="btn btn-warning py-2 mt-3 w-100 "
+                onClick={() => updateTicketStatus("closed")}
+              >
+                Mark as closed
+              </button>}</>}
+              
             </div>
           </div>
         </div>
@@ -172,7 +206,9 @@ function ChatBox() {
                   }
                 >
                   <div>
-                    {v?.image && <img src={v?.image} className="border img-fluid" />}
+                    {v?.image && (
+                      <img src={v?.image} className="border img-fluid" />
+                    )}
                     <p className="mb-0">{v?.message}</p>
                   </div>
 
@@ -191,7 +227,7 @@ function ChatBox() {
           );
         })}
       </div>
-      <div className="d-flex border p-2">
+      {ticketDetails?.status=="open" && <div className="d-flex border p-2">
         <input
           className="form-control"
           placeholder="Add message"
@@ -215,7 +251,8 @@ function ChatBox() {
             Send
           </button>
         )}
-      </div>
+      </div>}
+      
       {showFileUploadPopup && (
         <div
           className="modal fade show d-flex align-items-center justify-content-center"

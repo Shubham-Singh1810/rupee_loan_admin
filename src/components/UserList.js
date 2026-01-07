@@ -417,7 +417,7 @@ function UserList({profileStatus, title}) {
                                   className="mb-0"
                                   style={{ fontSize: "14px" }}
                                 >
-                                  {v?.firstName || "-" + " " + v?.lastName || "-"}
+                                  {v?.firstName ?  v?.firstName+""+v?.lastName :"- -"}
                                 </h6>
                                 <small className="text-muted">
                                   ID: {v?.code || "N/A"}

@@ -151,7 +151,7 @@ function LoanPurpose() {
         toast?.error("Something went wrong!");
       }
     } catch (error) {
-      toast?.error("Internal Server Error!");
+      toast?.error(error?.response?.data?.message);
     }
   };
   const handleUpdateLoanPurpose = async (values) => {
@@ -182,7 +182,7 @@ function LoanPurpose() {
         toast?.error("Something went wrong!");
       }
     } catch (error) {
-      toast?.error("Internal Server Error!");
+      toast?.error(error?.response?.data?.message);
     }
   };
 

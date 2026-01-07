@@ -91,7 +91,8 @@ function RoleList() {
         setDeleteId("");
       }
     } catch (error) {
-      toast.error("Internal Server error");
+      console.log(error)
+      toast.error(error?.response?.data?.message);
     }
   };
   

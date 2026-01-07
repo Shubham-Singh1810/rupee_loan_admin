@@ -37,7 +37,9 @@ function Profile() {
             profilePic: "",
             profilePrev: response?.data?.data?.profilePic,
             role: response?.data?.data?.role?.name,
-            branch: response?.data?.data?.branch,
+            branch: Array.isArray(response?.data?.data?.branch)
+            ? response?.data?.data.branch.map((b) => b.name).join(", ")
+            : "",
             status: response?.data?.data?.status ? "Active" : "Inactive",
           });
         } else {

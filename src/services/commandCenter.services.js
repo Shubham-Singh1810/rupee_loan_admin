@@ -44,6 +44,7 @@ export const getRoleListServ = async (payload) => {
   }
 };
 export const getRoleDetailServ = async (id) => {
+  console.log(id)
   try {
     const response = await axios.get(BASE_URL + "role/details/"+id);
     return response;

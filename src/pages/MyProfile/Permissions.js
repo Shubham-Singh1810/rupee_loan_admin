@@ -14,6 +14,7 @@ function Permissions() {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const { globalState, setGlobalState } = useGlobalState();
   const adminId = globalState?.user?._id;
+  console.log("admin", globalState?.user?._id)
   const role = globalState?.user?.role;
   const [rolePermissions, setRolePermissions] = useState({});
   const [openSections, setOpenSections] = useState({});
@@ -177,7 +178,7 @@ function Permissions() {
   useEffect(() => {
     const fetchRole = async () => {
       try {
-        let res = await getRoleDetailServ(role);
+        let res = await getRoleDetailServ(role?._id);
         if (res?.data?.statusCode == "200") {
           const roleData = res?.data?.data;
 

@@ -99,7 +99,7 @@ function UserDetails() {
           />
           <div className="ms-3">
             <h5 className="mb-1">
-              {details?.firstName + " " + details?.lastName}
+              {details?.firstName ? details?.firstName + " " + details?.lastName :"- -"}
             </h5>
             <h6 className="text-secondary">ID: {details?.code}</h6>
           </div>

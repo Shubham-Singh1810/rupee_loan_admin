@@ -259,7 +259,7 @@ function Sidebar({ isCollapsed }) {
           permission: "FAQ'S-View",
         },
         {
-          menu: "Schedule Remainders",
+          menu: "Schedule reminders",
           icon: "bi bi-file-earmark-text",
           permission: "System Management-View",
           path: "/schedule-remainders",

@@ -12,6 +12,7 @@ import { getBranchListServ } from "../../services/branch.service";
 import { getAdminListServ } from "../../services/commandCenter.services";
 import { getLoanPurposeServ } from "../../services/loanPurpose.service";
 import Skeleton from "react-loading-skeleton";
+import * as XLSX from "xlsx";
 import "react-loading-skeleton/dist/skeleton.css";
 import NoDataScreen from "../../components/NoDataScreen";
 import { toast } from "react-toastify";
@@ -237,7 +238,7 @@ function PaydayLoanApplicationList() {
   };
   const [btnLoader, setBtnLoader] = useState("");
   const updateStatusFunc = async (payload) => {
-    if (payload?.status=="rejected") {
+    if (payload?.status == "rejected") {
       setBtnLoader(true);
     } else {
       setBtnLoader(payload._id);
@@ -258,11 +259,97 @@ function PaydayLoanApplicationList() {
     }
     setBtnLoader(false);
   };
+
   const [rejectPopup, setRejectPopup] = useState({
     _id: "",
     rejectReason: "",
     status: "rejected",
   });
+  const exportToCSV = () => {
+    if (!list || list.length === 0) {
+      toast.error("No data to export");
+      return;
+    }
+
+    const headers = [
+      "Loan ID",
+      "Loan Purpose",
+      "Branch",
+      "Customer Name",
+      "Mobile",
+      "Loan Amount",
+      "Tenure (Days)",
+      "Interest Rate",
+      "Payable Amount",
+      "Status",
+      "Assigned Admin",
+    ];
+
+    const rows = list.map((v) => [
+      v?.code || "",
+      v?.loanPurposeId?.name || "",
+      v?.branchId?.name || "",
+      v?.fullName || "",
+      v?.userId?.phone || "",
+      v?.loanAmount || "",
+      v?.tenure || "",
+      v?.interestRate || "",
+      v?.payable || "",
+      v?.status || "",
+      v?.assignedAdminId
+        ? `${v?.assignedAdminId?.firstName} ${v?.assignedAdminId?.lastName}`
+        : "",
+    ]);
+
+    let csvContent =
+      headers.join(",") +
+      "\n" +
+      rows.map((row) => row.map((v) => `"${v}"`).join(",")).join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `payday-loan-applications-${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+
+const exportToExcel = () => {
+  if (!list || list.length === 0) {
+    toast.error("No data to export");
+    return;
+  }
+
+  const excelData = list.map((v) => ({
+    "Loan ID": v?.code || "",
+    "Loan Purpose": v?.loanPurposeId?.name || "",
+    "Branch": v?.branchId?.name || "",
+    "Customer Name": v?.fullName || "",
+    "Mobile": v?.userId?.phone || "",
+    "Loan Amount": v?.loanAmount || "",
+    "Tenure (Days)": v?.tenure || "",
+    "Interest Rate": v?.interestRate || "",
+    "Payable Amount": v?.payable || "",
+    "Status": v?.status || "",
+    "Assigned Admin": v?.assignedAdminId
+      ? `${v?.assignedAdminId?.firstName} ${v?.assignedAdminId?.lastName}`
+      : "",
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(excelData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Payday Loans");
+
+  XLSX.writeFile(
+    workbook,
+    `payday-loan-applications-${Date.now()}.xlsx`
+  );
+};
+
   return (
     <div className="container-fluid py-3">
       {/* User Header */}
@@ -312,6 +399,30 @@ function PaydayLoanApplicationList() {
       <div className="d-flex justify-content-between align-items-center my-4">
         <h4 className="mb-0">All Applications</h4>
         <div className="d-flex align-items-center">
+          <div className="dropdown me-3">
+  <button
+    className="btn btn-secondary dropdown-toggle shadow-sm"
+    type="button"
+    data-bs-toggle="dropdown"
+    style={{width:"200px"}}
+  >
+    Export
+  </button>
+
+  <ul className="dropdown-menu">
+    <li>
+      <button className="dropdown-item" onClick={exportToCSV}>
+        📄 Export as CSV
+      </button>
+    </li>
+    <li>
+      <button className="dropdown-item" onClick={exportToExcel}>
+        📊 Export as Excel
+      </button>
+    </li>
+  </ul>
+</div>
+
           {filterPayload.status ||
           filterPayload.userId ||
           filterPayload.branchId ||
@@ -482,8 +593,9 @@ function PaydayLoanApplicationList() {
                   <th>Loan Purpose</th>
                   <th>Branch</th>
                   <th>Customer</th>
-                  <th>Principle</th>
+                  <th>Amount</th>
                   <th>Tenure</th>
+                  <th>Intrest</th>
                   <th>Payable</th>
                   <th className="text-center">Status</th>
                   <th className="text-center">Assigned To</th>
@@ -523,7 +635,9 @@ function PaydayLoanApplicationList() {
                           {/* <td>
                             <Skeleton width={100} />
                           </td> */}
-
+                          <td>
+                            <Skeleton width={100} />
+                          </td>
                           <td>
                             <Skeleton width={100} />
                           </td>
@@ -578,6 +692,9 @@ function PaydayLoanApplicationList() {
 
                           <td>{v?.loanAmount || "-"}</td>
                           <td>{v?.tenure ? v?.tenure + " days" : "-"}</td>
+                          <td>
+                            {v?.interestRate ? v?.interestRate + "%" : "-"}
+                          </td>
                           <td>{v?.payable || "-"}</td>
                           <td className="text-center">
                             {renderProfile(v?.status)}
@@ -616,41 +733,47 @@ function PaydayLoanApplicationList() {
                             )}
                           </td> */}
                           <td>
-                            {btnLoader == v?._id ? (
+                            <div>
+                              {" "}
+                              {btnLoader == v?._id ? (
+                                <button
+                                  className="btn btn-sm btn-success "
+                                  style={{ width: "90px", opacity: 0.5 }}
+                                >
+                                  Saving ...
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() =>
+                                    updateStatusFunc({
+                                      _id: v?._id,
+                                      status: "approved",
+                                    })
+                                  }
+                                  className="btn btn-sm btn-success  "
+                                  style={{ width: "90px" }}
+                                >
+                                  {/* <img src="https://cdn-icons-png.flaticon.com/128/150/150499.png" className="me-1" style={{height:"10px", filter:"invert(1)"}}/> */}
+                                  Approve
+                                </button>
+                              )}
+                            </div>
+                            <div>
                               <button
-                                className="btn btn-sm btn-success me-2"
-                                style={{ width: "75px", opacity: 0.5 }}
-                              >
-                                Saving ...
-                              </button>
-                            ) : (
-                              <button
+                                className="btn btn-sm btn-danger  mt-1"
                                 onClick={() =>
-                                  updateStatusFunc({
+                                  setRejectPopup({
                                     _id: v?._id,
-                                    status: "approved",
+                                    rejectReason: "",
+                                    status: "rejected",
                                   })
                                 }
-                                className="btn btn-sm btn-success me-2"
-                                style={{ width: "75px" }}
+                                style={{ width: "90px" }}
                               >
-                                Approve
+                                {/* <img src="https://cdn-icons-png.flaticon.com/128/6834/6834347.png" className="me-1"  style={{height:"10px", filter:"invert(1)"}}/> */}
+                                Reject
                               </button>
-                            )}
-
-                            <button
-                              className="btn btn-sm btn-danger ms-2"
-                              onClick={() =>
-                                setRejectPopup({
-                                  _id: v?._id,
-                                  rejectReason: "",
-                                  status: "rejected",
-                                })
-                              }
-                              style={{ width: "75px" }}
-                            >
-                              Reject
-                            </button>
+                            </div>
                           </td>
 
                           {/* <td className="text-center">{moment(v?.lastLogin).format("DD MMM, YYYY")}</td> */}

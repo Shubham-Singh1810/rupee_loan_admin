@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import SunEditor from "suneditor-react";
-import "suneditor/dist/css/suneditor.min.css";
+// import SunEditor from "suneditor-react";
+// import "suneditor/dist/css/suneditor.min.css";
 import {
   getSupportDetailsServ,
   updateSupportDetailsServ,
@@ -49,7 +49,7 @@ function TermsAndCondition() {
     <div className="container-fluid">
       <div className="col-lg-12 p-4">
         <h5 className="ms-1 mb-3">Terms And Condition</h5>
-        <SunEditor
+        {/* <SunEditor
           key={editorKey} // important
           setContents={formData.termsAndCondition}
           onChange={(content) =>
@@ -97,7 +97,7 @@ function TermsAndCondition() {
               ],
             ],
           }}
-        />
+        /> */}
         <button
           className="bgThemePrimary btn w-100 mt-2"
           onClick={updateSupportDetailsFunc}

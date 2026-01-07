@@ -84,8 +84,78 @@ function PaydayLoanDetails() {
           value: details?.loanAmount,
         },
         { label: "Tenure (Days)", name: "tenure", value: details?.tenure },
-        { label: "Processing Fee", name: "processingFee", value: details?.processingFee },
-        { label: "Payable Amount", name: "payable", value: details?.payable },
+        // { label: "Processing Fee", name: "processingFee", value: details?.processingFee },
+        // { label: "Payable Amount", name: "payable", value: details?.payable },
+      ],
+    },
+    {
+      title: "Configuration Details",
+      fields: [
+        {
+          label: "Payable Amount",
+          name: "payable",
+          value: details?.payable,
+        },
+        {
+          label: "Disbursed Amount",
+          name: "payable",
+          value: details?.disbursedAmount,
+        },
+        {
+          label: "Interest Rate (%)",
+          name: "interestRate",
+          value: details?.interestRate,
+        },
+        {
+          label: "Interest Amount",
+          name: "interestAmount",
+          value: details?.interestAmount,
+        },
+        {
+          label: "Processing Fee (%)",
+          name: "processingFee",
+          value: details?.processingFee,
+        },
+        {
+          label: "Processing Amount",
+          name: "processingAmount",
+          value: details?.processingAmount,
+        },
+        {
+          label: "GST Applicable",
+          name: "isGstApplicable",
+          value: details?.isGstApplicable ? "Yes" : "No",
+        },
+        {
+          label: "GST Rate (%)",
+          name: "gstRate",
+          value: details?.isGstApplicable ? details?.gstRate : "Not Applicable",
+        },
+        {
+          label: "GST Amount",
+          name: "gstAmount",
+          value: details?.gstAmount,
+        },
+        {
+          label: "Late Fee (%)",
+          name: "lateFee",
+          value: details?.lateFee,
+        },
+        {
+          label: "Penalty Grace Days",
+          name: "penaltyGraceDays",
+          value: details?.penaltyGraceDays,
+        },
+        {
+          label: "Prepayment Allowed",
+          name: "isPrepaymentAllowed",
+          value: details?.isPrepaymentAllowed ? "Yes" : "No",
+        },
+        {
+          label: "Prepayment Fee (%)",
+          name: "prepaymentFee",
+          value: details?.isPrepaymentAllowed ? details?.prepaymentFee : "Not Applicable",
+        },
       ],
     },
     {

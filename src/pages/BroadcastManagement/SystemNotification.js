@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getNotifyServ , deleteNotifynServ } from "../../services/notification.service";
+import {
+  getNotifyServ,
+  deleteNotifynServ,
+} from "../../services/notification.service";
+import {notificationEventListServ} from "../../services/notificationConfigration.services"
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import NoDataScreen from "../../components/NoDataScreen";
@@ -30,7 +34,7 @@ function SystemNotification() {
       setShowSkelton(true);
     }
     try {
-      let response = await getNotifyServ(payload);
+      let response = await notificationEventListServ(payload);
       if (response?.data?.statusCode == "200") {
         setList(response?.data?.data);
         setDocumentCount(response?.data?.documentCount);
@@ -44,7 +48,7 @@ function SystemNotification() {
   useEffect(() => {
     getListFunc();
   }, [payload]);
-  
+
   const renderProfile = (isDelivered) => {
     if (isDelivered) {
       return (
@@ -62,21 +66,21 @@ function SystemNotification() {
   };
   const staticsData = [
     {
-      label: "Total Notification",
+      label: "Total Events",
       icon: "bi bi-bell",
       count: documentCount?.totalCount,
 
       iconColor: "#010a2d",
     },
     {
-      label: "Scheduled",
+      label: "Active",
       icon: "bi bi-bell",
       count: documentCount?.activeCount,
 
       iconColor: "green",
     },
     {
-      label: "Delivered",
+      label: "Inactive",
       icon: "bi bi-bell",
       count: documentCount?.inactiveCount,
       iconColor: "red",
@@ -95,7 +99,6 @@ function SystemNotification() {
       toast.error("Internal Server error");
     }
   };
- 
 
   return (
     <div className="container-fluid user-table py-3">
@@ -174,17 +177,17 @@ function SystemNotification() {
                 fontSize: "14px",
               }}
             >
-              {payload?.isDelivered === ""
-                ? "Select Status"
-                : payload?.isDelivered === true
-                ? "Delivered"
-                : "Scheduled"}
+              {payload?.status === true
+                ? "Active"
+                : payload?.status === false
+                ? "Inactive"
+                : "Select Status"}
             </button>
             <ul className="dropdown-menu">
               <li>
                 <button
                   className="dropdown-item"
-                  onClick={() => setPayload({ ...payload, isDelivered: "" })}
+                  onClick={() => setPayload({ ...payload, status: "" })}
                 >
                   Select Status
                 </button>
@@ -192,19 +195,17 @@ function SystemNotification() {
               <li>
                 <button
                   className="dropdown-item"
-                  onClick={() => {
-                    setPayload({ ...payload, isDelivered: false });
-                  }}
+                  onClick={() => setPayload({ ...payload, status: "true" })}
                 >
-                  Scheduled
+                  Active
                 </button>
               </li>
               <li>
                 <button
                   className="dropdown-item"
-                  onClick={() => setPayload({ ...payload, isDelivered: true })}
+                  onClick={() => setPayload({ ...payload, status: "false" })}
                 >
-                  Delivered
+                  Inactive
                 </button>
               </li>
             </ul>
@@ -234,6 +235,7 @@ function SystemNotification() {
                   <th>Title</th>
                   <th>Message</th>
                   <th className="text-center">Status</th>
+                  <th className="text-center">Reciver</th>
                   {(permissions?.includes("Branches-Edit") ||
                     permissions?.includes("Branches-Delete")) && (
                     <th style={{ textAlign: "center" }}>Action</th>
@@ -258,7 +260,10 @@ function SystemNotification() {
                           <td>
                             <Skeleton width={100} />
                           </td>
-                          
+
+                          <td className="text-center">
+                            <Skeleton width={100} />
+                          </td>
                           <td className="text-center">
                             <Skeleton width={100} />
                           </td>
@@ -282,7 +287,7 @@ function SystemNotification() {
                               className="mb-0"
                               style={{ fontSize: "14px", width: "200px" }}
                             >
-                              Event 1
+                              {v?.event}
                             </h6>{" "}
                           </td>
                           <td>
@@ -295,13 +300,14 @@ function SystemNotification() {
                           </td>
                           <td style={{ width: "300px" }}>{v?.subTitle}</td>
                           <td className="text-center">
-                            {renderProfile(v?.isDelivered)}
+                            {renderProfile(v?.status)}
                           </td>
+                          <td className="text-center">{v?.reciver}</td>
                           {/* <td className="text-center">{moment(v?.lastLogin).format("DD MMM, YYYY")}</td> */}
                           <td style={{ textAlign: "center" }}>
-                             <button className="btn btn-sm btn-primary px-4">
-                                Edit
-                             </button>
+                            <button className="btn btn-sm btn-primary px-4">
+                              Edit
+                            </button>
                           </td>
                         </tr>
                       );

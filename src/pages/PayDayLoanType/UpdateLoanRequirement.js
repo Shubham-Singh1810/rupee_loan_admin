@@ -36,6 +36,7 @@ function UpdateLoanRequirement() {
     intrestRate: "",
     processingFee: "",
     gstApplicable: "",
+    gst: "",
     lateFee: "",
     penaltyGraceDays: "",
     prepaymentAllowed: "",
@@ -114,7 +115,7 @@ function UpdateLoanRequirement() {
 
       if (response?.data?.statusCode == "200") {
         toast.success(response?.data?.message);
-        getLoanDetailsFunc()
+        getLoanDetailsFunc();
         // navigate("/loan-type-list");
       } else {
         toast.error("Something went wrong");
@@ -168,6 +169,7 @@ function UpdateLoanRequirement() {
           intrestRate: loanData?.intrestRate || "",
           processingFee: loanData?.processingFee || "",
           gstApplicable: loanData?.gstApplicable || "",
+          gst: loanData?.gst || "",
           lateFee: loanData?.lateFee || "",
           penaltyGraceDays: loanData?.penaltyGraceDays || "",
           prepaymentAllowed: loanData?.prepaymentAllowed || "",
@@ -469,7 +471,21 @@ function UpdateLoanRequirement() {
                           className="text-danger small"
                         />
                       </div>
-
+                      <div className="col-md-4">
+                        <label className="form-label">GST (%)</label>
+                        <Field
+                          type="number"
+                          name="gst"
+                          step="0.01"
+                          className="form-control"
+                          placeholder="Enter GST Fee"
+                        />
+                        <ErrorMessage
+                          name="gst"
+                          component="div"
+                          className="text-danger small"
+                        />
+                      </div>
                       <div className="col-md-4">
                         <label className="form-label">Late Fee (%)</label>
                         <Field
@@ -634,11 +650,23 @@ function UpdateLoanRequirement() {
                         <label className="form-label">Employement Type</label>
                         <MultiSelect
                           options={[
-                            { value: "Private Sector", label: "Private Sector" },
-                            { value: "Government Sector", label: "Government Sector" },
+                            {
+                              value: "Private Sector",
+                              label: "Private Sector",
+                            },
+                            {
+                              value: "Government Sector",
+                              label: "Government Sector",
+                            },
                             { value: "Self-Employed", label: "Self-Employed" },
-                            { value: "Freelancer / Independent Contractor", label: "Freelancer / Independent Contractor" },
-                            { value: "Daily Wage / Labor Worker", label: "Daily Wage / Labor Worker" },
+                            {
+                              value: "Freelancer / Independent Contractor",
+                              label: "Freelancer / Independent Contractor",
+                            },
+                            {
+                              value: "Daily Wage / Labor Worker",
+                              label: "Daily Wage / Labor Worker",
+                            },
                           ]}
                           value={values.employmentTypesAllowed.map((v) => ({
                             value: v,
@@ -660,34 +688,35 @@ function UpdateLoanRequirement() {
                       </div>
                       <div className="col-md-6">
                         <label className="form-label">
-                                              Required Documents<span className="text-danger">*</span>
-                                            </label>
-                                            <MultiSelect
-                                              options={documentList}
-                                              value={values.documentRequired.map((doc) => ({
-                                                value: doc,
-                                                label: doc,
-                                              }))}
-                                              onChange={(selected) =>
-                                                setFieldValue(
-                                                  "documentRequired",
-                                                  selected.map((s) => s.value)
-                                                )
-                                              }
-                                              labelledBy="Select Document"
-                                              hasSelectAll={true}
-                                              overrideStrings={{
-                                                selectSomeItems: "Select Documents", // Placeholder text
-                                                allItemsAreSelected: "All Documents Selected",
-                                                selectAll: "Select All",
-                                                search: "Search Documents...",
-                                              }}
-                                            />
-                                            <ErrorMessage
-                                              name="documentRequired"
-                                              component="div"
-                                              className="text-danger small"
-                                            />
+                          Required Documents
+                          <span className="text-danger">*</span>
+                        </label>
+                        <MultiSelect
+                          options={documentList}
+                          value={values.documentRequired.map((doc) => ({
+                            value: doc,
+                            label: doc,
+                          }))}
+                          onChange={(selected) =>
+                            setFieldValue(
+                              "documentRequired",
+                              selected.map((s) => s.value)
+                            )
+                          }
+                          labelledBy="Select Document"
+                          hasSelectAll={true}
+                          overrideStrings={{
+                            selectSomeItems: "Select Documents", // Placeholder text
+                            allItemsAreSelected: "All Documents Selected",
+                            selectAll: "Select All",
+                            search: "Search Documents...",
+                          }}
+                        />
+                        <ErrorMessage
+                          name="documentRequired"
+                          component="div"
+                          className="text-danger small"
+                        />
                       </div>
                     </div>
                   </div>

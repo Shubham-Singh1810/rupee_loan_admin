@@ -8,7 +8,9 @@ import {
   ticketCategoryDeleteServ,
   getTicketCategoryListServ,
   ticketAddServ,
+  updateTicketServ
 } from "../../services/ticker.service";
+import { getAdminListServ } from "../../services/commandCenter.services";
 import { getUserListServ } from "../../services/user.service";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
@@ -60,13 +62,7 @@ function AllTicket() {
     ticketCategoryId: "",
     show: false,
   });
-  const [editFormData, setEditFormData] = useState({
-    subject: "",
-    description: "",
-    userId: "",
-    ticketCategoryId: "",
-    _id: "",
-  });
+
   const renderProfile = (status) => {
     if (status == "open") {
       return (
@@ -144,16 +140,20 @@ function AllTicket() {
       toast?.error("Internal Server Error!");
     }
   };
-  const handleUpdateSupportTicket = async (value) => {
+  const [editFormData, setEditFormData] = useState({
+    code: "",
+    assignedTo: "",
+    _id: "",
+  });
+  const [ticketUpdateLoader, setTicketUpdateLoader]=useState("")
+  const handleUpdateSupportTicket = async () => {
+    setTicketUpdateLoader(editFormData?._id)
     try {
-      let response = await ticketCategoryUpdateServ({
-        ...value,
-        _id: editFormData?._id,
-      });
+      let response = await updateTicketServ(editFormData);
       if (response?.data?.statusCode == "200") {
         setEditFormData({
-          name: "",
-          status: "",
+          code: "",
+          assignedTo: "",
           _id: "",
         });
         toast.success(response?.data?.message);
@@ -164,6 +164,7 @@ function AllTicket() {
     } catch (error) {
       toast?.error("Internal Server Error!");
     }
+    setTicketUpdateLoader("")
   };
   const [ticketCategoryList, setTicketCategoryList] = useState([]);
   const getTicketCategoryListFunc = async () => {
@@ -187,9 +188,21 @@ function AllTicket() {
       console.log("Something went wrong");
     }
   };
+  const [adminList, setAdminList] = useState([]);
+  const getAdminListFunc = async () => {
+    try {
+      let response = await getAdminListServ({ status: true, pageCount: 100 });
+      if (response?.data?.statusCode == "200") {
+        setAdminList(response?.data?.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   useEffect(() => {
     getTicketCategoryListFunc();
     getUserListFunc();
+    getAdminListFunc();
   }, []);
   return (
     <div className="container-fluid user-table py-3">
@@ -413,7 +426,7 @@ function AllTicket() {
                               </div>
                             </div>
                           </td>
-                          <td style={{width:"150px"}}>{v?.subject}</td>
+                          <td style={{ width: "150px" }}>{v?.subject}</td>
                           <td>
                             {v?.assignedTo ? (
                               <div className="d-flex align-items-center">
@@ -449,14 +462,20 @@ function AllTicket() {
                             ) : (
                               <u
                                 className="text-primary cursor"
-                                onClick={() => toast.info("Work in progress")}
+                                onClick={() => setEditFormData({
+                                  _id:v?._id,
+                                  code:v?.code,
+                                  assignedTo:v?.assignedTo
+                                })}
                               >
                                 Assign staff
                               </u>
                             )}
                           </td>
                           <td>{v?.ticketCategoryId?.name}</td>
-                          <td style={{width:"150px"}}>{v?.description || "N/A"}</td>
+                          <td style={{ width: "150px" }}>
+                            {v?.description || "N/A"}
+                          </td>
                           <td className="text-center">
                             {moment(v?.createdAt).format("DD-MM-YYYY")}
                           </td>
@@ -646,7 +665,76 @@ function AllTicket() {
         </div>
       )}
       {addFormData?.show && <div className="modal-backdrop fade show"></div>}
-
+      {editFormData?._id && (
+        <div
+          className="modal fade show d-flex align-items-center justify-content-center"
+          tabIndex="-1"
+        >
+          <div className="modal-dialog">
+            <div
+              className="modal-content"
+              style={{
+                borderRadius: "8px",
+                width: "400px",
+              }}
+            >
+              <div className="modal-body">
+                <div
+                  style={{
+                    wordWrap: "break-word",
+                    whiteSpace: "pre-wrap",
+                  }}
+                  className="d-flex justify-content-center w-100"
+                >
+                  <div className="w-100 px-2">
+                    <div className="d-flex justify-content-between align-items-center">
+                      <h5 className="">Assign Staff</h5>
+                      <img
+                        onClick={() =>
+                          setEditFormData({
+                            _id:"",
+                            code:"",
+                            assignedTo:""
+                          })
+                        }
+                        src="https://cdn-icons-png.flaticon.com/128/2734/2734822.png"
+                        style={{ height: "20px", cursor: "pointer" }}
+                      />
+                    </div>
+                    <p>Ticket ID : {editFormData?.code}</p>
+                    <label>Select Staff</label>
+                    <select
+                      className="form-control"
+                      onChange={(e) =>
+                        setEditFormData({
+                          ...editFormData,
+                          assignedTo: e?.target?.value,
+                        })
+                      }
+                    >
+                      <option>Select</option>
+                      {adminList?.map((v, i) => {
+                        return (
+                          <option value={v?._id}>
+                            {v?.firstName + " " + v?.lastName}
+                          </option>
+                        );
+                      })}
+                    </select>
+                    {ticketUpdateLoader ?< button className="btn bgThemePrimary mt-3 w-100" style={{opacity:"0.5"}}>
+                      Assigning ...
+                    </button>:<button className="btn bgThemePrimary mt-3 w-100" onClick={() => handleUpdateSupportTicket()}>
+                      Assign
+                    </button>}
+                    
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {editFormData?._id && <div className="modal-backdrop fade show"></div>}
       <ConfirmDeleteModal
         show={showConfirm}
         handleClose={() => setShowConfirm(false)}

@@ -7,7 +7,7 @@ function DepositList() {
           className="vh-100 d-flex justify-content-center align-items-center bg-light border "
           
         >
-          <h2 style={{color:"gray"}}>Conming Soon !</h2>
+          <h2 style={{color:"gray"}}>Coming Soon !</h2>
         </div>
   );
 }
