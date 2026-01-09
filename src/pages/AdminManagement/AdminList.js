@@ -137,7 +137,7 @@ function AdminList() {
         setDeleteId("");
       }
     } catch (error) {
-      toast.error("Internal Server error");
+      toast.error(error?.response?.data?.error);
     }
   };
   const AdminSchema = Yup.object().shape({
@@ -240,7 +240,7 @@ function AdminList() {
         toast.success(response?.data?.message);
         getListFunc();
       } else {
-        toast?.error("Something went wrong!");
+        toast?.error(response?.data?.message);
       }
     } catch (error) {
       toast?.error(error?.response?.data?.message);

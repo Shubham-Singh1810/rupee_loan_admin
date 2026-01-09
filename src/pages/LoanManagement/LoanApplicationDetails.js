@@ -231,7 +231,7 @@ function LoanApplicationDetails() {
                   
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label">Intrest Rate</label>
+                  <label className="form-label">Interest Rate</label>
                   <input
                     type="text"
                     className="form-control"
@@ -247,7 +247,7 @@ function LoanApplicationDetails() {
                   />
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label">Intrest Type</label>
+                  <label className="form-label">Interest Type</label>
                    <select
                       className="form-control"
                       value={formData?.intrestRateType}

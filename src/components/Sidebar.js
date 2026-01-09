@@ -183,11 +183,11 @@ function Sidebar({ isCollapsed }) {
           permission: "Roles-View",
           subMenu: [
             { name: "Roles", path: "/role-list", permission: "Roles-View" },
-            {
-              name: "Create Role",
-              path: "/assign-role",
-              permission: "Assign Role-Create",
-            },
+            // {
+            //   name: "Create Role",
+            //   path: "/assign-role",
+            //   permission: "Assign Role-Create",
+            // },
           ],
         },
         {

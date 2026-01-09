@@ -670,7 +670,7 @@ function EditLoanType() {
                             name="intrestRateDays"
                             step="0.01"
                             className="form-control"
-                            placeholder="Enter Intrest Rate"
+                            placeholder="Enter Interest Rate"
                           />
                           <ErrorMessage
                             name="intrestRateDays"

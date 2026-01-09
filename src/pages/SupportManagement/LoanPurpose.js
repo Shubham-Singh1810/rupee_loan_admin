@@ -116,14 +116,30 @@ function LoanPurpose() {
         setDeleteId("");
       }
     } catch (error) {
-      toast.error("Internal Server error");
+      toast.error(error?.response?.data?.message);
     }
   };
   const LoanPurposeSchema = Yup.object().shape({
+    img: Yup.mixed()
+      .test("img-required", "Icon is required", function (value) {
+        const { imgPrev } = this.parent;
+        if (!value && !imgPrev) return false;
+        return true;
+      })
+      .test("fileType", "Only JPG, PNG, WEBP allowed", (value) => {
+        if (!value) return true;
+        return ["image/jpeg", "image/png", "image/webp"].includes(value.type);
+      })
+      .test("fileSize", "Image must be less than 2MB", (value) => {
+        if (!value) return true;
+        return value.size <= 2 * 1024 * 1024;
+      }),
+
     name: Yup.string().required("Name is required"),
     description: Yup.string().required("Description is required"),
     status: Yup.string().required("Status is required"),
   });
+
   const handleAddLoanPurpose = async (values) => {
     try {
       const formData = new FormData();
@@ -179,7 +195,7 @@ function LoanPurpose() {
         toast.success(response?.data?.message);
         getListFunc();
       } else {
-        toast?.error("Something went wrong!");
+        toast?.error(response?.data?.message);
       }
     } catch (error) {
       toast?.error(error?.response?.data?.message);
@@ -474,8 +490,12 @@ function LoanPurpose() {
                         imgPrev: "",
                       }}
                       validationSchema={LoanPurposeSchema}
-                      onSubmit={(values) => {
-                        handleAddLoanPurpose(values);
+                      onSubmit={async (values, { setSubmitting }) => {
+                        try {
+                          await handleAddLoanPurpose(values);
+                        } finally {
+                          setSubmitting(false); // 🔥 MOST IMPORTANT
+                        }
                       }}
                     >
                       {({ isSubmitting, values, setFieldValue }) => (
@@ -508,7 +528,10 @@ function LoanPurpose() {
                                 />
                               </label>
                               <div>
-                                <small>Upload Icon</small>
+                                <small>
+                                  Upload Icon
+                                  <span className="text-danger">*</span>
+                                </small>
                               </div>
                               <ErrorMessage
                                 name="img"
@@ -639,8 +662,12 @@ function LoanPurpose() {
                         imgPrev: editFormData?.img || "",
                       }}
                       validationSchema={LoanPurposeSchema}
-                      onSubmit={(values) => {
-                        handleUpdateLoanPurpose(values);
+                      onSubmit={async (values, { setSubmitting }) => {
+                        try {
+                          await handleUpdateLoanPurpose(values);
+                        } finally {
+                          setSubmitting(false); // 🔥 MOST IMPORTANT
+                        }
                       }}
                       enableReinitialize
                     >
@@ -662,7 +689,9 @@ function LoanPurpose() {
                                   src={
                                     values.img
                                       ? URL.createObjectURL(values.img)
-                                      : values?.imgPrev ? values?.imgPrev: "https://cdn-icons-png.flaticon.com/128/10446/10446694.png"
+                                      : values?.imgPrev
+                                      ? values?.imgPrev
+                                      : "https://cdn-icons-png.flaticon.com/128/10446/10446694.png"
                                   }
                                   alt="img"
                                   style={{
@@ -674,7 +703,10 @@ function LoanPurpose() {
                                 />
                               </label>
                               <div>
-                                <small>Upload Icon</small>
+                                <small>
+                                  Upload Icon
+                                  <span className="text-danger">*</span>
+                                </small>
                               </div>
                               <ErrorMessage
                                 name="img"

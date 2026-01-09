@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { loginServ } from "../../services/authentication.services";
+import {
+  loginServ,
+  forgetPasswordServ,
+} from "../../services/authentication.services";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useGlobalState } from "../../GlobalProvider";
@@ -17,7 +20,7 @@ function Login() {
     },
     validationSchema: Yup.object({
       email: Yup.string()
-        .email("Invalid email format")
+        .matches(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, "Invalid email format")
         .required("Email is required"),
       password: Yup.string().required("Password is required"),
     }),
@@ -51,11 +54,32 @@ function Login() {
       setSubmitting(false);
     },
   });
+  const forgetPasswordFunc = async () => {
+    if (!formik.values.email) {
+      toast.error("Please enter your email first");
+      return;
+    }
+
+    // 🛑 Invalid email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    if (!emailRegex.test(formik.values.email)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+    try {
+      let response = await forgetPasswordServ({ email: formik.values.email });
+      if (response?.data?.statusCode == "200") {
+        toast.success(response?.data?.message);
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message);
+    }
+  };
   return (
     <div className="signin-container">
       <div className="signin-card">
         <img
-          src="assets/images/logo.jpeg"
+          src="/assets/images/logo.jpeg"
           alt="Rupee Loan Logo"
           className="sign-logo"
         />
@@ -79,16 +103,15 @@ function Login() {
                 onBlur={formik.handleBlur}
                 value={formik.values.email}
               />
-             
             </div>
-             {formik.touched.email && formik.errors.email ? (
-                  <small
-                    className="text-danger mb-2"
-                    style={{ marginTop: "-20px" }}
-                  >
-                    {formik.errors.email}
-                  </small>
-                ) : null}
+            {formik.touched.email && formik.errors.email ? (
+              <small
+                className="text-danger mb-2"
+                style={{ marginTop: "-20px" }}
+              >
+                {formik.errors.email}
+              </small>
+            ) : null}
           </div>
           <div className="mb-3">
             <label htmlFor="password" className="form-label">
@@ -113,20 +136,19 @@ function Login() {
                 onBlur={formik.handleBlur}
                 value={formik.values.password}
               />
-              
             </div>
             {formik.touched.password && formik.errors.password ? (
-                  <small
-                    className="text-danger mb-2"
-                    style={{ marginTop: "-20px" }}
-                  >
-                    {formik.errors.password}
-                  </small>
-                ) : null}
+              <small
+                className="text-danger mb-2"
+                style={{ marginTop: "-20px" }}
+              >
+                {formik.errors.password}
+              </small>
+            ) : null}
           </div>
           <div className="mb-3 text-end">
             <a
-              onClick={() => toast.info("Coming Soon")}
+              onClick={() => forgetPasswordFunc()}
               className="forgot-password cursor"
             >
               Forgot Password?

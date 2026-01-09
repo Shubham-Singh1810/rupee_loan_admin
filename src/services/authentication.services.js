@@ -23,4 +23,23 @@ export const loginServ = async (formData) => {
     throw error;
   }
 };
-
+export const resetPasswordServ = async (token, formData) => {
+  try {
+    const response = await axios.post(BASE_URL + "admin/reset-password/"+token, formData);
+    return response;
+  } catch (error) {
+    // Handle error (e.g., log or throw an error)
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+};
+export const forgetPasswordServ = async (formData) => {
+  try {
+    const response = await axios.post(BASE_URL + "admin/forgot-password", formData);
+    return response;
+  } catch (error) {
+    // Handle error (e.g., log or throw an error)
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+};

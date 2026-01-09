@@ -22,8 +22,8 @@ function ConfirmDeleteModal({title, body, show, handleClose, handleConfirm }) {
 
           {/* Body */}
           <div className="modal-body">
-            <p>{body || "Do you really want to delete this branch?"}</p>
-            <p className="text-muted mb-0">This action cannot be undone.</p>
+            <p className="mb-0">{body || "Do you really want to delete this branch?"}</p>
+            {/* <p className="text-muted mb-0">This action cannot be undone.</p> */}
           </div>
 
           {/* Footer */}

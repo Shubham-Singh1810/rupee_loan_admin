@@ -437,7 +437,7 @@ function CreateLoan() {
                           name="intrestRate"
                           step="0.01"
                           className="form-control"
-                          placeholder="Enter Intrest Rate"
+                          placeholder="Enter Interest Rate"
                         />
                         <ErrorMessage
                           name="intrestRate"
@@ -574,7 +574,7 @@ function CreateLoan() {
                             name="intrestRateDays"
                             step="0.01"
                             className="form-control"
-                            placeholder="Enter Intrest Rate"
+                            placeholder="Enter Interest Rate"
                           />
                           <ErrorMessage
                             name="intrestRateDays"

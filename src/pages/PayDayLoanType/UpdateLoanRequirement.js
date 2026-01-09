@@ -17,6 +17,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { MultiSelect } from "react-multi-select-component";
 import { getDocumentSetServ } from "../../services/document.services";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
 function UpdateLoanRequirement() {
   const navigate = useNavigate();
@@ -194,552 +196,586 @@ function UpdateLoanRequirement() {
   useEffect(() => {
     getLoanDetailsFunc();
   }, []);
+
   return (
     <div className="container-fluid">
       <div className="row">
         <div className="col-lg-12 p-4">
           <div className="d-flex justify-content-between align-items-center mb-4">
-            <h5 className="ms-1 mb-0">
-              <i
-                className="bi-arrow-left-circle bi cursor"
-                onClick={() => navigate("/loan-type-list")}
-              ></i>{" "}
-              Update {details?.name}
-            </h5>
+            <h5 className="ms-1 mb-0">Update {details?.name}</h5>
           </div>
 
-          {/* ✅ Formik Wrapper */}
-          <Formik
-            initialValues={initialValues}
-            enableReinitialize
-            validationSchema={getLoanSchema()}
-            onSubmit={(values) => {
-              updateLoanTypeFunc(values);
-            }}
-          >
-            {({ values, setFieldValue, isSubmitting, dirty }) => (
-              <Form>
-                {/* Basic Information */}
-                <div className="form-section shadow-sm">
-                  <div className="form-section-header">
-                    <i className="bi bi-info-circle me-2" />
-                    Basic Information
-                  </div>
-                  <div className="form-section-body">
-                    <div className="row g-3">
-                      <div className="col-md-4">
-                        <label className="form-label">
-                          Loan Name<span className="text-danger">*</span>
-                        </label>
-                        <Field
-                          type="text"
-                          name="name"
-                          className="form-control"
-                          placeholder="Enter loan type name"
-                        />
-                        <ErrorMessage
-                          name="name"
-                          component="div"
-                          className="text-danger small"
-                        />
-                      </div>
-
-                      <div className="col-md-4">
-                        <label className="form-label">Loan Code / ID</label>
-                        <Field
-                          type="text"
-                          name="code"
-                          className="form-control"
-                          placeholder="Auto-generated if empty"
-                        />
-                        <ErrorMessage
-                          name="code"
-                          component="div"
-                          className="text-danger small"
-                        />
-                      </div>
-                      <div className="col-md-4">
-                        <label className="form-label">
-                          Status<span className="text-danger">*</span>
-                        </label>
-                        <Field
-                          as="select"
-                          name="status"
-                          className="form-select"
-                        >
-                          <option value="">Select</option>
-                          <option value={true}>Active</option>
-                          <option value={false}>Inactive</option>
-                        </Field>
-                        <ErrorMessage
-                          name="status"
-                          component="div"
-                          className="text-danger small"
-                        />
-                      </div>
-                      <div className="col-2 mt-auto">
-                        <div className="text-center">
-                          <input
-                            id="iconUpload"
-                            type="file"
-                            accept="image/*"
-                            style={{ display: "none" }}
-                            onChange={(e) => {
-                              const file = e.target.files[0];
-                              if (file) {
-                                setFieldValue("icon", file);
-
-                                // ✅ preview ke liye
-                                const previewUrl = URL.createObjectURL(file);
-                                setFieldValue("iconPreview", previewUrl);
-                              }
-                            }}
+          {details ? (
+            <Formik
+              initialValues={initialValues}
+              enableReinitialize
+              validationSchema={getLoanSchema()}
+              onSubmit={(values) => {
+                updateLoanTypeFunc(values);
+              }}
+            >
+              {({ values, setFieldValue, isSubmitting, dirty }) => (
+                <Form>
+                  {/* Basic Information */}
+                  <div className="form-section shadow-sm">
+                    <div className="form-section-header">
+                      <i className="bi bi-info-circle me-2" />
+                      Basic Information
+                    </div>
+                    <div className="form-section-body">
+                      <div className="row g-3">
+                        <div className="col-md-4">
+                          <label className="form-label">
+                            Loan Name<span className="text-danger">*</span>
+                          </label>
+                          <Field
+                            type="text"
+                            name="name"
+                            className="form-control"
+                            placeholder="Enter loan type name"
                           />
+                          <ErrorMessage
+                            name="name"
+                            component="div"
+                            className="text-danger small"
+                          />
+                        </div>
 
-                          <label
-                            htmlFor="iconUpload"
-                            className="cursor-pointer"
+                        <div className="col-md-4">
+                          <label className="form-label">Loan Code / ID</label>
+                          <Field
+                            type="text"
+                            name="code"
+                            className="form-control"
+                            placeholder="Auto-generated if empty"
+                          />
+                          <ErrorMessage
+                            name="code"
+                            component="div"
+                            className="text-danger small"
+                          />
+                        </div>
+                        <div className="col-md-4">
+                          <label className="form-label">
+                            Status<span className="text-danger">*</span>
+                          </label>
+                          <Field
+                            as="select"
+                            name="status"
+                            className="form-select"
                           >
-                            <img
-                              src={
-                                values.iconPreview ||
-                                "https://cdn-icons-png.flaticon.com/128/8191/8191607.png"
-                              }
-                              alt="Loan Icon"
-                              style={{
-                                width: "90px",
-                                height: "90px",
-                                objectFit: "contain",
+                            <option value="">Select</option>
+                            <option value={true}>Active</option>
+                            <option value={false}>Inactive</option>
+                          </Field>
+                          <ErrorMessage
+                            name="status"
+                            component="div"
+                            className="text-danger small"
+                          />
+                        </div>
+                        <div className="col-2 mt-auto">
+                          <div className="text-center">
+                            <input
+                              id="iconUpload"
+                              type="file"
+                              accept="image/*"
+                              style={{ display: "none" }}
+                              onChange={(e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                  setFieldValue("icon", file);
+
+                                  // ✅ preview ke liye
+                                  const previewUrl = URL.createObjectURL(file);
+                                  setFieldValue("iconPreview", previewUrl);
+                                }
                               }}
                             />
+
+                            <label
+                              htmlFor="iconUpload"
+                              className="cursor-pointer"
+                            >
+                              <img
+                                src={
+                                  values.iconPreview ||
+                                  "https://cdn-icons-png.flaticon.com/128/8191/8191607.png"
+                                }
+                                alt="Loan Icon"
+                                style={{
+                                  width: "90px",
+                                  height: "90px",
+                                  objectFit: "contain",
+                                }}
+                              />
+                            </label>
+                            <p>
+                              Upload Icon <span className="text-danger">*</span>
+                            </p>
+                            <ErrorMessage
+                              name="icon"
+                              component="div"
+                              className="text-danger small"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="col-10">
+                          <label className="form-label">
+                            Description<span className="text-danger">*</span>
                           </label>
-                          <p>
-                            Upload Icon <span className="text-danger">*</span>
-                          </p>
+                          <Field
+                            as="textarea"
+                            name="description"
+                            className="form-control"
+                            rows={4}
+                            placeholder="Please enter brief description about this loan type"
+                          />
                           <ErrorMessage
-                            name="icon"
+                            name="description"
                             component="div"
                             className="text-danger small"
                           />
                         </div>
                       </div>
+                    </div>
+                  </div>
 
-                      <div className="col-10">
-                        <label className="form-label">
-                          Description<span className="text-danger">*</span>
-                        </label>
-                        <Field
-                          as="textarea"
-                          name="description"
-                          className="form-control"
-                          rows={4}
-                          placeholder="Please enter brief description about this loan type"
-                        />
-                        <ErrorMessage
-                          name="description"
-                          component="div"
-                          className="text-danger small"
-                        />
+                  {/* Loan Amount & Duration */}
+                  <div className="form-section shadow-sm">
+                    <div className="d-flex justify-content-between align-items-center">
+                      <div className="form-section-header">
+                        <i className="bi bi-info-circle me-2" />
+                        Financial Parameters
+                      </div>
+                    </div>
+
+                    <div className="form-section-body">
+                      <div className="row g-3">
+                        <div className="col-md-6">
+                          <label className="form-label">
+                            Minimum Loan Amount (INR)
+                          </label>
+                          <Field
+                            type="number"
+                            name="minAmount"
+                            className="form-control"
+                            placeholder="Enter Amount"
+                          />
+                          <ErrorMessage
+                            name="minAmount"
+                            component="div"
+                            className="text-danger small"
+                          />
+                        </div>
+
+                        <div className="col-md-6">
+                          <label className="form-label">
+                            Maximum Loan Amount (INR)
+                          </label>
+                          <Field
+                            type="number"
+                            name="maxAmount"
+                            className="form-control"
+                            placeholder="Enter Amount"
+                          />
+                          <ErrorMessage
+                            name="maxAmount"
+                            component="div"
+                            className="text-danger small"
+                          />
+                        </div>
+
+                        <div className="col-md-4">
+                          <label className="form-label">
+                            Minimum Tenure (Days)
+                          </label>
+                          <Field
+                            type="number"
+                            name="minTenure"
+                            className="form-control"
+                            placeholder="Enter Tenure"
+                          />
+                          <ErrorMessage
+                            name="minTenure"
+                            component="div"
+                            className="text-danger small"
+                          />
+                        </div>
+
+                        <div className="col-md-4">
+                          <label className="form-label">
+                            Maximum Tenure (Days)
+                          </label>
+                          <Field
+                            type="number"
+                            name="maxTenure"
+                            className="form-control"
+                            placeholder="Enter Tenure "
+                          />
+                          <ErrorMessage
+                            name="maxTenure"
+                            component="div"
+                            className="text-danger small"
+                          />
+                        </div>
+
+                        <div className="col-md-4">
+                          <label className="form-label">
+                            Interest Rate (%)
+                          </label>
+                          <Field
+                            type="number"
+                            name="intrestRate"
+                            // step="0.01"
+                            className="form-control"
+                            placeholder="Enter Interest Rate"
+                          />
+                          <ErrorMessage
+                            name="intrestRate"
+                            component="div"
+                            className="text-danger small"
+                          />
+                        </div>
+                        <div className="col-md-4">
+                          <label className="form-label">Processing Fee</label>
+                          <Field
+                            type="number"
+                            name="processingFee"
+                            // step="0.01"
+                            className="form-control"
+                            placeholder="Enter Processing Fee"
+                          />
+                          <ErrorMessage
+                            name="processingFee"
+                            component="div"
+                            className="text-danger small"
+                          />
+                        </div>
+                        <div className="col-md-4">
+                          <label className="form-label">GST Applicable</label>
+                          <Field
+                            as="select"
+                            name="gstApplicable"
+                            className="form-control"
+                          >
+                            <option value="">Select GST Option</option>
+                            <option value={true}>Yes</option>
+                            <option value={false}>No</option>
+                          </Field>
+                          <ErrorMessage
+                            name="gstApplicable"
+                            component="div"
+                            className="text-danger small"
+                          />
+                        </div>
+                        <div className="col-md-4">
+                          <label className="form-label">GST (%)</label>
+                          <Field
+                            type="number"
+                            name="gst"
+                            // step="0.01"
+                            className="form-control"
+                            placeholder="Enter GST Fee"
+                          />
+                          <ErrorMessage
+                            name="gst"
+                            component="div"
+                            className="text-danger small"
+                          />
+                        </div>
+                        <div className="col-md-4">
+                          <label className="form-label">Late Fee (%)</label>
+                          <Field
+                            type="number"
+                            name="lateFee"
+                            // step="0.01"
+                            className="form-control"
+                            placeholder="Enter Late Fee"
+                          />
+                          <ErrorMessage
+                            name="lateFee"
+                            component="div"
+                            className="text-danger small"
+                          />
+                        </div>
+                        <div className="col-md-4">
+                          <label className="form-label">
+                            Penalty Grace Days
+                          </label>
+                          <Field
+                            type="number"
+                            name="penaltyGraceDays"
+                            // step="0.01"
+                            className="form-control"
+                            placeholder="Enter penalty grace days"
+                          />
+                          <ErrorMessage
+                            name="penaltyGraceDays"
+                            component="div"
+                            className="text-danger small"
+                          />
+                        </div>
+                        <div className="col-md-4">
+                          <label className="form-label">
+                            Prepayment Allowed
+                          </label>
+                          <Field
+                            as="select"
+                            name="prepaymentAllowed"
+                            className="form-control"
+                          >
+                            <option value="">Select</option>
+                            <option value={true}>Yes</option>
+                            <option value={false}>No</option>
+                          </Field>
+                          <ErrorMessage
+                            name="prepaymentAllowed"
+                            component="div"
+                            className="text-danger small"
+                          />
+                        </div>
+                        <div className="col-md-4">
+                          <label className="form-label">Prepayment Fee %</label>
+                          <Field
+                            type="number"
+                            name="prepaymentFee"
+                            // step="0.01"
+                            className="form-control"
+                            placeholder="Enter Prepayment Fee"
+                          />
+                          <ErrorMessage
+                            name="prepaymentFee"
+                            component="div"
+                            className="text-danger small"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Loan Amount & Duration */}
-                <div className="form-section shadow-sm">
-                  <div className="d-flex justify-content-between align-items-center">
+                  {/* Eligibility Rules */}
+                  <div className="form-section shadow-sm">
                     <div className="form-section-header">
                       <i className="bi bi-info-circle me-2" />
-                      Financial Parameters
+                      Eligibility Rules
+                    </div>
+                    <div className="form-section-body">
+                      <div className="row g-3">
+                        <div className="col-md-6">
+                          <label className="form-label">Minimum Income</label>
+                          <Field
+                            type="number"
+                            name="minIncome"
+                            className="form-control"
+                            placeholder="Enter Income"
+                          />
+                          <ErrorMessage
+                            name="minIncome"
+                            component="div"
+                            className="text-danger small"
+                          />
+                        </div>
+                        <div className="col-md-6">
+                          <label className="form-label">
+                            Maximum Emi Ration
+                          </label>
+                          <Field
+                            type="number"
+                            name="maxEmiRatio"
+                            className="form-control"
+                            placeholder="Enter max emi ration"
+                          />
+                          <ErrorMessage
+                            name="maxEmiRatio"
+                            component="div"
+                            className="text-danger small"
+                          />
+                        </div>
+                        <div className="col-md-6">
+                          <label className="form-label">Income To Loan %</label>
+                          <Field
+                            type="number"
+                            name="incomeToLoanPercentage"
+                            className="form-control"
+                            placeholder="Enter income to loan %"
+                          />
+                          <ErrorMessage
+                            name="incomeToLoanPercentage"
+                            component="div"
+                            className="text-danger small"
+                          />
+                        </div>
+                        <div className="col-md-6">
+                          <label className="form-label">
+                            Credit Score Requirement
+                          </label>
+                          <Field
+                            type="number"
+                            name="creditScoreRequired"
+                            className="form-control"
+                            placeholder="Enter Credit Score"
+                          />
+                          <ErrorMessage
+                            name="creditScoreRequired"
+                            component="div"
+                            className="text-danger small"
+                          />
+                        </div>
+                        <div className="col-md-6">
+                          <label className="form-label">Minimum Age</label>
+                          <Field
+                            type="number"
+                            name="minAge"
+                            className="form-control"
+                            placeholder="Enter Age"
+                          />
+                          <ErrorMessage
+                            name="minAge"
+                            component="div"
+                            className="text-danger small"
+                          />
+                        </div>
+                        <div className="col-md-6">
+                          <label className="form-label">Maximum Age</label>
+                          <Field
+                            type="number"
+                            name="maxAge"
+                            className="form-control"
+                            placeholder="Enter Age"
+                          />
+                          <ErrorMessage
+                            name="maxAge"
+                            component="div"
+                            className="text-danger small"
+                          />
+                        </div>
+                        <div className="col-md-6">
+                          <label className="form-label">Employement Type</label>
+                          <MultiSelect
+                            options={[
+                              {
+                                value: "Private Sector",
+                                label: "Private Sector",
+                              },
+                              {
+                                value: "Government Sector",
+                                label: "Government Sector",
+                              },
+                              {
+                                value: "Self-Employed",
+                                label: "Self-Employed",
+                              },
+                              {
+                                value: "Freelancer / Independent Contractor",
+                                label: "Freelancer / Independent Contractor",
+                              },
+                              {
+                                value: "Daily Wage / Labor Worker",
+                                label: "Daily Wage / Labor Worker",
+                              },
+                            ]}
+                            value={values.employmentTypesAllowed.map((v) => ({
+                              value: v,
+                              label: v,
+                            }))}
+                            onChange={(selected) =>
+                              setFieldValue(
+                                "employmentTypesAllowed",
+                                selected.map((s) => s.value)
+                              )
+                            }
+                            labelledBy="Select Employment Types"
+                          />
+                          <ErrorMessage
+                            name="employmentTypesAllowed"
+                            component="div"
+                            className="text-danger small"
+                          />
+                        </div>
+                        <div className="col-md-6">
+                          <label className="form-label">
+                            Required Documents
+                            <span className="text-danger">*</span>
+                          </label>
+                          <MultiSelect
+                            options={documentList}
+                            value={values.documentRequired.map((doc) => ({
+                              value: doc,
+                              label: doc,
+                            }))}
+                            onChange={(selected) =>
+                              setFieldValue(
+                                "documentRequired",
+                                selected.map((s) => s.value)
+                              )
+                            }
+                            labelledBy="Select Document"
+                            hasSelectAll={true}
+                            overrideStrings={{
+                              selectSomeItems: "Select Documents", // Placeholder text
+                              allItemsAreSelected: "All Documents Selected",
+                              selectAll: "Select All",
+                              search: "Search Documents...",
+                            }}
+                          />
+                          <ErrorMessage
+                            name="documentRequired"
+                            component="div"
+                            className="text-danger small"
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="form-section-body">
-                    <div className="row g-3">
-                      <div className="col-md-6">
-                        <label className="form-label">
-                          Minimum Loan Amount (INR)
-                        </label>
-                        <Field
-                          type="number"
-                          name="minAmount"
-                          className="form-control"
-                          placeholder="Enter Amount"
-                        />
-                        <ErrorMessage
-                          name="minAmount"
-                          component="div"
-                          className="text-danger small"
-                        />
-                      </div>
-
-                      <div className="col-md-6">
-                        <label className="form-label">
-                          Maximum Loan Amount (INR)
-                        </label>
-                        <Field
-                          type="number"
-                          name="maxAmount"
-                          className="form-control"
-                          placeholder="Enter Amount"
-                        />
-                        <ErrorMessage
-                          name="maxAmount"
-                          component="div"
-                          className="text-danger small"
-                        />
-                      </div>
-
-                      <div className="col-md-4">
-                        <label className="form-label">
-                          Minimum Tenure (Days)
-                        </label>
-                        <Field
-                          type="number"
-                          name="minTenure"
-                          className="form-control"
-                          placeholder="Enter Tenure"
-                        />
-                        <ErrorMessage
-                          name="minTenure"
-                          component="div"
-                          className="text-danger small"
-                        />
-                      </div>
-
-                      <div className="col-md-4">
-                        <label className="form-label">
-                          Maximum Tenure (Days)
-                        </label>
-                        <Field
-                          type="number"
-                          name="maxTenure"
-                          className="form-control"
-                          placeholder="Enter Tenure "
-                        />
-                        <ErrorMessage
-                          name="maxTenure"
-                          component="div"
-                          className="text-danger small"
-                        />
-                      </div>
-
-                      <div className="col-md-4">
-                        <label className="form-label">Interest Rate (%)</label>
-                        <Field
-                          type="number"
-                          name="intrestRate"
-                          step="0.01"
-                          className="form-control"
-                          placeholder="Enter Intrest Rate"
-                        />
-                        <ErrorMessage
-                          name="intrestRate"
-                          component="div"
-                          className="text-danger small"
-                        />
-                      </div>
-                      <div className="col-md-4">
-                        <label className="form-label">Processing Fee</label>
-                        <Field
-                          type="number"
-                          name="processingFee"
-                          step="0.01"
-                          className="form-control"
-                          placeholder="Enter Processing Fee"
-                        />
-                        <ErrorMessage
-                          name="processingFee"
-                          component="div"
-                          className="text-danger small"
-                        />
-                      </div>
-                      <div className="col-md-4">
-                        <label className="form-label">GST Applicable</label>
-                        <Field
-                          as="select"
-                          name="gstApplicable"
-                          className="form-control"
-                        >
-                          <option value="">Select GST Option</option>
-                          <option value={true}>Yes</option>
-                          <option value={false}>No</option>
-                        </Field>
-                        <ErrorMessage
-                          name="gstApplicable"
-                          component="div"
-                          className="text-danger small"
-                        />
-                      </div>
-                      <div className="col-md-4">
-                        <label className="form-label">GST (%)</label>
-                        <Field
-                          type="number"
-                          name="gst"
-                          step="0.01"
-                          className="form-control"
-                          placeholder="Enter GST Fee"
-                        />
-                        <ErrorMessage
-                          name="gst"
-                          component="div"
-                          className="text-danger small"
-                        />
-                      </div>
-                      <div className="col-md-4">
-                        <label className="form-label">Late Fee (%)</label>
-                        <Field
-                          type="number"
-                          name="lateFee"
-                          step="0.01"
-                          className="form-control"
-                          placeholder="Enter Late Fee"
-                        />
-                        <ErrorMessage
-                          name="lateFee"
-                          component="div"
-                          className="text-danger small"
-                        />
-                      </div>
-                      <div className="col-md-4">
-                        <label className="form-label">Penalty Grace Days</label>
-                        <Field
-                          type="number"
-                          name="penaltyGraceDays"
-                          step="0.01"
-                          className="form-control"
-                          placeholder="Enter penalty grace days"
-                        />
-                        <ErrorMessage
-                          name="penaltyGraceDays"
-                          component="div"
-                          className="text-danger small"
-                        />
-                      </div>
-                      <div className="col-md-4">
-                        <label className="form-label">Prepayment Allowed</label>
-                        <Field
-                          as="select"
-                          name="prepaymentAllowed"
-                          className="form-control"
-                        >
-                          <option value="">Select</option>
-                          <option value={true}>Yes</option>
-                          <option value={false}>No</option>
-                        </Field>
-                        <ErrorMessage
-                          name="prepaymentAllowed"
-                          component="div"
-                          className="text-danger small"
-                        />
-                      </div>
-                      <div className="col-md-4">
-                        <label className="form-label">Prepayment Fee %</label>
-                        <Field
-                          type="number"
-                          name="prepaymentFee"
-                          step="0.01"
-                          className="form-control"
-                          placeholder="Enter Prepayment Fee"
-                        />
-                        <ErrorMessage
-                          name="prepaymentFee"
-                          component="div"
-                          className="text-danger small"
-                        />
+                  {/* Submit Buttons */}
+                  <div className="d-flex justify-content-end align-items-center mb-5 mt-4">
+                    <div>
+                      <button type="reset" className="btn btn-danger me-2">
+                        Reset
+                      </button>
+                      <button
+                        className="btn bgThemePrimary "
+                        type="submit"
+                        disabled={isSubmitting || !dirty}
+                      >
+                        {isSubmitting ? "Submitting..." : " Save Loan Type"}
+                      </button>
+                    </div>
+                  </div>
+                </Form>
+              )}
+            </Formik>
+          ) : (
+            <div>
+              {[1, 2, 3, 4, 5]?.map((v, i) => {
+                return (
+                  <div className="form-section shadow-sm">
+                    <div className="form-section-header">
+                      <Skeleton height={30} width={30}/>
+                      <Skeleton height={30} width={300} />
+                    </div>
+                    <div className="form-section-body">
+                      <div className="row g-3">
+                        {[1, 2, 3, 4, 5, 6]?.map((v, i) => {
+                          return (
+                            <div className="col-4">
+                              <Skeleton width={100} />
+                              <div className="mt-1">
+                                <Skeleton height={30} />
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
-                </div>
-
-                {/* Eligibility Rules */}
-                <div className="form-section shadow-sm">
-                  <div className="form-section-header">
-                    <i className="bi bi-info-circle me-2" />
-                    Eligibility Rules
-                  </div>
-                  <div className="form-section-body">
-                    <div className="row g-3">
-                      <div className="col-md-6">
-                        <label className="form-label">Minimum Income</label>
-                        <Field
-                          type="number"
-                          name="minIncome"
-                          className="form-control"
-                          placeholder="Enter Income"
-                        />
-                        <ErrorMessage
-                          name="minIncome"
-                          component="div"
-                          className="text-danger small"
-                        />
-                      </div>
-                      <div className="col-md-6">
-                        <label className="form-label">Maximum Emi Ration</label>
-                        <Field
-                          type="number"
-                          name="maxEmiRatio"
-                          className="form-control"
-                          placeholder="Enter max emi ration"
-                        />
-                        <ErrorMessage
-                          name="maxEmiRatio"
-                          component="div"
-                          className="text-danger small"
-                        />
-                      </div>
-                      <div className="col-md-6">
-                        <label className="form-label">Income To Loan %</label>
-                        <Field
-                          type="number"
-                          name="incomeToLoanPercentage"
-                          className="form-control"
-                          placeholder="Enter income to loan %"
-                        />
-                        <ErrorMessage
-                          name="incomeToLoanPercentage"
-                          component="div"
-                          className="text-danger small"
-                        />
-                      </div>
-                      <div className="col-md-6">
-                        <label className="form-label">
-                          Credit Score Requirement
-                        </label>
-                        <Field
-                          type="number"
-                          name="creditScoreRequired"
-                          className="form-control"
-                          placeholder="Enter Credit Score"
-                        />
-                        <ErrorMessage
-                          name="creditScoreRequired"
-                          component="div"
-                          className="text-danger small"
-                        />
-                      </div>
-                      <div className="col-md-6">
-                        <label className="form-label">Minimum Age</label>
-                        <Field
-                          type="number"
-                          name="minAge"
-                          className="form-control"
-                          placeholder="Enter Age"
-                        />
-                        <ErrorMessage
-                          name="minAge"
-                          component="div"
-                          className="text-danger small"
-                        />
-                      </div>
-                      <div className="col-md-6">
-                        <label className="form-label">Maximum Age</label>
-                        <Field
-                          type="number"
-                          name="maxAge"
-                          className="form-control"
-                          placeholder="Enter Age"
-                        />
-                        <ErrorMessage
-                          name="maxAge"
-                          component="div"
-                          className="text-danger small"
-                        />
-                      </div>
-                      <div className="col-md-6">
-                        <label className="form-label">Employement Type</label>
-                        <MultiSelect
-                          options={[
-                            {
-                              value: "Private Sector",
-                              label: "Private Sector",
-                            },
-                            {
-                              value: "Government Sector",
-                              label: "Government Sector",
-                            },
-                            { value: "Self-Employed", label: "Self-Employed" },
-                            {
-                              value: "Freelancer / Independent Contractor",
-                              label: "Freelancer / Independent Contractor",
-                            },
-                            {
-                              value: "Daily Wage / Labor Worker",
-                              label: "Daily Wage / Labor Worker",
-                            },
-                          ]}
-                          value={values.employmentTypesAllowed.map((v) => ({
-                            value: v,
-                            label: v,
-                          }))}
-                          onChange={(selected) =>
-                            setFieldValue(
-                              "employmentTypesAllowed",
-                              selected.map((s) => s.value)
-                            )
-                          }
-                          labelledBy="Select Employment Types"
-                        />
-                        <ErrorMessage
-                          name="employmentTypesAllowed"
-                          component="div"
-                          className="text-danger small"
-                        />
-                      </div>
-                      <div className="col-md-6">
-                        <label className="form-label">
-                          Required Documents
-                          <span className="text-danger">*</span>
-                        </label>
-                        <MultiSelect
-                          options={documentList}
-                          value={values.documentRequired.map((doc) => ({
-                            value: doc,
-                            label: doc,
-                          }))}
-                          onChange={(selected) =>
-                            setFieldValue(
-                              "documentRequired",
-                              selected.map((s) => s.value)
-                            )
-                          }
-                          labelledBy="Select Document"
-                          hasSelectAll={true}
-                          overrideStrings={{
-                            selectSomeItems: "Select Documents", // Placeholder text
-                            allItemsAreSelected: "All Documents Selected",
-                            selectAll: "Select All",
-                            search: "Search Documents...",
-                          }}
-                        />
-                        <ErrorMessage
-                          name="documentRequired"
-                          component="div"
-                          className="text-danger small"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Submit Buttons */}
-                <div className="d-flex justify-content-end align-items-center mb-5 mt-4">
-                  <div>
-                    <button type="reset" className="btn btn-danger me-2">
-                      Reset
-                    </button>
-                    <button
-                      className="btn bgThemePrimary "
-                      type="submit"
-                      disabled={isSubmitting || !dirty}
-                    >
-                      {isSubmitting ? "Submitting..." : " Save Loan Type"}
-                    </button>
-                  </div>
-                </div>
-              </Form>
-            )}
-          </Formik>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>
