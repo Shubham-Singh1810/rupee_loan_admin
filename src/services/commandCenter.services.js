@@ -1,7 +1,7 @@
 import axios from "axios";
 
 import { BASE_URL } from "../../src/utils/api_base_url_configration";
-
+import handleError from "../utils/handleError";
 const getConfig = () => {
   const token = localStorage.getItem("token");
   return {
@@ -15,9 +15,7 @@ export const getAdminListServ = async (payload) => {
     const response = await axios.post(BASE_URL + "admin/list", payload, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const deleteAdminServ = async (id) => {
@@ -25,9 +23,7 @@ export const deleteAdminServ = async (id) => {
     const response = await axios.delete(BASE_URL + "admin/delete/"+id, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const getRoleListServ = async (payload) => {
@@ -35,20 +31,15 @@ export const getRoleListServ = async (payload) => {
     const response = await axios.post(BASE_URL + "role/list", payload, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const getRoleDetailServ = async (id) => {
-  console.log(id)
   try {
     const response = await axios.get(BASE_URL + "role/details/"+id, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const addRoleServ = async (formData) => {
@@ -56,9 +47,7 @@ export const addRoleServ = async (formData) => {
     const response = await axios.post(BASE_URL + "role/create", formData, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const updateRoleServ = async (formData) => {
@@ -66,9 +55,7 @@ export const updateRoleServ = async (formData) => {
     const response = await axios.put(BASE_URL + "role/update", formData, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const addAdminServ = async (formData) => {
@@ -76,9 +63,7 @@ export const addAdminServ = async (formData) => {
     const response = await axios.post(BASE_URL + "admin/create", formData, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const updateAdminServ = async (formData) => {
@@ -86,9 +71,7 @@ export const updateAdminServ = async (formData) => {
     const response = await axios.put(BASE_URL + "admin/update", formData, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const getPermissionListServ = async (payload) => {
@@ -96,9 +79,7 @@ export const getPermissionListServ = async (payload) => {
     const response = await axios.post(BASE_URL + "permission/list", payload, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const addPermissionServ = async (payload) => {
@@ -106,9 +87,7 @@ export const addPermissionServ = async (payload) => {
     const response = await axios.post(BASE_URL + "permission/create", payload, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const deletePermissionServ = async (id) => {
@@ -116,9 +95,7 @@ export const deletePermissionServ = async (id) => {
     const response = await axios.delete(BASE_URL + "permission/delete/"+id, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const updatePermissionServ = async (formData) => {
@@ -126,9 +103,7 @@ export const updatePermissionServ = async (formData) => {
     const response = await axios.put(BASE_URL + "permission/update", formData, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const deleteRoleServ = async (id) => {
@@ -136,9 +111,7 @@ export const deleteRoleServ = async (id) => {
     const response = await axios.delete(BASE_URL + "role/delete/"+id,  getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const getAdminProfileServ = async (id) => {
@@ -146,9 +119,7 @@ export const getAdminProfileServ = async (id) => {
     const response = await axios.get(BASE_URL + "admin/details/"+id,  getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const updatePasswordServ = async (formData) => {
@@ -156,9 +127,7 @@ export const updatePasswordServ = async (formData) => {
     const response = await axios.put(BASE_URL + "admin/update-password", formData, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const globalSearchServ = async (formData) => {
@@ -166,8 +135,6 @@ export const globalSearchServ = async (formData) => {
     const response = await axios.post(BASE_URL + "admin/global-search", formData, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };

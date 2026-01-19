@@ -1,7 +1,7 @@
 import axios from "axios";
 
 import { BASE_URL } from "../../src/utils/api_base_url_configration";
-
+import handleError from "../utils/handleError";
 const getConfig = () => {
   const token = localStorage.getItem("token");
   return {
@@ -16,9 +16,7 @@ export const getSupportDetailsServ = async () => {
     const response = await axios.get(BASE_URL + "support/details", getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const updateSupportDetailsServ = async (formData) => {
@@ -26,9 +24,7 @@ export const updateSupportDetailsServ = async (formData) => {
     const response = await axios.put(BASE_URL + "support/update-details", formData, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 
@@ -37,9 +33,7 @@ export const getFaqListServ = async () => {
     const response = await axios.get(BASE_URL + "support/list-faq", getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const addFaqServ = async (formData) => {
@@ -68,9 +62,7 @@ export const getContactListServ = async (payload) => {
     const response = await axios.post(BASE_URL + "support/list-contact-query", payload, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const updateContactListServ = async (payload) => {
@@ -78,9 +70,7 @@ export const updateContactListServ = async (payload) => {
     const response = await axios.put(BASE_URL + "support/update-contact-query", payload, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 

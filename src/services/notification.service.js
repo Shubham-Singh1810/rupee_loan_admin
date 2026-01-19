@@ -1,7 +1,7 @@
 import axios from "axios";
 
 import { BASE_URL } from "../../src/utils/api_base_url_configration";
-
+import handleError from "../utils/handleError";
 const getConfig = () => {
   const token = localStorage.getItem("token");
   return {
@@ -16,9 +16,7 @@ export const createNotifyServ = async (formData) => {
     const response = await axios.post(BASE_URL + "notify/create", formData, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const updateNotifyServ = async (formData) => {
@@ -26,9 +24,7 @@ export const updateNotifyServ = async (formData) => {
     const response = await axios.put(BASE_URL + "notify/update", formData, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const getNotifyServ = async (formData) => {
@@ -36,9 +32,7 @@ export const getNotifyServ = async (formData) => {
     const response = await axios.post(BASE_URL + "notify/list", formData, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const deleteNotifynServ = async (id) => {
@@ -46,9 +40,7 @@ export const deleteNotifynServ = async (id) => {
     const response = await axios.delete(BASE_URL + "notify/delete/"+id, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const getNotificationServ = async (formData) => {
@@ -56,9 +48,7 @@ export const getNotificationServ = async (formData) => {
     const response = await axios.post(BASE_URL + "notification/list", formData, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const deleteNotificationServ = async (id) => {
@@ -66,9 +56,7 @@ export const deleteNotificationServ = async (id) => {
     const response = await axios.delete(BASE_URL + "notification/delete/"+id, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const deleteNotifyServ = async (id) => {
@@ -76,8 +64,6 @@ export const deleteNotifyServ = async (id) => {
     const response = await axios.delete(BASE_URL + "notify/delete/"+id, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 import { BASE_URL } from "../../src/utils/api_base_url_configration";
-
+import handleError from "../utils/handleError";
 const token = localStorage.getItem("token");
 
 const getConfig = () => {
@@ -18,9 +18,7 @@ export const loginServ = async (formData) => {
     const response = await axios.post(BASE_URL + "admin/login", formData);
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const resetPasswordServ = async (token, formData) => {
@@ -28,9 +26,7 @@ export const resetPasswordServ = async (token, formData) => {
     const response = await axios.post(BASE_URL + "admin/reset-password/"+token, formData);
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const forgetPasswordServ = async (formData) => {
@@ -38,8 +34,6 @@ export const forgetPasswordServ = async (formData) => {
     const response = await axios.post(BASE_URL + "admin/forgot-password", formData);
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };

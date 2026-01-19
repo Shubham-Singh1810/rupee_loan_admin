@@ -1,7 +1,7 @@
 import axios from "axios";
 
 import { BASE_URL } from "../../src/utils/api_base_url_configration";
-
+import handleError from "../utils/handleError";
 const getConfig = () => {
   const token = localStorage.getItem("token");
   return {
@@ -16,9 +16,7 @@ export const loanApplicationListServ = async (payload) => {
     const response = await axios.post(BASE_URL + "loan-application/list", payload, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const createLoanTypeServ = async (payload) => {
@@ -26,9 +24,7 @@ export const createLoanTypeServ = async (payload) => {
     const response = await axios.post(BASE_URL + "loan/create", payload, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const updateLoanTypeServ = async (payload) => {
@@ -36,9 +32,7 @@ export const updateLoanTypeServ = async (payload) => {
     const response = await axios.put(BASE_URL + "loan/update", payload, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const deleteLoanApplicationServ = async (id) => {
@@ -46,9 +40,7 @@ export const deleteLoanApplicationServ = async (id) => {
     const response = await axios.delete(BASE_URL + "loan-application/delete/"+id, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const loanTypeDetailsServ = async (id) => {
@@ -56,9 +48,7 @@ export const loanTypeDetailsServ = async (id) => {
     const response = await axios.get(BASE_URL + "loan/details/"+id, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const loanApplicationDetailsServ = async (id) => {
@@ -66,9 +56,7 @@ export const loanApplicationDetailsServ = async (id) => {
     const response = await axios.get(BASE_URL + "loan-application/details/"+id, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const updateLoanApplicationServ = async (payload) => {
@@ -76,9 +64,7 @@ export const updateLoanApplicationServ = async (payload) => {
     const response = await axios.put(BASE_URL + "loan-application/update", payload, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const getLoanStatsServ = async () => {
@@ -86,9 +72,7 @@ export const getLoanStatsServ = async () => {
     const response = await axios.get(BASE_URL + "loan-application/stats", getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const getEmisListServ = async (payload) => {
@@ -96,9 +80,7 @@ export const getEmisListServ = async (payload) => {
     const response = await axios.post(BASE_URL + "loan-application/emi-list", payload, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 
@@ -107,9 +89,7 @@ export const paydayLoanApplicationListServ = async (payload) => {
     const response = await axios.post(BASE_URL + "payday-loan-application/list", payload, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const paydayLoanStatsServ = async () => {
@@ -117,9 +97,7 @@ export const paydayLoanStatsServ = async () => {
     const response = await axios.get(BASE_URL + "payday-loan-application/stats", getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const paydayDeleteLoanApplicationServ = async (id) => {
@@ -127,9 +105,7 @@ export const paydayDeleteLoanApplicationServ = async (id) => {
     const response = await axios.delete(BASE_URL + "payday-loan-application/delete/"+id, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const createPaydayLoanApplicationServ = async (payload) => {
@@ -137,9 +113,7 @@ export const createPaydayLoanApplicationServ = async (payload) => {
     const response = await axios.post(BASE_URL + "payday-loan-application/create", payload, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const updatePaydayLoanApplicationServ = async (payload) => {
@@ -147,9 +121,7 @@ export const updatePaydayLoanApplicationServ = async (payload) => {
     const response = await axios.put(BASE_URL + "payday-loan-application/update", payload, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const getPaydayLoanApplicationServ = async (id) => {
@@ -157,8 +129,6 @@ export const getPaydayLoanApplicationServ = async (id) => {
     const response = await axios.get(BASE_URL + "payday-loan-application/details/"+id, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };

@@ -1,6 +1,7 @@
 import axios from "axios";
 
 import { BASE_URL } from "../utils/api_base_url_configration";
+import handleError from "../utils/handleError";
 
 const getConfig = () => {
   const token = localStorage.getItem("token");
@@ -15,9 +16,7 @@ export const getBranchListServ = async (formData) => {
     const response = await axios.post(BASE_URL + "branch/list", formData, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const handleDeleteBranchServ = async (id) => {
@@ -25,9 +24,7 @@ export const handleDeleteBranchServ = async (id) => {
     const response = await axios.delete(BASE_URL + "branch/delete/"+id, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const handleCreateBranchServ = async (formData) => {
@@ -35,9 +32,7 @@ export const handleCreateBranchServ = async (formData) => {
     const response = await axios.post(BASE_URL + "branch/create", formData, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const handleUpdateBranchServ = async (formData) => {
@@ -45,8 +40,6 @@ export const handleUpdateBranchServ = async (formData) => {
     const response = await axios.put(BASE_URL + "branch/update", formData, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };

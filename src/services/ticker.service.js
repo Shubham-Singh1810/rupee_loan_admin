@@ -1,7 +1,7 @@
 import axios from "axios";
 
 import { BASE_URL } from "../../src/utils/api_base_url_configration";
-
+import handleError from "../utils/handleError";
 const getConfig = () => {
   const token = localStorage.getItem("token");
   return {
@@ -16,9 +16,7 @@ export const getTicketListServ = async (formData) => {
     const response = await axios.post(BASE_URL + "ticket/list", formData, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const updateTicketServ = async (formData) => {
@@ -26,9 +24,7 @@ export const updateTicketServ = async (formData) => {
     const response = await axios.put(BASE_URL + "ticket/update", formData, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const getTicketCategoryListServ = async (payload) => {
@@ -36,9 +32,7 @@ export const getTicketCategoryListServ = async (payload) => {
     const response = await axios.post(BASE_URL + "ticket-category/list", payload, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const ticketCategoryAddServ = async (payload) => {
@@ -46,9 +40,7 @@ export const ticketCategoryAddServ = async (payload) => {
     const response = await axios.post(BASE_URL + "ticket-category/create", payload, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const ticketAddServ = async (payload) => {
@@ -56,9 +48,7 @@ export const ticketAddServ = async (payload) => {
     const response = await axios.post(BASE_URL + "ticket/create", payload, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const ticketCategoryUpdateServ = async (payload) => {
@@ -66,9 +56,7 @@ export const ticketCategoryUpdateServ = async (payload) => {
     const response = await axios.put(BASE_URL + "ticket-category/update", payload, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const ticketCategoryDeleteServ = async (id) => {
@@ -76,9 +64,7 @@ export const ticketCategoryDeleteServ = async (id) => {
     const response = await axios.delete(BASE_URL + "ticket-category/delete/"+ id, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const getTicketDetailsServ = async (id) => {
@@ -86,9 +72,7 @@ export const getTicketDetailsServ = async (id) => {
     const response = await axios.post(BASE_URL + "chat/list/"+id, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const sendMessageServ = async (formData) => {
@@ -96,9 +80,7 @@ export const sendMessageServ = async (formData) => {
     const response = await axios.post(BASE_URL + "chat/create", formData, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
 export const updateMessageStatusServ = async (formData) => {
@@ -106,8 +88,6 @@ export const updateMessageStatusServ = async (formData) => {
     const response = await axios.put(BASE_URL + "chat/update", formData, getConfig());
     return response;
   } catch (error) {
-    // Handle error (e.g., log or throw an error)
-    console.error("Error fetching data:", error);
-    throw error;
+    handleError(error);
   }
 };
