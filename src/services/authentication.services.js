@@ -5,14 +5,14 @@ import { BASE_URL } from "../../src/utils/api_base_url_configration";
 const token = localStorage.getItem("token");
 
 const getConfig = () => {
+  const token = localStorage.getItem("token");
   return {
     headers: {
-      "Content-Type": "multipart/form-data",
-      Accept: "application/json",
-      Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
+      Authorization: token ? `Bearer ${JSON.parse(token)}` : "",
     },
   };
 };
+
 export const loginServ = async (formData) => {
   try {
     const response = await axios.post(BASE_URL + "admin/login", formData);

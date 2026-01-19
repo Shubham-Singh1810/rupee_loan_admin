@@ -2,20 +2,17 @@ import axios from "axios";
 
 import { BASE_URL } from "../utils/api_base_url_configration";
 
-const token = localStorage.getItem("token");
-
 const getConfig = () => {
+  const token = localStorage.getItem("token");
   return {
     headers: {
-      "Content-Type": "multipart/form-data",
-      Accept: "application/json",
-      Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
+      Authorization: token ? `Bearer ${JSON.parse(token)}` : "",
     },
   };
 };
 export const getBranchListServ = async (formData) => {
   try {
-    const response = await axios.post(BASE_URL + "branch/list", formData);
+    const response = await axios.post(BASE_URL + "branch/list", formData, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -23,10 +20,9 @@ export const getBranchListServ = async (formData) => {
     throw error;
   }
 };
-
 export const handleDeleteBranchServ = async (id) => {
   try {
-    const response = await axios.delete(BASE_URL + "branch/delete/"+id);
+    const response = await axios.delete(BASE_URL + "branch/delete/"+id, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -36,7 +32,7 @@ export const handleDeleteBranchServ = async (id) => {
 };
 export const handleCreateBranchServ = async (formData) => {
   try {
-    const response = await axios.post(BASE_URL + "branch/create", formData);
+    const response = await axios.post(BASE_URL + "branch/create", formData, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -46,7 +42,7 @@ export const handleCreateBranchServ = async (formData) => {
 };
 export const handleUpdateBranchServ = async (formData) => {
   try {
-    const response = await axios.put(BASE_URL + "branch/update", formData);
+    const response = await axios.put(BASE_URL + "branch/update", formData, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)

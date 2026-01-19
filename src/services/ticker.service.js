@@ -2,20 +2,18 @@ import axios from "axios";
 
 import { BASE_URL } from "../../src/utils/api_base_url_configration";
 
-const token = localStorage.getItem("token");
-
 const getConfig = () => {
+  const token = localStorage.getItem("token");
   return {
     headers: {
-      "Content-Type": "multipart/form-data",
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: token ? `Bearer ${JSON.parse(token)}` : "",
     },
   };
 };
+
 export const getTicketListServ = async (formData) => {
   try {
-    const response = await axios.post(BASE_URL + "ticket/list", formData);
+    const response = await axios.post(BASE_URL + "ticket/list", formData, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -25,7 +23,7 @@ export const getTicketListServ = async (formData) => {
 };
 export const updateTicketServ = async (formData) => {
   try {
-    const response = await axios.put(BASE_URL + "ticket/update", formData);
+    const response = await axios.put(BASE_URL + "ticket/update", formData, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -35,7 +33,7 @@ export const updateTicketServ = async (formData) => {
 };
 export const getTicketCategoryListServ = async (payload) => {
   try {
-    const response = await axios.post(BASE_URL + "ticket-category/list", payload);
+    const response = await axios.post(BASE_URL + "ticket-category/list", payload, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -45,7 +43,7 @@ export const getTicketCategoryListServ = async (payload) => {
 };
 export const ticketCategoryAddServ = async (payload) => {
   try {
-    const response = await axios.post(BASE_URL + "ticket-category/create", payload);
+    const response = await axios.post(BASE_URL + "ticket-category/create", payload, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -55,7 +53,7 @@ export const ticketCategoryAddServ = async (payload) => {
 };
 export const ticketAddServ = async (payload) => {
   try {
-    const response = await axios.post(BASE_URL + "ticket/create", payload);
+    const response = await axios.post(BASE_URL + "ticket/create", payload, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -65,7 +63,7 @@ export const ticketAddServ = async (payload) => {
 };
 export const ticketCategoryUpdateServ = async (payload) => {
   try {
-    const response = await axios.put(BASE_URL + "ticket-category/update", payload);
+    const response = await axios.put(BASE_URL + "ticket-category/update", payload, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -75,7 +73,7 @@ export const ticketCategoryUpdateServ = async (payload) => {
 };
 export const ticketCategoryDeleteServ = async (id) => {
   try {
-    const response = await axios.delete(BASE_URL + "ticket-category/delete/"+ id);
+    const response = await axios.delete(BASE_URL + "ticket-category/delete/"+ id, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -85,7 +83,7 @@ export const ticketCategoryDeleteServ = async (id) => {
 };
 export const getTicketDetailsServ = async (id) => {
   try {
-    const response = await axios.post(BASE_URL + "chat/list/"+id);
+    const response = await axios.post(BASE_URL + "chat/list/"+id, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -105,7 +103,7 @@ export const sendMessageServ = async (formData) => {
 };
 export const updateMessageStatusServ = async (formData) => {
   try {
-    const response = await axios.put(BASE_URL + "chat/update", formData);
+    const response = await axios.put(BASE_URL + "chat/update", formData, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)

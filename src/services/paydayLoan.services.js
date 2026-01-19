@@ -2,20 +2,18 @@ import axios from "axios";
 
 import { BASE_URL } from "../utils/api_base_url_configration";
 
-const token = localStorage.getItem("token");
-
 const getConfig = () => {
+  const token = localStorage.getItem("token");
   return {
     headers: {
-      "Content-Type": "multipart/form-data",
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: token ? `Bearer ${JSON.parse(token)}` : "",
     },
   };
 };
+
 export const getPaydayLoanDetailsServ = async () => {
   try {
-    const response = await axios.get(BASE_URL + "payday-loan/details");
+    const response = await axios.get(BASE_URL + "payday-loan/details", getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -26,7 +24,7 @@ export const getPaydayLoanDetailsServ = async () => {
 
 export const updatePaydayLoanServ = async (formData) => {
   try {
-    const response = await axios.put(BASE_URL + "payday-loan/update", formData);
+    const response = await axios.put(BASE_URL + "payday-loan/update", formData, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)

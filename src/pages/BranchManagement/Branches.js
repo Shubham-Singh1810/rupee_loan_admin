@@ -125,7 +125,7 @@ function Branches() {
         setDeleteId("");
       }
     } catch (error) {
-      toast.error("Internal Server error");
+      toast.error(error?.response?.data?.message);
     }
   };
   const BranchSchema = Yup.object().shape({
@@ -193,7 +193,7 @@ function Branches() {
         toast?.error("Something went wrong!");
       }
     } catch (error) {
-      toast?.error("Internal Server Error!");
+      toast?.error(error?.response?.data?.message);
     }
   };
 
@@ -277,8 +277,8 @@ function Branches() {
               {payload?.status === true
                 ? "Active"
                 : payload?.status === false
-                ? "Inactive"
-                : "Select Status"}
+                  ? "Inactive"
+                  : "Select Status"}
             </button>
             <ul className="dropdown-menu">
               <li>
@@ -539,8 +539,14 @@ function Branches() {
                         description: "",
                       }}
                       validationSchema={BranchSchema}
-                      onSubmit={(values) => {
-                        handleAddBranch(values);
+                      onSubmit={async (values, { setSubmitting }) => {
+                        try {
+                          await handleAddBranch(values); // Aapka function call
+                        } catch (error) {
+                          console.error("Add failed", error);
+                        } finally {
+                          setSubmitting(false); // Loader band ho jayega
+                        }
                       }}
                     >
                       {({ isSubmitting }) => (
@@ -783,8 +789,14 @@ function Branches() {
                         description: editFormData?.description || "",
                       }}
                       validationSchema={BranchSchema}
-                      onSubmit={(values) => {
-                        handleUpdateBranch(values);
+                      onSubmit={async (values, { setSubmitting }) => {
+                        try {
+                          await handleUpdateBranch(values); // Aapka function call
+                        } catch (error) {
+                          console.error("Update failed", error);
+                        } finally {
+                          setSubmitting(false); // Loader band ho jayega
+                        }
                       }}
                       enableReinitialize
                     >
@@ -793,7 +805,9 @@ function Branches() {
                           <div className="row">
                             {/* Name */}
                             <div className="col-6">
-                              <label className="mt-3">Name <span className="text-danger">*</span></label>
+                              <label className="mt-3">
+                                Name <span className="text-danger">*</span>
+                              </label>
                               <Field
                                 className="form-control"
                                 type="text"
@@ -808,7 +822,10 @@ function Branches() {
 
                             {/* Contact Number */}
                             <div className="col-6">
-                              <label className="mt-3">Contact Number <span className="text-danger">*</span></label>
+                              <label className="mt-3">
+                                Contact Number{" "}
+                                <span className="text-danger">*</span>
+                              </label>
                               <Field
                                 className="form-control"
                                 type="text"
@@ -823,7 +840,10 @@ function Branches() {
 
                             {/* Contact Person */}
                             <div className="col-6">
-                              <label className="mt-3">Contact Person <span className="text-danger">*</span></label>
+                              <label className="mt-3">
+                                Contact Person{" "}
+                                <span className="text-danger">*</span>
+                              </label>
                               <Field
                                 className="form-control"
                                 type="text"
@@ -838,13 +858,18 @@ function Branches() {
 
                             {/* Status */}
                             <div className="col-6">
-                              <label className="mt-3">Status <span className="text-danger">*</span></label>
+                              <label className="mt-3">
+                                Status <span className="text-danger">*</span>
+                              </label>
                               <Field
                                 as="select"
                                 className="form-control"
                                 name="status"
                               >
-                                <option value="">Select Status <span className="text-danger">*</span></option>
+                                <option value="">
+                                  Select Status{" "}
+                                  <span className="text-danger">*</span>
+                                </option>
                                 <option value="true">Active</option>
                                 <option value="false">Inactive</option>
                               </Field>
@@ -872,7 +897,9 @@ function Branches() {
 
                             {/* Address */}
                             <div className="col-12">
-                              <label className="mt-3">Address <span className="text-danger">*</span></label>
+                              <label className="mt-3">
+                                Address <span className="text-danger">*</span>
+                              </label>
                               <Field
                                 className="form-control"
                                 type="text"
@@ -887,7 +914,9 @@ function Branches() {
 
                             {/* State */}
                             <div className="col-4">
-                              <label className="mt-3">State <span className="text-danger">*</span></label>
+                              <label className="mt-3">
+                                State <span className="text-danger">*</span>
+                              </label>
                               <Field
                                 className="form-control"
                                 type="text"
@@ -902,7 +931,9 @@ function Branches() {
 
                             {/* City */}
                             <div className="col-4">
-                              <label className="mt-3">City <span className="text-danger">*</span></label>
+                              <label className="mt-3">
+                                City <span className="text-danger">*</span>
+                              </label>
                               <Field
                                 className="form-control"
                                 type="text"
@@ -917,7 +948,9 @@ function Branches() {
 
                             {/* Pincode */}
                             <div className="col-4">
-                              <label className="mt-3">Pincode <span className="text-danger">*</span></label>
+                              <label className="mt-3">
+                                Pincode <span className="text-danger">*</span>
+                              </label>
                               <Field
                                 className="form-control"
                                 type="number"

@@ -189,7 +189,7 @@ function EditLoanType() {
         toast.error("Something went wrong");
       }
     } catch (error) {
-      toast.error("Internal Server Error");
+      toast.error(error?.response?.data?.message);
       console.error(error);
     }
   };
@@ -533,7 +533,7 @@ function EditLoanType() {
                           name="intrestRate"
                           step="0.01"
                           className="form-control"
-                          placeholder="Enter Intrest Rate"
+                          placeholder="Enter Interest Rate"
                         />
                         <ErrorMessage
                           name="intrestRate"

@@ -123,7 +123,7 @@ function UpdateLoanRequirement() {
         toast.error("Something went wrong");
       }
     } catch (error) {
-      toast.error("Internal Server Error");
+      toast.error(error?.response?.data?.message);
       console.error(error);
     }
   };

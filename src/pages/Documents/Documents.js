@@ -115,7 +115,7 @@ function Documents() {
         setDeleteId("");
       }
     } catch (error) {
-      toast.error("Internal Server error");
+      toast.error(error?.response?.data?.message);
     }
   };
   const BranchSchema = Yup.object().shape({

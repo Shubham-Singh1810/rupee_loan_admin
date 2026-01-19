@@ -154,7 +154,9 @@ function PaydayLoanDetails() {
         {
           label: "Prepayment Fee (%)",
           name: "prepaymentFee",
-          value: details?.isPrepaymentAllowed ? details?.prepaymentFee : "Not Applicable",
+          value: details?.isPrepaymentAllowed
+            ? details?.prepaymentFee
+            : "Not Applicable",
         },
       ],
     },
@@ -263,7 +265,7 @@ function PaydayLoanDetails() {
     },
   ];
   const [selectedTab, setSelectedTab] = useState("Application");
-  const [documents, setDocuments] = useState([
+  const documents = [
     {
       name: "Aadhar Front",
       img: details?.adharFrontend,
@@ -288,7 +290,7 @@ function PaydayLoanDetails() {
       name: "E-Sign",
       img: details?.eSign,
     },
-  ]);
+  ];
   const renderTabFunc = () => {
     if (selectedTab == "Application") {
       return (
@@ -370,14 +372,37 @@ function PaydayLoanDetails() {
                         </td>
                         <td>
                           <div>
-                            <img
-                              style={{
-                                height: "80px",
-                                width: "80px",
-                                borderRadius: "6px",
-                              }}
-                              src={v?.img}
-                            />
+                            {v?.name == "Bank Statement" ? (
+                              <div
+                                style={{
+                                  width: "80px",
+                                  height: "80px",
+                                  overflow: "hidden",
+                                  borderRadius: "6px",
+                                  border: "1px solid #ddd",
+                                }}
+                              >
+                                <iframe
+                                  src={v?.img}
+                                  title="PDF Preview"
+                                  style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    border: "0",
+                                  }}
+                                  scrolling="no"
+                                />
+                              </div>
+                            ) : (
+                              <img
+                                style={{
+                                  height: "80px",
+                                  width: "80px",
+                                  borderRadius: "6px",
+                                }}
+                                src={v?.img}
+                              />
+                            )}
                           </div>
                         </td>
                         <td className="text-center">

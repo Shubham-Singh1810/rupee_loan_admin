@@ -96,7 +96,7 @@ function SystemNotification() {
         setDeleteId("");
       }
     } catch (error) {
-      toast.error("Internal Server error");
+      toast.error(error?.response?.data?.message);
     }
   };
 
@@ -305,9 +305,12 @@ function SystemNotification() {
                           <td className="text-center">{v?.reciver}</td>
                           {/* <td className="text-center">{moment(v?.lastLogin).format("DD MMM, YYYY")}</td> */}
                           <td style={{ textAlign: "center" }}>
-                            <button className="btn btn-sm btn-primary px-4">
-                              Edit
-                            </button>
+                            <a
+                              
+                                className="text-primary text-decoration-underline "
+                              >
+                                <i class="bi bi-pencil fs-6"></i>
+                              </a>
                           </td>
                         </tr>
                       );

@@ -2,21 +2,18 @@ import axios from "axios";
 
 import { BASE_URL } from "../../src/utils/api_base_url_configration";
 
-const token = localStorage.getItem("token");
-
 const getConfig = () => {
+  const token = localStorage.getItem("token");
   return {
     headers: {
-      "Content-Type": "multipart/form-data",
-      Accept: "application/json",
-      Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
+      Authorization: token ? `Bearer ${JSON.parse(token)}` : "",
     },
   };
 };
 
 export const getSupportDetailsServ = async () => {
   try {
-    const response = await axios.get(BASE_URL + "support/details");
+    const response = await axios.get(BASE_URL + "support/details", getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -26,7 +23,7 @@ export const getSupportDetailsServ = async () => {
 };
 export const updateSupportDetailsServ = async (formData) => {
   try {
-    const response = await axios.put(BASE_URL + "support/update-details", formData);
+    const response = await axios.put(BASE_URL + "support/update-details", formData, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -37,7 +34,7 @@ export const updateSupportDetailsServ = async (formData) => {
 
 export const getFaqListServ = async () => {
   try {
-    const response = await axios.get(BASE_URL + "support/list-faq");
+    const response = await axios.get(BASE_URL + "support/list-faq", getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -47,7 +44,7 @@ export const getFaqListServ = async () => {
 };
 export const addFaqServ = async (formData) => {
     try {
-      const response = await axios.post(BASE_URL + "support/create-faq", formData);
+      const response = await axios.post(BASE_URL + "support/create-faq", formData, getConfig());
       return response;
     } catch (error) {
       // Handle error (e.g., log or throw an error)
@@ -68,7 +65,7 @@ export const deleteFaqServ = async (id) => {
 
 export const getContactListServ = async (payload) => {
   try {
-    const response = await axios.post(BASE_URL + "support/list-contact-query", payload);
+    const response = await axios.post(BASE_URL + "support/list-contact-query", payload, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -78,7 +75,7 @@ export const getContactListServ = async (payload) => {
 };
 export const updateContactListServ = async (payload) => {
   try {
-    const response = await axios.put(BASE_URL + "support/update-contact-query", payload);
+    const response = await axios.put(BASE_URL + "support/update-contact-query", payload, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)

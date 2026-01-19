@@ -116,7 +116,7 @@ function UserList({profileStatus, title}) {
         toast.error("Something went wrong");
       }
     } catch (error) {
-      toast.error("Internal Server Error");
+      toast.error(error?.response?.data?.message);
     }
   };
 
@@ -166,7 +166,7 @@ function UserList({profileStatus, title}) {
         setDeleteId("");
       }
     } catch (error) {
-      toast.error("Internal Server error");
+      toast.error(error?.response?.data?.message);
     }
   };
   return (

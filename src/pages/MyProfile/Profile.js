@@ -10,9 +10,11 @@ import {
   updatePasswordServ,
 } from "../../services/commandCenter.services";
 import { useGlobalState } from "../../GlobalProvider";
+import LogoutConfirmationModal from "../../components/LogoutConfirmationModal";
 
 function Profile() {
   const navigate = useNavigate();
+  const [showConfirm, setShowConfirm] = useState(false);
   const [initialValues, setInitialValues] = useState(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const { globalState, setGlobalState } = useGlobalState();
@@ -38,8 +40,8 @@ function Profile() {
             profilePrev: response?.data?.data?.profilePic,
             role: response?.data?.data?.role?.name,
             branch: Array.isArray(response?.data?.data?.branch)
-            ? response?.data?.data.branch.map((b) => b.name).join(", ")
-            : "",
+              ? response?.data?.data.branch.map((b) => b.name).join(", ")
+              : "",
             status: response?.data?.data?.status ? "Active" : "Inactive",
           });
         } else {
@@ -47,7 +49,7 @@ function Profile() {
         }
       } catch (error) {
         console.error(error);
-        toast.error("Internal Server Error");
+        toast.error(error?.response?.data?.message);
       }
     };
     fetchProfile();
@@ -72,77 +74,72 @@ function Profile() {
       }
     } catch (error) {
       console.error(error);
-      toast.error("Internal Server Error");
+      toast.error(error?.response?.data?.message);
     }
   };
 
- 
-const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({});
 
   const passwordRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{}|;:,.<>?]).{8,}$/;
   const handleLogoutFunc = () => {
-    const confirmed = window.confirm("Are you sure you want to logout?");
-    if (confirmed) {
-      setGlobalState({
-        user: null,
-        token: null,
-        permissions: null,
+    setGlobalState({
+      user: null,
+      token: null,
+      permissions: null,
+    });
+    toast.success("Admin logged out successfully");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("permissions");
+    navigate("/");
+  };
+  const handlePasswordUpdate = async (e) => {
+    e.preventDefault();
+    const oldPassword = e.target.oldPassword.value;
+    const newPassword = e.target.newPassword.value;
+    const confirmPassword = e.target.confirmPassword.value;
+    let tempErrors = {};
+
+    if (!passwordRegex.test(newPassword)) {
+      tempErrors.newPassword =
+        "The Password must be atleast 8 characters including atleast 1 digit, 1 uppercase character, 1 lowercase character 1 special character";
+    } else {
+      tempErrors.newPassword = "";
+    }
+    if (newPassword != confirmPassword) {
+      tempErrors.confirmPassword = "Passwords do not match.";
+    } else {
+      tempErrors.confirmPassword = "";
+    }
+
+    setErrors(tempErrors);
+    if (tempErrors?.newPassword || tempErrors?.confirmPassword) {
+      return;
+    }
+
+    try {
+      let response = await updatePasswordServ({
+        _id: adminId,
+        oldPassword,
+        newPassword,
       });
-      toast.success("Admin logged out successfully");
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      localStorage.removeItem("permissions");
-      navigate("/");
+      if (response?.data?.statusCode == "200") {
+        toast.success(response?.data?.message);
+        setShowPasswordModal(false);
+      } else {
+        toast.error(response?.data?.message || "Failed to update password");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error?.response?.data?.message);
     }
   };
- const handlePasswordUpdate = async (e) => {
-     e.preventDefault();
-     const oldPassword = e.target.oldPassword.value;
-     const newPassword = e.target.newPassword.value;
-     const confirmPassword = e.target.confirmPassword.value;
-     let tempErrors = {};
-     
-     if (!passwordRegex.test(newPassword)) {
-       tempErrors.newPassword =
-         "Password must be at least 8 chars, include uppercase, lowercase, digit, and special character.";
-     }else{
-        tempErrors.newPassword =
-         "";
-     }
-     if (newPassword != confirmPassword) {
-       tempErrors.confirmPassword = "Passwords do not match.";
-     }else{
-       tempErrors.confirmPassword = "";
-     }
-     
-     setErrors(tempErrors);
-     if(tempErrors?.newPassword || tempErrors?.confirmPassword){
-       return
-     }
-     
-     try {
-       let response = await updatePasswordServ({
-         _id: adminId,
-         oldPassword,
-         newPassword,
-       });
-       if (response?.data?.statusCode == "200") {
-         toast.success(response?.data?.message);
-         setShowPasswordModal(false);
-       } else {
-         toast.error(response?.data?.message || "Failed to update password");
-       }
-     } catch (error) {
-       console.error(error);
-       toast.error("Internal Server Error");
-     }
-   };
-   const [passwordInputType, setPasswordInputType] = useState({
-     showOldPassword: true,
-     showNewPassword: true,
-     showConfirmPassword: true,
-   });
+  const [passwordInputType, setPasswordInputType] = useState({
+    showOldPassword: true,
+    showNewPassword: true,
+    showConfirmPassword: true,
+  });
   return (
     <div className="container-fluid">
       <div className="col-lg-12 p-4">
@@ -160,7 +157,7 @@ const [errors, setErrors] = useState({});
             >
               Change Password
             </span>
-            
+
             <span
               className="status-badge bg-light-subtle text-secondary mx-3 border cursor"
               onClick={() => navigate("/permissions")}
@@ -169,7 +166,7 @@ const [errors, setErrors] = useState({});
             </span>
             <span
               className="status-badge bg-danger-subtle text-secondary border cursor"
-              onClick={() => handleLogoutFunc()}
+              onClick={() => setShowConfirm(true)}
             >
               Logout
             </span>
@@ -200,7 +197,7 @@ const [errors, setErrors] = useState({});
                           setFieldValue("profilePic", file); // form ke liye
                           setFieldValue(
                             "profilePrev",
-                            URL.createObjectURL(file)
+                            URL.createObjectURL(file),
                           ); // 👈 preview ke liye
                         }
                       }}
@@ -310,7 +307,7 @@ const [errors, setErrors] = useState({});
       </div>
 
       {/* Password Modal */}
-        {showPasswordModal && (
+      {showPasswordModal && (
         <div className="modal show d-block" tabIndex="-1">
           <div className="modal-dialog">
             <div className="modal-content">
@@ -320,15 +317,14 @@ const [errors, setErrors] = useState({});
                   <button
                     type="button"
                     className="btn-close"
-                   
-                     onClick={() => {
+                    onClick={() => {
                       setShowPasswordModal(false);
                       setPasswordInputType({
                         showOldPassword: false,
                         showNewPassword: false,
                         showConfirmPassword: false,
                       });
-                      setErrors({})
+                      setErrors({});
                     }}
                   ></button>
                 </div>
@@ -445,7 +441,7 @@ const [errors, setErrors] = useState({});
                         showNewPassword: false,
                         showConfirmPassword: false,
                       });
-                      setErrors({})
+                      setErrors({});
                     }}
                   >
                     Cancel
@@ -460,6 +456,13 @@ const [errors, setErrors] = useState({});
         </div>
       )}
       {showPasswordModal && <div className="modal-backdrop fade show"></div>}
+      <LogoutConfirmationModal
+        show={showConfirm}
+        handleClose={() => setShowConfirm(false)}
+        handleConfirm={handleLogoutFunc}
+        title="Logout"
+        body="Are you sure you want to logout?"
+      />
     </div>
   );
 }

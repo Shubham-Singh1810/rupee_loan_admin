@@ -37,8 +37,8 @@ function ScheduleRemainders() {
     searchKey: "",
     pageNo: 1,
     pageCount: 20,
-    isScheduled: true,
     isDelivered: "",
+    isScheduled:true
   });
   const [documentCount, setDocumentCount] = useState();
   const getListFunc = async () => {
@@ -124,7 +124,7 @@ function ScheduleRemainders() {
         setDeleteId("");
       }
     } catch (error) {
-      toast.error("Internal Server error");
+      toast.error(error?.response?.data?.message);
     }
   };
   const [editLoader, setEditLoader] = useState(false);
@@ -148,7 +148,7 @@ function ScheduleRemainders() {
         toast.success(response?.data?.message);
       }
     } catch (error) {
-      toast.error("Internal Server Error");
+      toast.error(error?.response?.data?.message);
     }
     setEditLoader(false);
   };

@@ -78,6 +78,7 @@ function UpdatePayDayApplication() {
   // ---------------------- API Calls ----------------------
   const params = useParams();
   const [showSkelton, setShowSkelton] = useState(false);
+  const [details, setDetails] = useState([]);
   const getPaydayDetailsFunc = async () => {
     setShowSkelton(true);
     try {
@@ -85,7 +86,7 @@ function UpdatePayDayApplication() {
 
       if (response?.data?.statusCode == "200") {
         const data = response?.data?.data;
-
+        setDetails(data);
         setInitialValues({
           userId: data.userId?._id || "",
           loanPurposeId: data.loanPurposeId?._id || "",
@@ -116,6 +117,10 @@ function UpdatePayDayApplication() {
 
           pan: "",
           panPrev: data.pan || "",
+
+          selfie: "",
+          selfieApprovalStatus: data?.selfieApprovalStatus || "",
+          selfiePrev: data.selfie || "",
 
           bankVerificationMode: "",
           bankVerificationModePrev: data.bankVerificationMode || "",
@@ -204,6 +209,32 @@ function UpdatePayDayApplication() {
       console.error(error);
     }
   };
+  const renderPreview = (fileUrl) => {
+    if (!fileUrl) return null;
+
+    const isPdf = fileUrl?.toLowerCase().endsWith(".pdf");
+
+    if (isPdf) {
+      return (
+        <iframe
+          src={fileUrl}
+          width="100%"
+          height="300px"
+          className="border rounded mb-2"
+          title="PDF Preview"
+        />
+      );
+    }
+
+    return (
+      <img
+        src={fileUrl}
+        alt="preview"
+        className="img-thumbnail mb-2"
+        style={{ height: "120px" }}
+      />
+    );
+  };
 
   // ---------------------- Submit ----------------------
   const handleSubmit = async (values) => {
@@ -242,7 +273,7 @@ function UpdatePayDayApplication() {
             value: u._id,
             label: u.firstName || u.phone,
           })),
-          required: true
+          required: true,
         },
         {
           label: "Loan Purpose",
@@ -252,7 +283,7 @@ function UpdatePayDayApplication() {
             value: l._id,
             label: l.name,
           })),
-          required: true
+          required: true,
         },
         {
           label: "Branch",
@@ -262,7 +293,7 @@ function UpdatePayDayApplication() {
             value: b._id,
             label: b.name,
           })),
-          required: true
+          required: true,
         },
         {
           label: "Assigned Admin",
@@ -273,8 +304,18 @@ function UpdatePayDayApplication() {
             label: a.firstName,
           })),
         },
-        { label: "Loan Amount", name: "loanAmount", type: "number", required: true },
-        { label: "Tenure (Days)", name: "tenure", type: "number", required: true },
+        {
+          label: "Loan Amount",
+          name: "loanAmount",
+          type: "number",
+          required: true,
+        },
+        {
+          label: "Tenure (Days)",
+          name: "tenure",
+          type: "number",
+          required: true,
+        },
       ],
     },
     {
@@ -292,7 +333,7 @@ function UpdatePayDayApplication() {
             { value: "female", label: "Female" },
             { value: "other", label: "Other" },
           ],
-          required: true
+          required: true,
         },
         {
           label: "Education Qualification",
@@ -355,7 +396,12 @@ function UpdatePayDayApplication() {
           ],
         },
         { label: "Company Name", name: "cmpName", type: "text" },
-        { label: "Monthly Income", name: "monthlyIncome", type: "text", required: true },
+        {
+          label: "Monthly Income",
+          name: "monthlyIncome",
+          type: "text",
+          required: true,
+        },
         { label: "Next Salary Date", name: "nextSalary", type: "date" },
       ],
     },
@@ -396,7 +442,29 @@ function UpdatePayDayApplication() {
         { label: "Upload PAN", name: "pan", type: "file" },
       ],
     },
+    // {
+    //   title: "Selfie",
+    //   fields: [
+    //     { label: "Selfie", name: "selfie", type: "file" },
+    //     {
+    //       label: "Approve Selfie",
+    //       name: "selfieApprovalStatus",
+    //       type: "select",
+    //       options: [
+    //       {
+    //         label:"Approve",
+    //         value:"approved"
+    //       },
+    //       {
+    //         label:"Reject",
+    //         value:"rejected"
+    //       }
 
+    //     ],
+    //       required: true,
+    //     },
+    //   ],
+    // },
     {
       title: "Bank Statement",
       fields: [
@@ -414,7 +482,7 @@ function UpdatePayDayApplication() {
           label: "Proof Type",
           name: "residenceProofType",
           type: "select",
-          options: [{ value: "Rent Aggrement", label: "Rent Aggrement" }],
+          options: [{ value: "Rent Agreement", label: "Rent Agreement" }],
         },
         {
           label: "Upload Residence Proof",
@@ -449,10 +517,134 @@ function UpdatePayDayApplication() {
       fields: [{ label: "Upload E-Sign", name: "eSign", type: "file" }],
     },
   ];
+  const [statusUpdateLoader, setStatusUpdateLoader] = useState(false);
+  const updateLoanApplicationFunc = async () => {
+    setStatusUpdateLoader(true);
+    try {
+      let response = await updatePaydayLoanApplicationServ(formData);
+      if (response?.data?.statusCode == "200") {
+        toast.success(response?.data?.message);
+        getPaydayDetailsFunc();
+        setFormData({
+          _id: params?.id,
+          rejectReason: "",
+          status: "",
+        });
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message);
+    }
+    setStatusUpdateLoader(false);
+  };
+
+  const renderStatusOption = (status) => {
+    if (status == "pending") {
+      return [
+        { label: "Approve", value: "approved" },
+        { label: "Reject", value: "rejected" },
+        { label: "Close", value: "closed" },
+      ];
+    } else if (status == "approved") {
+      return [
+        { label: "Reject", value: "rejected" },
+        { label: "Disburse", value: "disbursed" },
+        { label: "Close", value: "closed" },
+      ];
+    } else if (status == "rejected") {
+      return [
+        { label: "Approve", value: "approved" },
+        { label: "Close", value: "closed" },
+      ];
+    } else if (status == "completed") {
+      return [];
+    } else if (status == "disbursed") {
+      return [{ label: "Complete", value: "completed" }];
+    } else if (status == "overDue") {
+      return [
+        { label: "Complete", value: "completed" },
+        { label: "Disburse", value: "disbursed" },
+      ];
+    } else if (status == "closed") {
+      return [
+        { label: "New Request", value: "pending" },
+        { label: "Reject", value: "rejected" },
+        { label: "Approve", value: "approved" },
+      ];
+    }
+  };
+  const renderProfile = (status) => {
+    if (status == "pending") {
+      return (
+        <span className="status-badge bg-primary-subtle text-primary">
+          New Request
+        </span>
+      );
+    }
+    if (status == "closed") {
+      return (
+        <span className="status-badge bg-secondary-subtle text-secondary">
+          Closed
+        </span>
+      );
+    }
+    if (status == "approved") {
+      return (
+        <span className="status-badge bg-warning-subtle text-warning">
+          Approved
+        </span>
+      );
+    }
+    if (status == "rejected") {
+      return (
+        <span className="status-badge bg-danger-subtle text-danger">
+          Rejected
+        </span>
+      );
+    }
+    if (status == "disbursed") {
+      return (
+        <span className="status-badge bg-info-subtle text-info">Disbursed</span>
+      );
+    }
+    if (status == "completed") {
+      return (
+        <span className="status-badge bg-success-subtle text-success">
+          Completed
+        </span>
+      );
+    }
+  };
+  const [formData, setFormData] = useState({
+    _id: params?.id,
+    rejectReason: "",
+    status: "",
+  });
 
   return (
     <div className="container-fluid p-4">
-      <h5 className="mb-3">Update Payday Loan Application</h5>
+      <div className="d-flex justify-content-end mb-2">
+        {renderProfile(details?.status)}
+      </div>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h5>Update Payday Loan Application</h5>
+        <div className="d-flex align-items-center">
+          <lebel style={{ width: "200px" }}>
+            <b>Update Status: </b>
+          </lebel>
+          <select
+            className="form-control"
+            value={formData?.status}
+            onChange={(e) =>
+              setFormData({ ...formData, status: e?.target?.value })
+            }
+          >
+            <option value="">Select</option>
+            {renderStatusOption(details?.status)?.map((v, i) => {
+              return <option value={v?.value}>{v?.label}</option>;
+            })}
+          </select>
+        </div>
+      </div>
       {showSkelton ? (
         <div className="row border bg-light px-2 py-4  rounded">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]?.map((v, i) => {
@@ -482,7 +674,11 @@ function UpdatePayDayApplication() {
                   <div className="form-section-body row g-3">
                     {section.fields.map((f, i) => (
                       <div className="col-md-6" key={i}>
-                         <label className="form-label"> {f.label} {f.required && <span className="text-danger">*</span>}</label>
+                        <label className="form-label">
+                          {" "}
+                          {f.label}{" "}
+                          {f.required && <span className="text-danger">*</span>}
+                        </label>
 
                         {/* ------- SELECT ------ */}
                         {f.type === "select" ? (
@@ -500,16 +696,7 @@ function UpdatePayDayApplication() {
                           </Field>
                         ) : f.type === "file" ? (
                           <>
-                            <div>
-                              {values[f.name + "Prev"] && (
-                                <img
-                                  src={values[f.name + "Prev"]}
-                                  alt="preview"
-                                  className="img-thumbnail mb-2"
-                                  style={{ height: "120px" }}
-                                />
-                              )}
-                            </div>
+                            <div>{renderPreview(values[f.name + "Prev"])}</div>
                             <input
                               type="file"
                               className="form-control"
@@ -542,7 +729,35 @@ function UpdatePayDayApplication() {
                   </div>
                 </div>
               ))}
-
+              <div className="form-section shadow-sm mb-4">
+                <div className="form-section-header fw-bold mb-3">Selfie</div>
+                <div className="form-section-body row g-3">
+                  <div>
+                    {values?.selfiePrev && (
+                      <img
+                        src={values?.selfiePrev}
+                        alt="preview"
+                        className="img-thumbnail mb-2"
+                        style={{ height: "120px" }}
+                      />
+                    )}
+                  </div>
+                  <label>Update Selfie Status</label>
+                  <select
+                    className="form-control mt-1"
+                    value={values?.selfieApprovalStatus}
+                    onChange={(e) =>
+                      updateLoanApplicationFunc({
+                        _id: params?.id,
+                        selfieApprovalStatus: e?.target?.value,
+                      })
+                    }
+                  >
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                  </select>
+                </div>
+              </div>
               <button
                 type="submit"
                 className="btn bgThemePrimary w-100"
@@ -553,6 +768,365 @@ function UpdatePayDayApplication() {
             </Form>
           )}
         </Formik>
+      )}
+      {formData?.status == "rejected" && (
+        <div
+          className="modal fade show d-flex align-items-center justify-content-center"
+          tabIndex="-1"
+        >
+          <div className="modal-dialog">
+            <div
+              className="modal-content"
+              style={{
+                borderRadius: "8px",
+                width: "350px",
+              }}
+            >
+              <div className="modal-body">
+                <div
+                  style={{
+                    wordWrap: "break-word",
+                    whiteSpace: "pre-wrap",
+                  }}
+                  className="d-flex justify-content-center w-100"
+                >
+                  <div className="w-100 px-2">
+                    <div className="d-flex justify-content-between align-items-center">
+                      <h5 className="">Reject Confirm</h5>
+                      <img
+                        onClick={() =>
+                          setFormData({
+                            _id: "",
+                            rejectReason: "",
+                            status: "",
+                          })
+                        }
+                        src="https://cdn-icons-png.flaticon.com/128/2734/2734822.png"
+                        style={{ height: "20px", cursor: "pointer" }}
+                      />
+                    </div>
+                    <div className="row">
+                      <div className="col-12 mb-2">
+                        <label>Reason*</label>
+                        <textarea
+                          className="form-control"
+                          rows={3}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              rejectReason: e?.target?.value,
+                            })
+                          }
+                        />
+                      </div>
+
+                      <div className="d-flex justify-content-end">
+                        {formData?.rejectReason ? (
+                          statusUpdateLoader ? (
+                            <button
+                              className="btn bgThemePrimary w-100 mt-2"
+                              style={{ opacity: "0.5" }}
+                            >
+                              Confirm...
+                            </button>
+                          ) : (
+                            <button
+                              className="btn bgThemePrimary w-100 mt-2"
+                              onClick={() => updateLoanApplicationFunc()}
+                            >
+                              Confirm
+                            </button>
+                          )
+                        ) : (
+                          <button
+                            className="btn bgThemePrimary w-100 mt-2"
+                            style={{ opacity: "0.5" }}
+                          >
+                            Confirm
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {formData?.status == "rejected" && (
+        <div className="modal-backdrop fade show"></div>
+      )}
+      {formData?.status == "closed" && (
+        <div
+          className="modal fade show d-flex align-items-center justify-content-center"
+          tabIndex="-1"
+        >
+          {/* <div className="modal-dialog">
+            <div
+              className="modal-content"
+              style={{
+                borderRadius: "8px",
+                width: "350px",
+              }}
+            >
+              <div className="modal-body">
+                <div
+                  style={{
+                    wordWrap: "break-word",
+                    whiteSpace: "pre-wrap",
+                  }}
+                  className="d-flex justify-content-center w-100"
+                >
+                  <div className="w-100 px-2">
+                    <div className="d-flex justify-content-between align-items-center">
+                      <h5 className="">Reject Confirm</h5>
+                      <img
+                        onClick={() =>
+                          setFormData({
+                            _id: "",
+                            rejectReason: "",
+                            status: "",
+                          })
+                        }
+                        src="https://cdn-icons-png.flaticon.com/128/2734/2734822.png"
+                        style={{ height: "20px", cursor: "pointer" }}
+                      />
+                    </div>
+                    <div className="row">
+                      <div className="col-12 mb-2">
+                        <label>Reason*</label>
+                        <textarea
+                          className="form-control"
+                          rows={3}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              rejectReason: e?.target?.value,
+                            })
+                          }
+                        />
+                      </div>
+
+                      <div className="d-flex justify-content-end">
+                        {formData?.rejectReason ? (
+                          statusUpdateLoader ? (
+                            <button
+                              className="btn bgThemePrimary w-100 mt-2"
+                              style={{ opacity: "0.5" }}
+                            >
+                              Confirm...
+                            </button>
+                          ) : (
+                            <button
+                              className="btn bgThemePrimary w-100 mt-2"
+                              onClick={() => updateLoanApplicationFunc()}
+                            >
+                              Confirm
+                            </button>
+                          )
+                        ) : (
+                          <button
+                            className="btn bgThemePrimary w-100 mt-2"
+                            style={{ opacity: "0.5" }}
+                          >
+                            Confirm
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div> */}
+          <div className="modal-dialog modal-dialog-centered" style={{width:"350px"}}>
+            <div className="modal-content">
+              {/* Header */}
+              <div className="modal-header">
+                <h5 className="modal-title">Close Application</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setFormData({ ...formData, status: "" })}
+                ></button>
+              </div>
+
+              {/* Body */}
+              <div className="modal-body">
+                <p className="mb-0">
+                  Do you really want to close this application
+                </p>
+                <p className="text-muted mb-0">
+                  This action will not allow the user to procced further.
+                </p>
+              </div>
+
+              {/* Footer */}
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setFormData({
+                      ...formData,
+                      status: "",
+                    });
+                  }}
+                >
+                  NO
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={() => updateLoanApplicationFunc()}
+                >
+                  Yes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {formData?.status == "closed" && (
+        <div className="modal-backdrop fade show"></div>
+      )}
+      {formData?.status == "approved" && (
+        <div
+          className="modal fade show d-flex align-items-center justify-content-center"
+          tabIndex="-1"
+        >
+          <div className="modal-dialog modal-dialog-centered" style={{width:"350px"}}>
+            <div className="modal-content">
+              {/* Header */}
+              <div className="modal-header">
+                <h5 className="modal-title">Approve Application</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setFormData({ ...formData, status: "" })}
+                ></button>
+              </div>
+
+              {/* Body */}
+              <div className="modal-body">
+                {details?.processingStatus == "eSign" ? (
+                  <>
+                    <p className="mb-0">
+                      Do you really want to approve this application
+                    </p>
+                    <p className="text-muted mb-0">
+                      Have you seen all the details properly ?
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="mb-0">
+                     Application is still in progress !
+                    </p>
+              
+                  </>
+                )}
+              </div>
+
+              {/* Footer */}
+              {details?.processingStatus =="eSign" ?
+               <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setFormData({
+                      ...formData,
+                      status: "",
+                    });
+                  }}
+                >
+                  NO
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-success"
+                  onClick={() => updateLoanApplicationFunc()}
+                >
+                  Yes
+                </button>
+              </div>:<div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={() => {
+                    setFormData({
+                      ...formData,
+                      status: "",
+                    });
+                  }}
+                >
+                  Close
+                </button>
+                
+              </div>}
+              
+            </div>
+          </div>
+        </div>
+      )}
+      {formData?.status == "approved" && (
+        <div className="modal-backdrop fade show"></div>
+      )}
+      {formData?.status == "completed" && (
+        <div
+          className="modal fade show d-flex align-items-center justify-content-center"
+          tabIndex="-1"
+        >
+          
+          <div className="modal-dialog modal-dialog-centered" style={{width:"350px"}}>
+            <div className="modal-content">
+              {/* Header */}
+              <div className="modal-header">
+                <h5 className="modal-title">Complete Application</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setFormData({ ...formData, status: "" })}
+                ></button>
+              </div>
+
+              {/* Body */}
+              <div className="modal-body">
+                <p className="mb-0">
+                  Do you really want to mark this application as completed ?
+                </p>
+              </div>
+
+              {/* Footer */}
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setFormData({
+                      ...formData,
+                      status: "",
+                    });
+                  }}
+                >
+                  NO
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-success"
+                  onClick={() => updateLoanApplicationFunc()}
+                >
+                  Yes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {formData?.status == "completed" && (
+        <div className="modal-backdrop fade show"></div>
       )}
     </div>
   );

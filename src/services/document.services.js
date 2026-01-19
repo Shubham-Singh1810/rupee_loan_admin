@@ -2,20 +2,17 @@ import axios from "axios";
 
 import { BASE_URL } from "../../src/utils/api_base_url_configration";
 
-const token = localStorage.getItem("token");
-
 const getConfig = () => {
+  const token = localStorage.getItem("token");
   return {
     headers: {
-      "Content-Type": "multipart/form-data",
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: token ? `Bearer ${JSON.parse(token)}` : "",
     },
   };
 };
 export const getDocumentSetServ = async (formData) => {
   try {
-    const response = await axios.post(BASE_URL + "document/list", formData);
+    const response = await axios.post(BASE_URL + "document/list", formData, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -24,10 +21,9 @@ export const getDocumentSetServ = async (formData) => {
   }
 };
 
-
 export const addDocumentServ = async (formData) => {
   try {
-    const response = await axios.post(BASE_URL + "document/create", formData);
+    const response = await axios.post(BASE_URL + "document/create", formData, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -38,7 +34,7 @@ export const addDocumentServ = async (formData) => {
 
 export const updateDocumentServ = async (formData) => {
   try {
-    const response = await axios.put(BASE_URL + "document/update", formData);
+    const response = await axios.put(BASE_URL + "document/update", formData, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -48,7 +44,7 @@ export const updateDocumentServ = async (formData) => {
 };
 export const deleteDocumentServ = async (id) => {
   try {
-    const response = await axios.delete(BASE_URL + "document/delete/"+id);
+    const response = await axios.delete(BASE_URL + "document/delete/"+id, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)

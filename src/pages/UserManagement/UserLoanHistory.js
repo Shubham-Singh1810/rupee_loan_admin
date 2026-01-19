@@ -163,7 +163,7 @@ function UserLoanHistory() {
           setDeleteId("");
         }
       } catch (error) {
-        toast.error("Internal Server error");
+        toast.error(error?.response?.data?.message);
       }
     };
   

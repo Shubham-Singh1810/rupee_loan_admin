@@ -2,20 +2,18 @@ import axios from "axios";
 
 import { BASE_URL } from "../utils/api_base_url_configration";
 
-const token = localStorage.getItem("token");
-
 const getConfig = () => {
+  const token = localStorage.getItem("token");
   return {
     headers: {
-      "Content-Type": "multipart/form-data",
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: token ? `Bearer ${JSON.parse(token)}` : "",
     },
   };
 };
+
 export const getLoanPurposeServ = async (formData) => {
   try {
-    const response = await axios.post(BASE_URL + "loan-purpose/list", formData);
+    const response = await axios.post(BASE_URL + "loan-purpose/list", formData, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -45,7 +43,7 @@ export const updateLoanPurposeServ = async (formData) => {
 };
 export const deleteLoanPurposeServ = async (id) => {
   try {
-    const response = await axios.delete(BASE_URL + "loan-purpose/delete/"+id);
+    const response = await axios.delete(BASE_URL + "loan-purpose/delete/"+id, getConfig);
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)

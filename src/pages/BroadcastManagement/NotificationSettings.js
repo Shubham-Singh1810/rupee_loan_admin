@@ -46,7 +46,7 @@ function NotificationSettings() {
         getSettingsFunc();
       }
     } catch (error) {
-      toast.error("Internal Server Error");
+      toast.error(error?.response?.data?.message);
     }
     setBtnLoader(false);
   };

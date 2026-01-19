@@ -202,7 +202,7 @@ function AdminList() {
     }
   };
 
-  const handleUpdateAdmin = async (values) => {
+  const handleUpdateAdmin = async (values, setSubmitting) => {
     try {
       const formData = new FormData();
 
@@ -245,6 +245,9 @@ function AdminList() {
     } catch (error) {
       toast?.error(error?.response?.data?.message);
     }
+    finally {
+    setSubmitting(false);
+  }
   };
   const [branchList, setBranchList] = useState();
   const getBranchListFunc = async () => {
@@ -282,18 +285,10 @@ function AdminList() {
     role: "",
   });
 
-  
-   const exportToCSV = () => {
+  const exportToCSV = () => {
     if (!list.length) return toast.error("No data to export");
 
-    const headers = [
-      "Name",
-      "Email",
-      "Phone",
-      "Role",
-      "Status",
-      "Branch",
-    ];
+    const headers = ["Name", "Email", "Phone", "Role", "Status", "Branch"];
 
     const rows = list.map((v) => [
       `${v.firstName || ""} ${v.lastName || ""}`,
@@ -305,9 +300,7 @@ function AdminList() {
     ]);
 
     const csv =
-      headers.join(",") +
-      "\n" +
-      rows.map((r) => r.join(",")).join("\n");
+      headers.join(",") + "\n" + rows.map((r) => r.join(",")).join("\n");
 
     const blob = new Blob([csv], { type: "text/csv" });
     const link = document.createElement("a");
@@ -428,7 +421,7 @@ function AdminList() {
               )}
               {filterPayload.status && (
                 <span className="badge bg-primary d-flex align-items-center">
-                  Status: {filterPayload.status ? "Active":"Inactive"}
+                  Status: {filterPayload.status ? "Active" : "Inactive"}
                   <i
                     className="bi bi-x ms-2"
                     style={{ cursor: "pointer" }}
@@ -444,10 +437,7 @@ function AdminList() {
               {filterPayload.branch && (
                 <span className="badge bg-info d-flex align-items-center">
                   Branch:{" "}
-                  {
-                    branchList.find((b) => b._id === filterPayload.branch)
-                      ?.name
-                  }
+                  {branchList.find((b) => b._id === filterPayload.branch)?.name}
                   <i
                     className="bi bi-x ms-2"
                     style={{ cursor: "pointer" }}
@@ -750,7 +740,7 @@ function AdminList() {
                                   onChange={(e) =>
                                     setFieldValue(
                                       "profilePic",
-                                      e.target.files[0]
+                                      e.target.files[0],
                                     )
                                   }
                                 />
@@ -883,7 +873,7 @@ function AdminList() {
                                 }))}
                                 value={branchList
                                   .filter((v) =>
-                                    values?.branch?.includes(v._id)
+                                    values?.branch?.includes(v._id),
                                   )
                                   .map((v) => ({
                                     value: v._id,
@@ -892,7 +882,7 @@ function AdminList() {
                                 onChange={(selected) =>
                                   setFieldValue(
                                     "branch",
-                                    selected.map((s) => s.value)
+                                    selected.map((s) => s.value),
                                   )
                                 }
                                 labelledBy="Select Branch"
@@ -1000,8 +990,8 @@ function AdminList() {
                         role: editFormData?.role || "",
                       }}
                       validationSchema={AdminSchema}
-                      onSubmit={(values) => {
-                        handleUpdateAdmin(values);
+                      onSubmit={(values, { setSubmitting }) => {
+                        handleUpdateAdmin(values, setSubmitting); // setSubmitting ko pass karein
                       }}
                       enableReinitialize
                     >
@@ -1018,7 +1008,7 @@ function AdminList() {
                                   onChange={(e) =>
                                     setFieldValue(
                                       "profilePic",
-                                      e.target.files[0]
+                                      e.target.files[0],
                                     )
                                   }
                                 />
@@ -1032,7 +1022,7 @@ function AdminList() {
                                         ? typeof values.profilePic === "string"
                                           ? values.profilePic
                                           : URL.createObjectURL(
-                                              values.profilePic
+                                              values.profilePic,
                                             )
                                         : "https://cdn-icons-png.flaticon.com/512/847/847969.png"
                                     }
@@ -1155,7 +1145,7 @@ function AdminList() {
                                 value={
                                   branchList
                                     ?.filter((v) =>
-                                      values.branch.includes(v._id)
+                                      values.branch.includes(v._id),
                                     )
                                     ?.map((v) => ({
                                       value: v._id,
@@ -1165,7 +1155,7 @@ function AdminList() {
                                 onChange={(selected) =>
                                   setFieldValue(
                                     "branch",
-                                    selected.map((s) => s.value)
+                                    selected.map((s) => s.value),
                                   )
                                 }
                                 labelledBy="Select Branch"

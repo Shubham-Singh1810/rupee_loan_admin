@@ -237,7 +237,7 @@ function Permissions() {
     
     if (!passwordRegex.test(newPassword)) {
       tempErrors.newPassword =
-        "Password must be at least 8 chars, include uppercase, lowercase, digit, and special character.";
+        "The Password must be atleast 8 characters including atleast 1 digit, 1 uppercase character, 1 lowercase character 1 special character";
     }else{
        tempErrors.newPassword =
         "";
@@ -267,7 +267,7 @@ function Permissions() {
       }
     } catch (error) {
       console.error(error);
-      toast.error("Internal Server Error");
+      toast.error(error?.response?.data?.message);
     }
   };
   const [passwordInputType, setPasswordInputType] = useState({

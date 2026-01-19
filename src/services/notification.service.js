@@ -2,17 +2,15 @@ import axios from "axios";
 
 import { BASE_URL } from "../../src/utils/api_base_url_configration";
 
-const token = localStorage.getItem("token");
-
 const getConfig = () => {
+  const token = localStorage.getItem("token");
   return {
     headers: {
-      "Content-Type": "multipart/form-data",
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: token ? `Bearer ${JSON.parse(token)}` : "",
     },
   };
 };
+
 export const createNotifyServ = async (formData) => {
   try {
     const response = await axios.post(BASE_URL + "notify/create", formData, getConfig());
@@ -35,7 +33,7 @@ export const updateNotifyServ = async (formData) => {
 };
 export const getNotifyServ = async (formData) => {
   try {
-    const response = await axios.post(BASE_URL + "notify/list", formData);
+    const response = await axios.post(BASE_URL + "notify/list", formData, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -45,7 +43,7 @@ export const getNotifyServ = async (formData) => {
 };
 export const deleteNotifynServ = async (id) => {
   try {
-    const response = await axios.delete(BASE_URL + "notify/delete/"+id);
+    const response = await axios.delete(BASE_URL + "notify/delete/"+id, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -55,7 +53,7 @@ export const deleteNotifynServ = async (id) => {
 };
 export const getNotificationServ = async (formData) => {
   try {
-    const response = await axios.post(BASE_URL + "notification/list", formData);
+    const response = await axios.post(BASE_URL + "notification/list", formData, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -65,7 +63,7 @@ export const getNotificationServ = async (formData) => {
 };
 export const deleteNotificationServ = async (id) => {
   try {
-    const response = await axios.delete(BASE_URL + "notification/delete/"+id);
+    const response = await axios.delete(BASE_URL + "notification/delete/"+id, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -73,11 +71,9 @@ export const deleteNotificationServ = async (id) => {
     throw error;
   }
 };
-
-
 export const deleteNotifyServ = async (id) => {
   try {
-    const response = await axios.delete(BASE_URL + "notify/delete/"+id);
+    const response = await axios.delete(BASE_URL + "notify/delete/"+id, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)

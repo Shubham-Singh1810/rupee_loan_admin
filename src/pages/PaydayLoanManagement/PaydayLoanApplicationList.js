@@ -60,6 +60,13 @@ function PaydayLoanApplicationList() {
         </span>
       );
     }
+     if (status == "closed") {
+      return (
+        <span className="status-badge bg-secondary-subtle text-secondary">
+         Closed
+        </span>
+      );
+    }
     if (status == "approved") {
       return (
         <span className="status-badge bg-warning-subtle text-warning">
@@ -162,7 +169,7 @@ function PaydayLoanApplicationList() {
         setDeleteId("");
       }
     } catch (error) {
-      toast.error("Internal Server error");
+      toast.error(error?.response?.data?.message);
     }
   };
   const [filterPayload, setFilterPayload] = useState({
@@ -591,11 +598,11 @@ function PaydayLoanApplicationList() {
                   <th>Customer</th>
                   <th>Amount</th>
                   <th>Tenure</th>
-                  <th>Intrest</th>
+                  <th>Interest</th>
                   <th>Payable</th>
                   <th className="text-center">Status</th>
                   <th className="text-center">Assigned To</th>
-                  <th style={{ textAlign: "center" }}>Action</th>
+                  {/* <th style={{ textAlign: "center" }}>Action</th> */}
                   <th style={{ textAlign: "center" }}>View/Edit</th>
                 </tr>
               </thead>
@@ -640,9 +647,9 @@ function PaydayLoanApplicationList() {
                           <td>
                             <Skeleton width={100} />
                           </td>
-                          <td className="text-center">
+                          {/* <td className="text-center">
                             <Skeleton width={100} />
-                          </td>
+                          </td> */}
                           <td className="text-center">
                             <Skeleton width={100} />
                           </td>
@@ -653,6 +660,7 @@ function PaydayLoanApplicationList() {
                       return (
                         <tr>
                           <td>
+                          {/* {v?.selfieApprovalStatus == "uploaded" && <img style={{height:"10px", width:"10px"}} src="https://cdn-icons-png.flaticon.com/128/16311/16311323.png"/>} */}
                             {i + 1 + (payload?.pageNo - 1) * payload?.pageCount}
                           </td>
                           <td>{v?.code || "-"}</td>
@@ -702,34 +710,8 @@ function PaydayLoanApplicationList() {
                                 v?.assignedAdminId?.lastName
                               : "-"}
                           </td>
-                          {/* <td className="text-center">
-                            {(v?.status == "pending" ||
-                              v?.status == "rejected" ||
-                              v?.status == "approved") && (
-                              <select
-                                className="loanActionSelect"
-                                onChange={(e) => {
-                                  e?.target?.value == "approved"
-                                    ? updateStatusFunc({
-                                        _id: v?._id,
-                                        status: "approved",
-                                      })
-                                    : setRejectPopup({
-                                        _id: v?._id,
-                                        rejectReason: "",
-                                        status: "rejected",
-                                      });
-                                }}
-                                value={v?.status}
-                              >
-                                <option value="">Pending</option>
-                                <option value="approved">Approve</option>
-                                <option value="rejected">Reject</option>
-                              </select>
-                            )}
-                          </td> */}
-                          <td>
-                            <div>
+                          {/* <td>
+                            {(v?.status=="pending" || v?.status=="rejected") &&<div>
                               {" "}
                               {btnLoader == v?._id ? (
                                 <button
@@ -749,12 +731,11 @@ function PaydayLoanApplicationList() {
                                   className="btn btn-sm btn-success  "
                                   style={{ width: "90px" }}
                                 >
-                                  {/* <img src="https://cdn-icons-png.flaticon.com/128/150/150499.png" className="me-1" style={{height:"10px", filter:"invert(1)"}}/> */}
                                   Approve
                                 </button>
                               )}
-                            </div>
-                            <div>
+                            </div> }
+                            {(v?.status=="pending" || v?.status=="approved") &&  <div>
                               <button
                                 className="btn btn-sm btn-danger  mt-1"
                                 onClick={() =>
@@ -766,13 +747,11 @@ function PaydayLoanApplicationList() {
                                 }
                                 style={{ width: "90px" }}
                               >
-                                {/* <img src="https://cdn-icons-png.flaticon.com/128/6834/6834347.png" className="me-1"  style={{height:"10px", filter:"invert(1)"}}/> */}
                                 Reject
                               </button>
-                            </div>
-                          </td>
-
-                          {/* <td className="text-center">{moment(v?.lastLogin).format("DD MMM, YYYY")}</td> */}
+                            </div>}
+                           
+                          </td> */}
                           <td style={{ textAlign: "center" }}>
                             <a
                               onClick={() =>

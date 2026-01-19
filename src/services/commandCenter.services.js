@@ -2,20 +2,17 @@ import axios from "axios";
 
 import { BASE_URL } from "../../src/utils/api_base_url_configration";
 
-const token = localStorage.getItem("token");
-
 const getConfig = () => {
+  const token = localStorage.getItem("token");
   return {
     headers: {
-      "Content-Type": "multipart/form-data",
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: token ? `Bearer ${JSON.parse(token)}` : "",
     },
   };
 };
 export const getAdminListServ = async (payload) => {
   try {
-    const response = await axios.post(BASE_URL + "admin/list", payload);
+    const response = await axios.post(BASE_URL + "admin/list", payload, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -25,7 +22,7 @@ export const getAdminListServ = async (payload) => {
 };
 export const deleteAdminServ = async (id) => {
   try {
-    const response = await axios.delete(BASE_URL + "admin/delete/"+id);
+    const response = await axios.delete(BASE_URL + "admin/delete/"+id, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -35,7 +32,7 @@ export const deleteAdminServ = async (id) => {
 };
 export const getRoleListServ = async (payload) => {
   try {
-    const response = await axios.post(BASE_URL + "role/list", payload);
+    const response = await axios.post(BASE_URL + "role/list", payload, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -46,7 +43,7 @@ export const getRoleListServ = async (payload) => {
 export const getRoleDetailServ = async (id) => {
   console.log(id)
   try {
-    const response = await axios.get(BASE_URL + "role/details/"+id);
+    const response = await axios.get(BASE_URL + "role/details/"+id, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -56,7 +53,7 @@ export const getRoleDetailServ = async (id) => {
 };
 export const addRoleServ = async (formData) => {
   try {
-    const response = await axios.post(BASE_URL + "role/create", formData);
+    const response = await axios.post(BASE_URL + "role/create", formData, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -66,7 +63,7 @@ export const addRoleServ = async (formData) => {
 };
 export const updateRoleServ = async (formData) => {
   try {
-    const response = await axios.put(BASE_URL + "role/update", formData);
+    const response = await axios.put(BASE_URL + "role/update", formData, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -86,7 +83,7 @@ export const addAdminServ = async (formData) => {
 };
 export const updateAdminServ = async (formData) => {
   try {
-    const response = await axios.put(BASE_URL + "admin/update", formData);
+    const response = await axios.put(BASE_URL + "admin/update", formData, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -96,7 +93,7 @@ export const updateAdminServ = async (formData) => {
 };
 export const getPermissionListServ = async (payload) => {
   try {
-    const response = await axios.post(BASE_URL + "permission/list", payload);
+    const response = await axios.post(BASE_URL + "permission/list", payload, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -106,7 +103,7 @@ export const getPermissionListServ = async (payload) => {
 };
 export const addPermissionServ = async (payload) => {
   try {
-    const response = await axios.post(BASE_URL + "permission/create", payload);
+    const response = await axios.post(BASE_URL + "permission/create", payload, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -116,7 +113,7 @@ export const addPermissionServ = async (payload) => {
 };
 export const deletePermissionServ = async (id) => {
   try {
-    const response = await axios.delete(BASE_URL + "permission/delete/"+id);
+    const response = await axios.delete(BASE_URL + "permission/delete/"+id, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -126,7 +123,7 @@ export const deletePermissionServ = async (id) => {
 };
 export const updatePermissionServ = async (formData) => {
   try {
-    const response = await axios.put(BASE_URL + "permission/update", formData);
+    const response = await axios.put(BASE_URL + "permission/update", formData, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -144,7 +141,6 @@ export const deleteRoleServ = async (id) => {
     throw error;
   }
 };
-
 export const getAdminProfileServ = async (id) => {
   try {
     const response = await axios.get(BASE_URL + "admin/details/"+id,  getConfig());
@@ -157,7 +153,7 @@ export const getAdminProfileServ = async (id) => {
 };
 export const updatePasswordServ = async (formData) => {
   try {
-    const response = await axios.put(BASE_URL + "admin/update-password", formData);
+    const response = await axios.put(BASE_URL + "admin/update-password", formData, getConfig());
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)
@@ -165,4 +161,13 @@ export const updatePasswordServ = async (formData) => {
     throw error;
   }
 };
-
+export const globalSearchServ = async (formData) => {
+  try {
+    const response = await axios.post(BASE_URL + "admin/global-search", formData, getConfig());
+    return response;
+  } catch (error) {
+    // Handle error (e.g., log or throw an error)
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+};

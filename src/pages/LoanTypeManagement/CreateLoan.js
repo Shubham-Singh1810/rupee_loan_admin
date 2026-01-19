@@ -125,7 +125,7 @@ function CreateLoan() {
       }
     } catch (error) {
       console.error(error);
-      toast.error("Internal Server Error");
+      toast.error(error?.response?.data?.message);
     }
   };
 
