@@ -8,9 +8,11 @@ import {
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { useGlobalState } from "../../GlobalProvider";
+import LogoutConfirmationModal from "../../components/LogoutConfirmationModal";
 function Permissions() {
   const params = useParams();
   const navigate = useNavigate();
+  const [showConfirm, setShowConfirm] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const { globalState, setGlobalState } = useGlobalState();
   const adminId = globalState?.user?._id;
@@ -214,8 +216,6 @@ function Permissions() {
   const passwordRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{}|;:,.<>?]).{8,}$/;
   const handleLogoutFunc = () => {
-    const confirmed = window.confirm("Are you sure you want to logout?");
-    if (confirmed) {
       setGlobalState({
         user: null,
         token: null,
@@ -226,8 +226,7 @@ function Permissions() {
       localStorage.removeItem("user");
       localStorage.removeItem("permissions");
       navigate("/");
-    }
-  };
+    };
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
     const oldPassword = e.target.oldPassword.value;
@@ -303,7 +302,7 @@ function Permissions() {
 
               <span
                 className="status-badge bg-danger-subtle text-secondary border cursor "
-                onClick={() => handleLogoutFunc()}
+                  onClick={() => setShowConfirm(true)}
               >
                 Logout
               </span>
@@ -580,6 +579,13 @@ function Permissions() {
         </div>
       )}
       {showPasswordModal && <div className="modal-backdrop fade show"></div>}
+      <LogoutConfirmationModal
+        show={showConfirm}
+        handleClose={() => setShowConfirm(false)}
+        handleConfirm={handleLogoutFunc}
+        title="Logout"
+        body="Are you sure you want to logout?"
+      />
     </div>
   );
 }

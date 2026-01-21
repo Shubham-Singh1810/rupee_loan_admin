@@ -618,8 +618,66 @@ function UpdatePayDayApplication() {
     _id: params?.id,
     rejectReason: "",
     status: "",
+    branchId: "",
+    assignedAdminId: "",
   });
 
+  const handleBranchChange = (e) => {
+    const branchId = e.target.value;
+    // Jab branch badle, check karo ki current admin us naye branch mein hai ya nahi
+    const currentAdmin = adminList?.find(
+      (a) => a._id === formData.assignedAdminId,
+    );
+    const isAdminInNewBranch = currentAdmin?.branch?.some(
+      (b) => b._id === branchId,
+    );
+
+    setFormData({
+      ...formData,
+      branchId: branchId,
+      assignedAdminId: isAdminInNewBranch ? formData.assignedAdminId : "", // Agar nahi hai toh reset
+    });
+  };
+
+  const handleAdminChange = (e) => {
+    const adminId = e.target.value;
+    const admin = adminList?.find((a) => a._id === adminId);
+
+    // Agar is admin ke pass sirf 1 hi branch hai, toh wo auto-select kar lo
+    let autoBranchId = formData.branchId;
+    if (admin?.branch?.length === 1) {
+      autoBranchId = admin.branch[0]._id;
+    } else if (admin?.branch?.length > 1) {
+      // Agar admin ke branches mein current selected branch nahi hai, toh reset branch
+      const hasCurrentBranch = admin.branch.some(
+        (b) => b._id === formData.branchId,
+      );
+      if (!hasCurrentBranch) autoBranchId = "";
+    }
+
+    setFormData({
+      ...formData,
+      assignedAdminId: adminId,
+      branchId: autoBranchId,
+    });
+  };
+
+  // 1. Filtered Admins: Sirf wo admins dikhao jinke pass selected branch assigned hai
+  const filteredAdmins = formData?.branchId
+    ? adminList?.filter((admin) =>
+        admin.branch?.some((b) => b._id === formData.branchId),
+      )
+    : adminList;
+
+  // 2. Filtered Branches: Sirf wo branches dikhao jo selected admin ke pass hain
+  // Note: Agar admin ke pass 0 branches hain (empty array), toh saari branches dikhayenge
+  const selectedAdminObj = adminList?.find(
+    (a) => a._id === formData?.assignedAdminId,
+  );
+  const filteredBranches =
+    formData?.assignedAdminId && selectedAdminObj?.branch?.length > 0
+      ? selectedAdminObj.branch
+      : branchList;
   return (
     <div className="container-fluid p-4">
       <div className="d-flex justify-content-end mb-2">
@@ -704,7 +762,7 @@ function UpdatePayDayApplication() {
                                 setFieldValue(f.name, e.target.files[0]);
                                 setFieldValue(
                                   f.name + "Prev",
-                                  URL.createObjectURL(e.target.files[0])
+                                  URL.createObjectURL(e.target.files[0]),
                                 );
                               }}
                             />
@@ -799,6 +857,8 @@ function UpdatePayDayApplication() {
                             _id: "",
                             rejectReason: "",
                             status: "",
+                            branchId: "",
+                            assignedAdminId: "",
                           })
                         }
                         src="https://cdn-icons-png.flaticon.com/128/2734/2734822.png"
@@ -862,85 +922,10 @@ function UpdatePayDayApplication() {
           className="modal fade show d-flex align-items-center justify-content-center"
           tabIndex="-1"
         >
-          {/* <div className="modal-dialog">
-            <div
-              className="modal-content"
-              style={{
-                borderRadius: "8px",
-                width: "350px",
-              }}
-            >
-              <div className="modal-body">
-                <div
-                  style={{
-                    wordWrap: "break-word",
-                    whiteSpace: "pre-wrap",
-                  }}
-                  className="d-flex justify-content-center w-100"
-                >
-                  <div className="w-100 px-2">
-                    <div className="d-flex justify-content-between align-items-center">
-                      <h5 className="">Reject Confirm</h5>
-                      <img
-                        onClick={() =>
-                          setFormData({
-                            _id: "",
-                            rejectReason: "",
-                            status: "",
-                          })
-                        }
-                        src="https://cdn-icons-png.flaticon.com/128/2734/2734822.png"
-                        style={{ height: "20px", cursor: "pointer" }}
-                      />
-                    </div>
-                    <div className="row">
-                      <div className="col-12 mb-2">
-                        <label>Reason*</label>
-                        <textarea
-                          className="form-control"
-                          rows={3}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              rejectReason: e?.target?.value,
-                            })
-                          }
-                        />
-                      </div>
-
-                      <div className="d-flex justify-content-end">
-                        {formData?.rejectReason ? (
-                          statusUpdateLoader ? (
-                            <button
-                              className="btn bgThemePrimary w-100 mt-2"
-                              style={{ opacity: "0.5" }}
-                            >
-                              Confirm...
-                            </button>
-                          ) : (
-                            <button
-                              className="btn bgThemePrimary w-100 mt-2"
-                              onClick={() => updateLoanApplicationFunc()}
-                            >
-                              Confirm
-                            </button>
-                          )
-                        ) : (
-                          <button
-                            className="btn bgThemePrimary w-100 mt-2"
-                            style={{ opacity: "0.5" }}
-                          >
-                            Confirm
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div> */}
-          <div className="modal-dialog modal-dialog-centered" style={{width:"350px"}}>
+          <div
+            className="modal-dialog modal-dialog-centered"
+            style={{ width: "350px" }}
+          >
             <div className="modal-content">
               {/* Header */}
               <div className="modal-header">
@@ -948,7 +933,14 @@ function UpdatePayDayApplication() {
                 <button
                   type="button"
                   className="btn-close"
-                  onClick={() => setFormData({ ...formData, status: "" })}
+                  onClick={() =>
+                    setFormData({
+                      ...formData,
+                      status: "",
+                      assignedAdminId: "",
+                      branchId: "",
+                    })
+                  }
                 ></button>
               </div>
 
@@ -971,6 +963,8 @@ function UpdatePayDayApplication() {
                     setFormData({
                       ...formData,
                       status: "",
+                      assignedAdminId: "",
+                      branchId: "",
                     });
                   }}
                 >
@@ -996,7 +990,10 @@ function UpdatePayDayApplication() {
           className="modal fade show d-flex align-items-center justify-content-center"
           tabIndex="-1"
         >
-          <div className="modal-dialog modal-dialog-centered" style={{width:"350px"}}>
+          <div
+            className="modal-dialog modal-dialog-centered"
+            style={{ width: "350px" }}
+          >
             <div className="modal-content">
               {/* Header */}
               <div className="modal-header">
@@ -1004,69 +1001,135 @@ function UpdatePayDayApplication() {
                 <button
                   type="button"
                   className="btn-close"
-                  onClick={() => setFormData({ ...formData, status: "" })}
+                  onClick={() =>
+                    setFormData({
+                      ...formData,
+                      status: "",
+                      assignedAdminId: "",
+                      branchId: "",
+                    })
+                  }
                 ></button>
               </div>
 
               {/* Body */}
               <div className="modal-body">
                 {details?.processingStatus == "eSign" ? (
-                  <>
-                    <p className="mb-0">
-                      Do you really want to approve this application
-                    </p>
-                    <p className="text-muted mb-0">
-                      Have you seen all the details properly ?
-                    </p>
-                  </>
+                  details?.branchId && details?.assignedAdminId ? (
+                    <>
+                      <p className="mb-0">
+                        Do you really want to approve this application
+                      </p>
+                      <p className="text-muted mb-0">
+                        Have you seen all the details properly ?
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <label>Branch</label>
+                        <select
+                          value={formData?.branchId}
+                          className="form-control"
+                          onChange={handleBranchChange}
+                        >
+                          <option value="">Select</option>
+                          {filteredBranches?.map((v) => (
+                            <option key={v._id} value={v._id}>
+                              {v.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="mt-3">
+                        <label>Assign Staff</label>
+                        <select
+                          value={formData?.assignedAdminId}
+                          className="form-control"
+                          onChange={handleAdminChange}
+                        >
+                          <option value="">Select</option>
+                          {filteredAdmins?.map((v) => (
+                            <option key={v._id} value={v._id}>
+                              {v.firstName} {v.lastName} ({v.code})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </>
+                  )
                 ) : (
                   <>
-                    <p className="mb-0">
-                     Application is still in progress !
-                    </p>
-              
+                    <p className="mb-0">Application is still in progress !</p>
                   </>
                 )}
               </div>
 
               {/* Footer */}
-              {details?.processingStatus =="eSign" ?
-               <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => {
-                    setFormData({
-                      ...formData,
-                      status: "",
-                    });
-                  }}
-                >
-                  NO
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-success"
-                  onClick={() => updateLoanApplicationFunc()}
-                >
-                  Yes
-                </button>
-              </div>:<div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-danger"
-                  onClick={() => {
-                    setFormData({
-                      ...formData,
-                      status: "",
-                    });
-                  }}
-                >
-                  Close
-                </button>
-                
-              </div>}
-              
+              {details?.processingStatus == "eSign" ? (
+                details?.branchId && details?.assignedAdminId ? (
+                  <div className="modal-footer">
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => {
+                        setFormData({
+                          ...formData,
+                          status: "",
+                          assignedAdminId: "",
+                          branchId: "",
+                        });
+                      }}
+                    >
+                      NO
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-success"
+                      onClick={() => updateLoanApplicationFunc()}
+                    >
+                      Yes
+                    </button>
+                  </div>
+                ) : formData?.branchId && formData?.assignedAdminId ? (
+                  <div className="modal-footer">
+                    <button
+                      type="button"
+                      className="btn btn-success"
+                      onClick={() => updateLoanApplicationFunc()}
+                    >
+                      Submit
+                    </button>
+                  </div>
+                ) : (
+                  <div className="modal-footer">
+                    <button
+                      type="button"
+                      className="btn btn-success"
+                      style={{ opacity: 0.5 }}
+                    >
+                      Submit
+                    </button>
+                  </div>
+                )
+              ) : (
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-danger"
+                    onClick={() => {
+                      setFormData({
+                        ...formData,
+                        status: "",
+                        branchId: "",
+                        assignedAdminId: "",
+                      });
+                    }}
+                  >
+                    Close
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -1079,8 +1142,10 @@ function UpdatePayDayApplication() {
           className="modal fade show d-flex align-items-center justify-content-center"
           tabIndex="-1"
         >
-          
-          <div className="modal-dialog modal-dialog-centered" style={{width:"350px"}}>
+          <div
+            className="modal-dialog modal-dialog-centered"
+            style={{ width: "350px" }}
+          >
             <div className="modal-content">
               {/* Header */}
               <div className="modal-header">
@@ -1088,7 +1153,14 @@ function UpdatePayDayApplication() {
                 <button
                   type="button"
                   className="btn-close"
-                  onClick={() => setFormData({ ...formData, status: "" })}
+                  onClick={() =>
+                    setFormData({
+                      ...formData,
+                      status: "",
+                      branchId: "",
+                      assignedAdminId: "",
+                    })
+                  }
                 ></button>
               </div>
 
@@ -1108,6 +1180,8 @@ function UpdatePayDayApplication() {
                     setFormData({
                       ...formData,
                       status: "",
+                      assignedAdminId: "",
+                      branchId: "",
                     });
                   }}
                 >
@@ -1126,6 +1200,158 @@ function UpdatePayDayApplication() {
         </div>
       )}
       {formData?.status == "completed" && (
+        <div className="modal-backdrop fade show"></div>
+      )}
+      {formData?.status == "disbursed" && (
+        <div
+          className="modal fade show d-flex align-items-center justify-content-center"
+          tabIndex="-1"
+        >
+          <div
+            className="modal-dialog modal-dialog-centered"
+            style={{ width: "350px" }}
+          >
+            <div className="modal-content">
+              {/* Header */}
+              <div className="modal-header">
+                <h5 className="modal-title">Disburse Loan</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() =>
+                    setFormData({
+                      ...formData,
+                      status: "",
+                      assignedAdminId: "",
+                      branchId: "",
+                    })
+                  }
+                ></button>
+              </div>
+
+              {/* Body */}
+              <div className="modal-body">
+                {details?.processingStatus == "eSign" ? (
+                  details?.branchId && details?.assignedAdminId ? (
+                    <>
+                      <p className="mb-0">
+                        Do you really want to approve this application
+                      </p>
+                      <p className="text-muted mb-0">
+                        Have you seen all the details properly ?
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <label>Branch</label>
+                        <select
+                          value={formData?.branchId}
+                          className="form-control"
+                          onChange={handleBranchChange}
+                        >
+                          <option value="">Select</option>
+                          {filteredBranches?.map((v) => (
+                            <option key={v._id} value={v._id}>
+                              {v.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="mt-3">
+                        <label>Assign Staff</label>
+                        <select
+                          value={formData?.assignedAdminId}
+                          className="form-control"
+                          onChange={handleAdminChange}
+                        >
+                          <option value="">Select</option>
+                          {filteredAdmins?.map((v) => (
+                            <option key={v._id} value={v._id}>
+                              {v.firstName} {v.lastName} ({v.code})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </>
+                  )
+                ) : (
+                  <>
+                    <p className="mb-0">Application is still in progress !</p>
+                  </>
+                )}
+              </div>
+
+              {/* Footer */}
+              {details?.processingStatus == "eSign" ? (
+                details?.branchId && details?.assignedAdminId ? (
+                  <div className="modal-footer">
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => {
+                        setFormData({
+                          ...formData,
+                          status: "",
+                          assignedAdminId: "",
+                          branchId: "",
+                        });
+                      }}
+                    >
+                      NO
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-success"
+                      onClick={() => updateLoanApplicationFunc()}
+                    >
+                      Yes
+                    </button>
+                  </div>
+                ) : formData?.branchId && formData?.assignedAdminId ? (
+                  <div className="modal-footer">
+                    <button
+                      type="button"
+                      className="btn btn-success"
+                      onClick={() => updateLoanApplicationFunc()}
+                    >
+                      Submit
+                    </button>
+                  </div>
+                ) : (
+                  <div className="modal-footer">
+                    <button
+                      type="button"
+                      className="btn btn-success"
+                      style={{ opacity: 0.5 }}
+                    >
+                      Submit
+                    </button>
+                  </div>
+                )
+              ) : (
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-danger"
+                    onClick={() => {
+                      setFormData({
+                        ...formData,
+                        status: "",
+                        branchId: "",
+                        assignedAdminId: "",
+                      });
+                    }}
+                  >
+                    Close
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+      {formData?.status == "disbursed" && (
         <div className="modal-backdrop fade show"></div>
       )}
     </div>

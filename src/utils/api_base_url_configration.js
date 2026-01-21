@@ -1,8 +1,8 @@
 // Vercel Base-Url
-// export const BASE_URL = "https://nbfc-backend-eight.vercel.app/api/";
+export const BASE_URL = "https://nbfc-backend-eight.vercel.app/api/";
 
 // local  Base-Url
- export const BASE_URL =  "http://localhost:7000/api/";
+//  export const BASE_URL =  "http://localhost:7000/api/";
 
 
  // Production AWS  Base-Url
