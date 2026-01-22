@@ -140,20 +140,32 @@ function AdminList() {
       toast.error(error?.response?.data?.error);
     }
   };
-  const AdminSchema = Yup.object().shape({
-    firstName: Yup.string().required("First Name is required"),
-    lastName: Yup.string().required("Last Name is required"),
-    phone: Yup.string()
-      .matches(/^[0-9]{10}$/, "Must be a valid 10-digit number")
-      .required("Contact Number is required"),
-    status: Yup.string().required("Status is required"),
-    role: Yup.string().required("Role is required"),
-    branch: Yup.array().of(Yup.string().required()),
-    email: Yup.string()
-      .matches(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, "Invalid email format")
-      .required("Email is required"),
-    profilePic: Yup.mixed(),
-  });
+ const AdminSchema = Yup.object().shape({
+  firstName: Yup.string()
+    .trim()
+    .required("First Name is required"),
+  lastName: Yup.string()
+    .trim()
+    .required("Last Name is required"),
+  phone: Yup.string()
+    .trim()
+    .matches(/^[0-9]{10}$/, "Must be a valid 10-digit number")
+    .required("Contact Number is required"),
+  status: Yup.string()
+    .trim()
+    .required("Status is required"),
+  role: Yup.string()
+    .trim()
+    .required("Role is required"),
+  branch: Yup.array()
+    .of(Yup.string().trim().required())
+    .min(1, "At least one branch is required"),
+  email: Yup.string()
+    .trim()
+    .matches(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, "Invalid email format")
+    .required("Email is required"),
+  profilePic: Yup.mixed(),
+});
   const handleAddAdmin = async (values) => {
     try {
       // ✅ Create FormData because file & array (branch) hain
@@ -244,10 +256,9 @@ function AdminList() {
       }
     } catch (error) {
       toast?.error(error?.response?.data?.message);
+    } finally {
+      setSubmitting(false);
     }
-    finally {
-    setSubmitting(false);
-  }
   };
   const [branchList, setBranchList] = useState();
   const getBranchListFunc = async () => {

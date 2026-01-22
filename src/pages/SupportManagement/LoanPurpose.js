@@ -135,9 +135,9 @@ function LoanPurpose() {
         return value.size <= 2 * 1024 * 1024;
       }),
 
-    name: Yup.string().required("Name is required"),
-    description: Yup.string().required("Description is required"),
-    status: Yup.string().required("Status is required"),
+    name: Yup.string().trim().required("Name is required"),
+    description: Yup.string().trim().required("Description is required"),
+    status: Yup.string().trim().required("Status is required"),
   });
 
   const handleAddLoanPurpose = async (values) => {

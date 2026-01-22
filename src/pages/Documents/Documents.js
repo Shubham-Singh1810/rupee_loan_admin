@@ -119,9 +119,9 @@ function Documents() {
     }
   };
   const BranchSchema = Yup.object().shape({
-    name: Yup.string().required("Name is required"),
+    name: Yup.string().trim().required("Name is required"),
 
-    status: Yup.string().required("Status is required"),
+    status: Yup.string().trim().required("Status is required"),
   });
   const handleAddBranch = async (value) => {
     try {

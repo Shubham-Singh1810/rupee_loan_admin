@@ -104,15 +104,40 @@ function ContactQuesryList() {
     note: "",
   });
   const ContactSchema = Yup.object().shape({
-    firstName: Yup.string().required("Question is required"),
-    lastName: Yup.string().required("Answer is required"),
-    email: Yup.string().required("Category is required"),
-    contactNumber: Yup.string().required("Contact Number is required"),
-    subject: Yup.string().required("Subject is required"),
-    message: Yup.string().required("Message is required"),
+    firstName: Yup.string()
+      .trim()
+      .required("First Name is required"), // "Question" hata kar "First Name" kiya
+      
+    lastName: Yup.string()
+      .trim()
+      .required("Last Name is required"), // "Answer" hata kar "Last Name" kiya
+      
+    email: Yup.string()
+      .trim()
+      .email("Invalid email format") // Email format check bhi add kar diya
+      .required("Email is required"), // "Category" hata kar "Email" kiya
+      
+    contactNumber: Yup.string()
+      .trim()
+      .required("Contact Number is required"),
+      
+    subject: Yup.string()
+      .trim()
+      .required("Subject is required"),
+      
+    message: Yup.string()
+      .trim()
+      .required("Message is required"),
+      
     isResponded: Yup.boolean(),
-    respondedVia: Yup.string(),
-    note: Yup.string(),
+    
+    respondedVia: Yup.string()
+      .trim()
+      .nullable(), 
+      
+    note: Yup.string()
+      .trim()
+      .nullable(),
   });
   const handleUpdateContact = async (value) => {
     try {

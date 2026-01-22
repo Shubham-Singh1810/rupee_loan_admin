@@ -120,10 +120,10 @@ function FaqList() {
     }
   };
   const FaqSchema = Yup.object().shape({
-    question: Yup.string().required("Question is required"),
-    answer: Yup.string().required("Answer is required"),
-    category: Yup.string().required("Category is required"),
-    status: Yup.string().required("Status is required"),
+    question: Yup.string().trim().required("Question is required"),
+    answer: Yup.string().trim().required("Answer is required"),
+    category: Yup.string().trim().required("Category is required"),
+    status: Yup.string().trim().required("Status is required"),
   });
   const handleAddFaq = async (value) => {
     try {

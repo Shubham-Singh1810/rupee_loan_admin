@@ -134,15 +134,15 @@ function ViewStaff() {
       toast.error(error?.response?.data?.message);
     }
   };
-  const AdminSchema = Yup.object().shape({
-    firstName: Yup.string().required("First Name is required"),
-    lastName: Yup.string().required("Last Name is required"),
-    phone: Yup.string()
+  const AdminSchema = Yup.object().trim().shape({
+    firstName: Yup.string().trim().required("First Name is required"),
+    lastName: Yup.string().trim().required("Last Name is required"),
+    phone: Yup.string().trim()
       .matches(/^[0-9]{10}$/, "Must be a valid 10-digit number")
       .required("Contact Number is required"),
-    status: Yup.string().required("Status is required"),
-    branch: Yup.string(),
-    email: Yup.string().email("Invalid email").required("Email is required"),
+    status: Yup.string().trim().required("Status is required"),
+    branch: Yup.string().trim(),
+    email: Yup.string().trim().email("Invalid email").required("Email is required"),
     profilePic: Yup.mixed(),
   });
   const handleAddAdmin = async (value) => {

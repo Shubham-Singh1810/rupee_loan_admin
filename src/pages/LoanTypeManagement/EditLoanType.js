@@ -69,94 +69,73 @@ function EditLoanType() {
     metaDescription: "",
   });
   const getLoanSchema = (showDaysForm) =>
-    Yup.object().shape({
-      name: Yup.string(),
-      code: Yup.string(),
-      description: Yup.string().required("Description is required"),
-      status: Yup.boolean().required("Status is required"),
-      icon: Yup.mixed().required("Icon is required"),
+  Yup.object().shape({
+    name: Yup.string().trim(),
+    code: Yup.string().trim(),
+    description: Yup.string().trim().required("Description is required"),
+    status: Yup.boolean().required("Status is required"),
+    icon: Yup.mixed().required("Icon is required"),
 
-      ...(showDaysForm
-        ? {
-            minAmountDays: Yup.number().required(
-              "Minimum amount (days) is required"
-            ),
-            maxAmountDays: Yup.number().required(
-              "Maximum amount (days) is required"
-            ),
-            minTenureDays: Yup.number().required(
-              "Minimum tenure (days) is required"
-            ),
-            maxTenureDays: Yup.number().required(
-              "Maximum tenure (days) is required"
-            ),
-            intrestRateDays: Yup.number().required(
-              "Interest rate (days) is required"
-            ),
-            intrestTypeDays: Yup.string().required(
-              "Interest type (days) is required"
-            ),
-            repaymentFrequencyDays: Yup.number().required(
-              "Repayment frequency (days) is required"
-            ),
-          }
-        : {
-            minAmount: Yup.number().required("Minimum amount is required"),
-            maxAmount: Yup.number().required("Maximum amount is required"),
-            minTenure: Yup.number().required("Minimum tenure is required"),
-            maxTenure: Yup.number().required("Maximum tenure is required"),
-            intrestRate: Yup.number().required("Interest rate is required"),
-            intrestType: Yup.string().required("Interest type is required"),
-            repaymentFrequency: Yup.number().required(
-              "Repayment frequency is required"
-            ),
-          }),
+    // --- Conditional Days Form ---
+    ...(showDaysForm
+      ? {
+          minAmountDays: Yup.number().required("Minimum amount (days) is required"),
+          maxAmountDays: Yup.number().required("Maximum amount (days) is required"),
+          minTenureDays: Yup.number().required("Minimum tenure (days) is required"),
+          maxTenureDays: Yup.number().required("Maximum tenure (days) is required"),
+          intrestRateDays: Yup.number().required("Interest rate (days) is required"),
+          intrestTypeDays: Yup.string().trim().required("Interest type (days) is required"),
+          repaymentFrequencyDays: Yup.number().required("Repayment frequency (days) is required"),
+        }
+      : {
+          minAmount: Yup.number().required("Minimum amount is required"),
+          maxAmount: Yup.number().required("Maximum amount is required"),
+          minTenure: Yup.number().required("Minimum tenure is required"),
+          maxTenure: Yup.number().required("Maximum tenure is required"),
+          intrestRate: Yup.number().required("Interest rate is required"),
+          intrestType: Yup.string().trim().required("Interest type is required"),
+          repaymentFrequency: Yup.number().required("Repayment frequency is required"),
+        }),
 
-      minIncome: Yup.number(),
-      creditScoreRequired: Yup.number(),
-      minAge: Yup.number(),
-      maxAge: Yup.number(),
-      employmentTypesAllowed: Yup.array(),
-      DTIR: Yup.number(),
+    minIncome: Yup.number(),
+    creditScoreRequired: Yup.number(),
+    minAge: Yup.number(),
+    maxAge: Yup.number(),
+    employmentTypesAllowed: Yup.array(),
+    DTIR: Yup.number(),
+    collateralRequired: Yup.boolean().required("Collateral required is required"),
+    collateralTypes: Yup.array().of(Yup.string().trim()), // Trimmed inside array
+    maxLTV: Yup.number(),
+    processingFee: Yup.number().required("Processing fee is required"),
+    latePaymentPenalty: Yup.number().required("Late payment penalty is required"),
+    prepaymentFee: Yup.number().required("Prepayment fee is required"),
+    auto_approval: Yup.boolean().required("Auto approval is required"),
+    
+    documentRequired: Yup.array()
+      .of(Yup.string().trim().required("Document is required"))
+      .min(1, "At least one document is required"),
 
-      collateralRequired: Yup.boolean().required(
-        "Collateral required is required"
-      ),
-      collateralTypes: Yup.array().of(Yup.string()),
-      maxLTV: Yup.number(),
-
-      processingFee: Yup.number().required("Processing fee is required"),
-      latePaymentPenalty: Yup.number().required(
-        "Late payment penalty is required"
-      ),
-      prepaymentFee: Yup.number().required("Prepayment fee is required"),
-
-      auto_approval: Yup.boolean().required("Auto approval is required"),
-
-      documentRequired: Yup.array()
-        .of(Yup.string().required("Document is required"))
-        .min(1, "At least one document is required"),
-
-      ...(showWebForm
-        ? {
-            title: Yup.string().required("Title is required"),
-            slug: Yup.string().required("Slug is required"),
-            seoTitle: Yup.string(),
-            metaDescription: Yup.string(),
-            metaKeywords: Yup.string(),
-            isActiveOnWeb: Yup.boolean(),
-            banner: Yup.mixed().required("Banner image is required"),
-          }
-        : {
-            title: Yup.string(),
-            slug: Yup.string(),
-            seoTitle: Yup.string(),
-            metaDescription: Yup.string(),
-            metaKeywords: Yup.string(),
-            isActiveOnWeb: Yup.boolean(),
-            banner: Yup.mixed(),
-          }),
-    });
+    // --- Conditional Web Form (Using showWebForm from state) ---
+    ...(showWebForm
+      ? {
+          title: Yup.string().trim().required("Title is required"),
+          slug: Yup.string().trim().required("Slug is required"),
+          seoTitle: Yup.string().trim(),
+          metaDescription: Yup.string().trim(),
+          metaKeywords: Yup.string().trim(),
+          isActiveOnWeb: Yup.boolean(),
+          banner: Yup.mixed().required("Banner image is required"),
+        }
+      : {
+          title: Yup.string().trim(),
+          slug: Yup.string().trim(),
+          seoTitle: Yup.string().trim(),
+          metaDescription: Yup.string().trim(),
+          metaKeywords: Yup.string().trim(),
+          isActiveOnWeb: Yup.boolean(),
+          banner: Yup.mixed(),
+        }),
+  });
   const updateLoanTypeFunc = async (values) => {
     try {
       const formData = new FormData();

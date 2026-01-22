@@ -12,32 +12,62 @@ function CreateUser() {
 
   // ✅ Validation Schema
   const userSchema = Yup.object().shape({
-    firstName: Yup.string().required("First Name is required"),
-    lastName: Yup.string().required("Last Name is required"),
-    email: Yup.string().email("Invalid email").required("Email is required"),
-    countryCode: Yup.string(),
+    firstName: Yup.string()
+      .trim()
+      .required("First Name is required"),
+    lastName: Yup.string()
+      .trim()
+      .required("Last Name is required"),
+    email: Yup.string()
+      .trim()
+      .email("Invalid email")
+      .required("Email is required"),
+    countryCode: Yup.string().trim(),
     phone: Yup.string()
+      .trim()
       .matches(/^[0-9]{10}$/, "Phone must be 10 digits")
       .required("Phone number is required"),
-    dob: Yup.date().required("Date of Birth is required"),
-    gender: Yup.string().required("Gender is required"),
     
+    // Date field par trim nahi lagta
+    dob: Yup.date().required("Date of Birth is required"),
+    
+    gender: Yup.string()
+      .trim()
+      .required("Gender is required"),
 
-    state: Yup.string().required("State is required"),
-    city: Yup.string().required("City is required"),
+    state: Yup.string()
+      .trim()
+      .required("State is required"),
+    city: Yup.string()
+      .trim()
+      .required("City is required"),
     pincode: Yup.string()
+      .trim()
       .matches(/^[0-9]{6}$/, "Pincode must be 6 digits")
       .required("Pincode is required"),
-    address: Yup.string().required("Address is required"),
+    address: Yup.string()
+      .trim()
+      .required("Address is required"),
 
-    employementType: Yup.string().required("Employment Type is required"),
+    employementType: Yup.string()
+      .trim()
+      .required("Employment Type is required"),
+
+    // Number fields par trim nahi lagta
     monthlyIncome: Yup.number().required("Monthly Income is required"),
     annualIncome: Yup.number().required("Annual Income is required"),
     creditScore: Yup.number().required("Credit Score is required"),
-    panNumber: Yup.string(),
-    aadharNumber: Yup.string(),
+
+    panNumber: Yup.string()
+      .trim()
+      .matches(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, "Invalid PAN format"), // Format check for safety
+      
+    aadharNumber: Yup.string()
+      .trim()
+      .matches(/^[0-9]{12}$/, "Aadhar must be 12 digits"), // Aadhar format check
+
     profilePic: Yup.mixed().required("Profile Picture is required"),
-  });
+});
 
   const handleCreateUser = async (values) => {
     try {

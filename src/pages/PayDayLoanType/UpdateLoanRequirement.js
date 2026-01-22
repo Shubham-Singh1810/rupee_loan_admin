@@ -56,18 +56,27 @@ function UpdateLoanRequirement() {
   });
   const getLoanSchema = () =>
     Yup.object().shape({
-      name: Yup.string().required("Name is required"),
-      code: Yup.string(),
-      description: Yup.string().required("Description is required"),
+      name: Yup.string()
+        .trim()
+        .required("Name is required"),
+      
+      code: Yup.string().trim(),
+      
+      description: Yup.string()
+        .trim()
+        .required("Description is required"),
+      
       status: Yup.boolean().required("Status is required"),
       icon: Yup.mixed().required("Icon is required"),
 
+      // Numbers par trim nahi lagta, bas .required() kaafi hai
       minAmount: Yup.number().required("Minimum amount is required"),
       maxAmount: Yup.number().required("Maximum amount is required"),
       minTenure: Yup.number().required("Minimum tenure is required"),
       maxTenure: Yup.number().required("Maximum tenure is required"),
       intrestRate: Yup.number().required("Interest rate is required"),
       processingFee: Yup.number().required("Processing fee is required"),
+      
       gstApplicable: Yup.boolean().required("This field is required"),
       lateFee: Yup.number().required("Late fee is required"),
       penaltyGraceDays: Yup.number().required("Penalty grace days is required"),
@@ -82,11 +91,14 @@ function UpdateLoanRequirement() {
       creditScoreRequired: Yup.number().required("Credit score is required"),
       minAge: Yup.number().required("Min age is required"),
       maxAge: Yup.number().required("Max age is required"),
+
+      // Array validation
       employmentTypesAllowed: Yup.array()
-        .of(Yup.string().required("Employment types is required"))
-        .min(1, "At least one document is required"),
+        .of(Yup.string().trim().required("Employment types is required"))
+        .min(1, "At least one employment type is required"), // Message fixed here
+        
       documentRequired: Yup.array()
-        .of(Yup.string().required("Document is required"))
+        .of(Yup.string().trim().required("Document is required"))
         .min(1, "At least one document is required"),
     });
 

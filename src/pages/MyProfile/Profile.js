@@ -23,8 +23,8 @@ function Profile() {
 
   // ✅ Validation Schema
   const userSchema = Yup.object().shape({
-    firstName: Yup.string().required("First Name is required"),
-    lastName: Yup.string().required("Last Name is required"),
+    firstName: Yup.string().trim().required("First Name is required"),
+    lastName: Yup.string().trim().required("Last Name is required"),
     profilePic: Yup.mixed(),
   });
 

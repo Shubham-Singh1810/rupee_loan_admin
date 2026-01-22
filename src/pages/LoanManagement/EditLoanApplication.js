@@ -31,44 +31,72 @@ function EditLoanApplication() {
 
   // ---------------------- Yup Validation ----------------------
   const validationSchema = Yup.object().shape({
-    loanId: Yup.string().required("Loan Type is required"),
-    branchId: Yup.string().required("Branch is required"),
-    userId: Yup.string().required("User is required"),
-    assignedAdminId: Yup.string(),
+    loanId: Yup.string()
+      .trim()
+      .required("Loan Type is required"),
+    
+    branchId: Yup.string()
+      .trim()
+      .required("Branch is required"),
+    
+    userId: Yup.string()
+      .trim()
+      .required("User is required"),
+    
+    assignedAdminId: Yup.string()
+      .trim()
+      .nullable(), // Edit mein kabhi kabhi admin assigned nahi hota, isliye nullable safe rehta hai
+
     loanAmount: Yup.number()
       .typeError("Loan Amount must be a number")
       .required("Loan Amount is required")
       .positive("Loan Amount must be positive"),
+
     loanTenuare: Yup.number()
       .typeError("Tenure must be a number")
       .required("Tenure is required")
       .positive("Tenure must be positive"),
+
     loanTenuareType: Yup.string()
+      .trim()
       .oneOf(["days", "months", "years"], "Invalid Tenure Type")
       .required("Tenure Type is required"),
+
     intrestRate: Yup.number()
       .typeError("Interest Rate must be a number")
       .required("Interest Rate is required")
       .min(1, "Interest Rate must be greater than 0"),
+
     intrestRateType: Yup.string()
-      .oneOf(
-        ["flat", "reducing", "simple", "compound"],
-        "Invalid Interest Type"
-      )
+      .trim()
+      .oneOf(["flat", "reducing", "simple", "compound"], "Invalid Interest Type")
       .required("Interest Type is required"),
+
     repaymentFrequency: Yup.number()
       .typeError("Repayment Frequency must be a number")
       .required("Repayment Frequency is required")
       .positive("Repayment Frequency must be positive"),
+
     repaymentFrequencyType: Yup.string()
+      .trim()
       .oneOf(["days", "months"], "Invalid Frequency Type")
       .required("Repayment Frequency Type is required"),
-    startDate: Yup.date(),
-    endDate: Yup.date(),
+
+    startDate: Yup.date()
+      .typeError("Invalid Start Date"),
     
-    panNumber: Yup.string().required("PAN Number is required"),
-    creditScore: Yup.string().required("Credit score is required"),
-  });
+    endDate: Yup.date()
+      .typeError("Invalid End Date"),
+
+    panNumber: Yup.string()
+      .trim()
+      .required("PAN Number is required")
+      .matches(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, "Invalid PAN format"), // Optional: PAN format validation
+
+    creditScore: Yup.string()
+      .trim()
+      .required("Credit score is required"),
+});
 
   // ---------------------- API calls ----------------------
   const getLoanTypeListFunc = async () => {

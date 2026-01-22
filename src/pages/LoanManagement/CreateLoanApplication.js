@@ -46,57 +46,66 @@ function CreateLoanApplication() {
 
   // ---------------------- Yup Validation ----------------------
   const validationSchema = Yup.object().shape({
-    loanId: Yup.string().required("Loan Type is required"),
-    branchId: Yup.string().required("Branch is required"),
-    userId: Yup.string().required("User is required"),
-    assignedAdminId: Yup.string(),
-    loanAmount: Yup.number()
-      .typeError("Loan Amount must be a number")
-      .required("Loan Amount is required")
-      .positive("Loan Amount must be positive"),
-    loanTenuare: Yup.number()
-      .typeError("Tenure must be a number")
-      .required("Tenure is required")
-      .positive("Tenure must be positive"),
-    loanTenuareType: Yup.string()
-      .oneOf(["days", "months", "years"], "Invalid Tenure Type")
-      .required("Tenure Type is required"),
-    intrestRate: Yup.number()
-      .typeError("Interest Rate must be a number")
-      .required("Interest Rate is required")
-      .min(1, "Interest Rate must be greater than 0"),
-    intrestRateType: Yup.string()
-      .oneOf(
-        ["flat", "reducing", "simple", "compound"],
-        "Invalid Interest Type"
-      )
-      .required("Interest Type is required"),
-    repaymentFrequency: Yup.number()
-      .typeError("Repayment Frequency must be a number")
-      .required("Repayment Frequency is required")
-      .positive("Repayment Frequency must be positive"),
-    repaymentFrequencyType: Yup.string()
-      .oneOf(["days", "months"], "Invalid Frequency Type")
-      .required("Repayment Frequency Type is required"),
-    startDate: Yup.date(),
-    endDate: Yup.date(),
-    collateralDetails: Yup.array().of(
-      Yup.object().shape({
-        name: Yup.string().required("Collateral Name is required"),
-        description: Yup.string().required(
-          "Collateral Description is required"
-        ),
-      })
-    ),
-    documents: Yup.array().of(
-      Yup.object().shape({
-        name: Yup.string().required("Document Name is required"),
-        image: Yup.mixed().required("Document File is required"),
-      })
-    ),
-    panNumber: Yup.string().required("PAN Number is required"),
-    creditScore: Yup.string().required("Credit score is required"),
-  });
+  loanId: Yup.string().trim().required("Loan Type is required"),
+  branchId: Yup.string().trim().required("Branch is required"),
+  userId: Yup.string().trim().required("User is required"),
+  assignedAdminId: Yup.string().trim(),
+  
+  // Numbers par trim nahi lagta
+  loanAmount: Yup.number()
+    .typeError("Loan Amount must be a number")
+    .required("Loan Amount is required")
+    .positive("Loan Amount must be positive"),
+  
+  loanTenuare: Yup.number()
+    .typeError("Tenure must be a number")
+    .required("Tenure is required")
+    .positive("Tenure must be positive"),
+  
+  loanTenuareType: Yup.string().trim()
+    .oneOf(["days", "months", "years"], "Invalid Tenure Type")
+    .required("Tenure Type is required"),
+  
+  intrestRate: Yup.number()
+    .typeError("Interest Rate must be a number")
+    .required("Interest Rate is required")
+    .min(1, "Interest Rate must be greater than 0"),
+  
+  intrestRateType: Yup.string().trim()
+    .oneOf(["flat", "reducing", "simple", "compound"], "Invalid Interest Type")
+    .required("Interest Type is required"),
+  
+  repaymentFrequency: Yup.number()
+    .typeError("Repayment Frequency must be a number")
+    .required("Repayment Frequency is required")
+    .positive("Repayment Frequency must be positive"),
+  
+  repaymentFrequencyType: Yup.string().trim()
+    .oneOf(["days", "months"], "Invalid Frequency Type")
+    .required("Repayment Frequency Type is required"),
+
+  // Dates par trim nahi lagta
+  startDate: Yup.date(),
+  endDate: Yup.date(),
+
+  // Array ke andar ki strings ko bhi trim karna zaroori hai
+  collateralDetails: Yup.array().of(
+    Yup.object().shape({
+      name: Yup.string().trim().required("Collateral Name is required"),
+      description: Yup.string().trim().required("Collateral Description is required"),
+    })
+  ),
+
+  documents: Yup.array().of(
+    Yup.object().shape({
+      name: Yup.string().trim().required("Document Name is required"),
+      image: Yup.mixed().required("Document File is required"), // Mixed par trim nahi lagta
+    })
+  ),
+
+  panNumber: Yup.string().trim().required("PAN Number is required"),
+  creditScore: Yup.string().trim().required("Credit score is required"),
+});
 
   // ---------------------- API calls ----------------------
   const getLoanTypeListFunc = async () => {

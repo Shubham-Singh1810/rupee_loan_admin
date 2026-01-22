@@ -126,7 +126,7 @@ function ClosedTicket() {
     }
   };
   const CategorySchema = Yup.object().shape({
-    name: Yup.string().required("Name is required"),
+    name: Yup.string().trim().required("Name is required"),
     status: Yup.boolean().required("Status is required"),
   });
   const handleAddCategory = async (value) => {

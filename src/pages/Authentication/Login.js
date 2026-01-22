@@ -19,10 +19,10 @@ function Login() {
       password: "",
     },
     validationSchema: Yup.object({
-      email: Yup.string()
+      email: Yup.string().trim()
         .matches(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, "Invalid email format")
         .required("Email is required"),
-      password: Yup.string().required("Password is required"),
+      password: Yup.string().trim().required("Password is required"),
     }),
     onSubmit: async (values, { setSubmitting }) => {
       setSubmitting(true);

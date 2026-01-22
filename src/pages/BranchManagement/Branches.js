@@ -129,17 +129,17 @@ function Branches() {
     }
   };
   const BranchSchema = Yup.object().shape({
-    name: Yup.string().required("Name is required"),
-    phone: Yup.string()
+    name: Yup.string().trim().required("Name is required"),
+    phone: Yup.string().trim()
       .matches(/^[0-9]{10}$/, "Must be a valid 10-digit number")
       .required("Contact Number is required"),
-    contactPerson: Yup.string().required("Contact Person is required"),
-    status: Yup.string().required("Status is required"),
-    description: Yup.string(),
-    address: Yup.string().required("Address is required"),
-    state: Yup.string().required("State is required"),
-    city: Yup.string().required("City is required"),
-    pincode: Yup.string()
+    contactPerson: Yup.string().trim().required("Contact Person is required"),
+    status: Yup.string().trim().required("Status is required"),
+    description: Yup.string().trim(),
+    address: Yup.string().trim().required("Address is required"),
+    state: Yup.string().trim().required("State is required"),
+    city: Yup.string().trim().required("City is required"),
+    pincode: Yup.string().trim()
       .matches(/^[0-9]{6}$/, "Enter valid 6-digit pincode")
       .required("Pincode is required"),
   });

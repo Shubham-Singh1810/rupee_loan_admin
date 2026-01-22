@@ -59,16 +59,48 @@ function CreatePayDayApplication() {
   };
 
   const validationSchema = Yup.object().shape({
-    userId: Yup.string().required("User is required"),
-    loanPurposeId: Yup.string().required("Loan purpose is required"),
-    branchId: Yup.string().required("Branch is required"),
-    fullName: Yup.string().required("Full name is required"),
-    email: Yup.string().email("Invalid email").required("Email is required"),
-    dob: Yup.string().required("Date of Birth is required"),
-    gender: Yup.string().required("Gender is required"),
-    monthlyIncome: Yup.string().required("Monthly Income is required"),
-    loanAmount: Yup.string().required("Loan Amount is required"),
-    tenure: Yup.string().required("Tenure is required"),
+    userId: Yup.string()
+      .trim()
+      .required("User is required"),
+      
+    loanPurposeId: Yup.string()
+      .trim()
+      .required("Loan purpose is required"),
+      
+    branchId: Yup.string()
+      .trim()
+      .required("Branch is required"),
+      
+    fullName: Yup.string()
+      .trim()
+      .required("Full name is required"),
+      
+    email: Yup.string()
+      .trim()
+      .email("Invalid email")
+      .required("Email is required"),
+      
+    dob: Yup.string()
+      .trim()
+      .required("Date of Birth is required"),
+      
+    gender: Yup.string()
+      .trim()
+      .required("Gender is required"),
+      
+    // Agar monthlyIncome number honi chahiye toh .number() use karein, 
+    // filhaal string ke hisaab se trim fix hai:
+    monthlyIncome: Yup.string()
+      .trim()
+      .required("Monthly Income is required"),
+      
+    loanAmount: Yup.string()
+      .trim()
+      .required("Loan Amount is required"),
+      
+    tenure: Yup.string()
+      .trim()
+      .required("Tenure is required"),
   });
 
   // ---------------------- API Calls ----------------------

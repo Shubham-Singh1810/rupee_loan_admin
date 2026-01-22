@@ -9,24 +9,38 @@ import { MultiSelect } from "react-multi-select-component";
 // ✅ Validation Schema: Yeh define karta hai ki kaunsi field kab error degi
 const NotifySchema = Yup.object().shape({
   title: Yup.string()
+    .trim() // Sahi hai
     .min(3, "Title is too short!")
     .required("Title is required"),
+
   subTitle: Yup.string()
+    .trim() // Sahi hai
     .min(10, "Message should be at least 10 characters")
     .required("Message is required"),
+
   notifyUserIds: Yup.array()
+    // .trim() HATA DIYA (Array par nahi lagta)
     .min(1, "Please select at least one user"),
+
   mode: Yup.array()
+    // .trim() HATA DIYA
     .min(1, "Please select at least one notification mode"),
+
   isScheduled: Yup.boolean(),
-  date: Yup.string().when("isScheduled", {
-    is: true,
-    then: () => Yup.string().required("Please select a date for scheduling"),
-  }),
-  time: Yup.string().when("isScheduled", {
-    is: true,
-    then: () => Yup.string().required("Please select a time for scheduling"),
-  }),
+
+  date: Yup.string()
+    .trim() // Sahi hai kyunki ye string type hai
+    .when("isScheduled", {
+      is: true,
+      then: (schema) => schema.required("Please select a date for scheduling"),
+    }),
+
+  time: Yup.string()
+    .trim() // Sahi hai
+    .when("isScheduled", {
+      is: true,
+      then: (schema) => schema.required("Please select a time for scheduling"),
+    }),
 });
 
 function Notify() {

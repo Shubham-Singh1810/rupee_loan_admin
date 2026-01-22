@@ -115,10 +115,10 @@ function AllTicket() {
     }
   };
   const SupportTicketSchema = Yup.object().shape({
-    subject: Yup.string().required("Subject is required"),
-    userId: Yup.string().required("User is required"),
-    ticketCategoryId: Yup.string().required("Category is required"),
-    description: Yup.string(),
+    subject: Yup.string().trim().required("Subject is required"),
+    userId: Yup.string().trim().required("User is required"),
+    ticketCategoryId: Yup.string().trim().required("Category is required"),
+    description: Yup.string().trim(),
   });
   const handleAddSupportTicket = async (value) => {
     try {

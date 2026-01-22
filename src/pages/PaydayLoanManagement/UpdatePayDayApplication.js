@@ -30,6 +30,7 @@ function UpdatePayDayApplication() {
     branchId: "",
     assignedAdminId: "",
     fullName: "",
+    panNumber: "",
     email: "",
     dob: "",
     gender: "",
@@ -38,6 +39,7 @@ function UpdatePayDayApplication() {
     empType: "",
     cmpName: "",
     monthlyIncome: "",
+    monthlyExpense: "",
     nextSalary: "",
     pincode: "",
     area: "",
@@ -63,22 +65,66 @@ function UpdatePayDayApplication() {
   });
 
   const validationSchema = Yup.object().shape({
-    userId: Yup.string().required("User is required"),
-    loanPurposeId: Yup.string().required("Loan purpose is required"),
-    branchId: Yup.string().required("Branch is required"),
-    fullName: Yup.string().required("Full name is required"),
-    email: Yup.string().email("Invalid email").required("Email is required"),
-    dob: Yup.string().required("Date of Birth is required"),
-    gender: Yup.string().required("Gender is required"),
-    monthlyIncome: Yup.string().required("Monthly Income is required"),
-    loanAmount: Yup.string().required("Loan Amount is required"),
-    tenure: Yup.string().required("Tenure is required"),
-  });
+    userId: Yup.string()
+      .trim()
+      .required("User is required"),
+
+    loanPurposeId: Yup.string()
+      .trim()
+      .required("Loan purpose is required"),
+
+    branchId: Yup.string()
+      .trim()
+      .required("Branch is required"),
+
+    fullName: Yup.string()
+      .trim()
+      .required("Full name is required"),
+
+    panNumber: Yup.string()
+      .trim()
+      .required("PAN Number is required")
+      .matches(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, "Invalid PAN format"), // Format check added
+
+    email: Yup.string()
+      .trim()
+      .email("Invalid email")
+      .required("Email is required"),
+
+    dob: Yup.string()
+      .trim()
+      .required("Date of Birth is required"),
+
+    monthlyExpense: Yup.string()
+      .trim()
+      .required("Monthly expense is required"),
+
+    gender: Yup.string()
+      .trim()
+      .required("Gender is required"),
+
+    monthlyIncome: Yup.string()
+      .trim()
+      .required("Monthly Income is required"),
+
+    loanAmount: Yup.string()
+      .trim()
+      .required("Loan Amount is required"),
+
+    tenure: Yup.string()
+      .trim()
+      .required("Tenure is required"),
+});
 
   // ---------------------- API Calls ----------------------
   const params = useParams();
   const [showSkelton, setShowSkelton] = useState(false);
   const [details, setDetails] = useState([]);
+  const formatDateForInput = (dateStr) => {
+    if (!dateStr || !dateStr.includes("/")) return "";
+    const [day, month, year] = dateStr.split("/");
+    return `${year}-${month}-${day}`;
+  };
   const getPaydayDetailsFunc = async () => {
     setShowSkelton(true);
     try {
@@ -93,15 +139,19 @@ function UpdatePayDayApplication() {
           branchId: data.branchId?._id || "",
           assignedAdminId: data.assignedAdminId?._id || "",
           fullName: data.fullName || "",
+          panNumber: data.panNumber || "",
           email: data.email || "",
-          dob: data.dob?.substring(0, 10) || "",
+          dob: data.dob ? formatDateForInput(data.dob) : "",
           gender: data.gender || "",
           educationQ: data.educationQ || "",
           maritalStatus: data.maritalStatus || "",
           empType: data.empType || "",
           cmpName: data.cmpName || "",
           monthlyIncome: data.monthlyIncome || "",
-          nextSalary: data.nextSalary?.substring(0, 10) || "",
+          monthlyExpense: data.monthlyExpense || "",
+          nextSalary: data.nextSalary
+            ? formatDateForInput(data.nextSalary)
+            : "",
           pincode: data.pincode || "",
           area: data.area || "",
           currentAddress: data.currentAddress || "",
@@ -322,6 +372,12 @@ function UpdatePayDayApplication() {
       title: "Basic Eligibility",
       fields: [
         { label: "Full Name", name: "fullName", type: "text", required: true },
+        {
+          label: "PAN Number",
+          name: "panNumber",
+          type: "text",
+          required: true,
+        },
         { label: "Email", name: "email", type: "email", required: true },
         { label: "Date of Birth", name: "dob", type: "date", required: true },
         {
@@ -402,7 +458,18 @@ function UpdatePayDayApplication() {
           type: "text",
           required: true,
         },
-        { label: "Next Salary Date", name: "nextSalary", type: "date" },
+        {
+          label: "Monthly Expense",
+          name: "monthlyExpense",
+          type: "text",
+          required: true,
+        },
+        {
+          label: "Next Salary Date",
+          name: "nextSalary",
+          type: "date",
+          required: true,
+        },
       ],
     },
     {
@@ -521,7 +588,42 @@ function UpdatePayDayApplication() {
   const updateLoanApplicationFunc = async () => {
     setStatusUpdateLoader(true);
     try {
-      let response = await updatePaydayLoanApplicationServ(formData);
+      const filteredPayload = Object.keys(formData).reduce((acc, key) => {
+        const value = formData[key];
+        if (value !== "" && value !== null && value !== undefined) {
+          acc[key] = value;
+        }
+        return acc;
+      }, {});
+      if (params?.id) {
+        filteredPayload._id = params.id;
+      }
+      let response = await updatePaydayLoanApplicationServ(filteredPayload);
+
+      if (response?.data?.statusCode == "200") {
+        toast.success(response?.data?.message);
+        getPaydayDetailsFunc();
+        setFormData({
+          _id: params?.id,
+          rejectReason: "",
+          status: "",
+          branchId: "",
+          assignedAdminId: "",
+        });
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Update failed");
+    }
+    setStatusUpdateLoader(false);
+  };
+  const updateSelfieStatusFunc = async (formData) => {
+    setStatusUpdateLoader(true);
+    let finalFormData = formData;
+    if(formData?.selfieApprovalStatus=="rejected"){
+      finalFormData = {...formData, processingStatus:"selfie"}
+    }
+    try {
+      let response = await updatePaydayLoanApplicationServ(finalFormData);
       if (response?.data?.statusCode == "200") {
         toast.success(response?.data?.message);
         getPaydayDetailsFunc();
@@ -787,35 +889,39 @@ function UpdatePayDayApplication() {
                   </div>
                 </div>
               ))}
-              <div className="form-section shadow-sm mb-4">
-                <div className="form-section-header fw-bold mb-3">Selfie</div>
-                <div className="form-section-body row g-3">
-                  <div>
-                    {values?.selfiePrev && (
-                      <img
-                        src={values?.selfiePrev}
-                        alt="preview"
-                        className="img-thumbnail mb-2"
-                        style={{ height: "120px" }}
-                      />
-                    )}
+              {details?.selfie && (
+                <div className="form-section shadow-sm mb-4">
+                  <div className="form-section-header fw-bold mb-3">Selfie</div>
+                  <div className="form-section-body row g-3">
+                    <div>
+                      {values?.selfiePrev && (
+                        <img
+                          src={values?.selfiePrev}
+                          alt="preview"
+                          className="img-thumbnail mb-2"
+                          style={{ height: "120px" }}
+                        />
+                      )}
+                    </div>
+                    {details?.status =="pending" && <> <label>Update Selfie Status</label>
+                    <select
+                      className="form-control mt-1"
+                      value={values?.selfieApprovalStatus}
+                      onChange={(e) =>
+                        updateSelfieStatusFunc({
+                          _id: params?.id,
+                          selfieApprovalStatus: e?.target?.value,
+                        })
+                      }
+                    >
+                      <option value="approved">Approved</option>
+                      <option value="rejected">Rejected</option>
+                    </select></>}
+                   
                   </div>
-                  <label>Update Selfie Status</label>
-                  <select
-                    className="form-control mt-1"
-                    value={values?.selfieApprovalStatus}
-                    onChange={(e) =>
-                      updateLoanApplicationFunc({
-                        _id: params?.id,
-                        selfieApprovalStatus: e?.target?.value,
-                      })
-                    }
-                  >
-                    <option value="approved">Approved</option>
-                    <option value="rejected">Rejected</option>
-                  </select>
                 </div>
-              </div>
+              )}
+
               <button
                 type="submit"
                 className="btn bgThemePrimary w-100"
@@ -1352,6 +1458,71 @@ function UpdatePayDayApplication() {
         </div>
       )}
       {formData?.status == "disbursed" && (
+        <div className="modal-backdrop fade show"></div>
+      )}
+      {formData?.status == "pending" && (
+        <div
+          className="modal fade show d-flex align-items-center justify-content-center"
+          tabIndex="-1"
+        >
+          <div
+            className="modal-dialog modal-dialog-centered"
+            style={{ width: "350px" }}
+          >
+            <div className="modal-content">
+              {/* Header */}
+              <div className="modal-header">
+                <h5 className="modal-title">New Application</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() =>
+                    setFormData({
+                      ...formData,
+                      status: "",
+                      branchId: "",
+                      assignedAdminId: "",
+                    })
+                  }
+                ></button>
+              </div>
+
+              {/* Body */}
+              <div className="modal-body">
+                <p className="mb-0">
+                  Do you really want to mark this application as New Request ?
+                </p>
+              </div>
+
+              {/* Footer */}
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setFormData({
+                      ...formData,
+                      status: "",
+                      assignedAdminId: "",
+                      branchId: "",
+                    });
+                  }}
+                >
+                  NO
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-success"
+                  onClick={() => updateLoanApplicationFunc()}
+                >
+                  Yes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {formData?.status == "pending" && (
         <div className="modal-backdrop fade show"></div>
       )}
     </div>

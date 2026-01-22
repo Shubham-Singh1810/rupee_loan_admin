@@ -16,31 +16,59 @@ function UpdateUser() {
 
   // ✅ Validation Schema
   const userSchema = Yup.object().shape({
-    firstName: Yup.string().required("First Name is required"),
-    lastName: Yup.string().required("Last Name is required"),
-    email: Yup.string().email("Invalid email").required("Email is required"),
-    countryCode: Yup.string(),
+    firstName: Yup.string().trim().required("First Name is required"),
+    lastName: Yup.string().trim().required("Last Name is required"),
+    email: Yup.string()
+      .trim()
+      .email("Invalid email")
+      .required("Email is required"),
+    countryCode: Yup.string().trim(),
     phone: Yup.string()
+      .trim()
       .matches(/^[0-9]{10}$/, "Phone must be 10 digits")
       .required("Phone number is required"),
+
+    // Date field - No trim needed
     dob: Yup.date().required("Date of Birth is required"),
-    gender: Yup.string().required("Gender is required"),
-    profileStatus: Yup.string().required("Profile status is required"),
-    state: Yup.string().required("State is required"),
-    city: Yup.string().required("City is required"),
+
+    gender: Yup.string().trim().required("Gender is required"),
+
+    profileStatus: Yup.string().trim().required("Profile status is required"),
+
+    state: Yup.string().trim().required("State is required"),
+    city: Yup.string().trim().required("City is required"),
     pincode: Yup.string()
+      .trim()
       .matches(/^[0-9]{6}$/, "Pincode must be 6 digits")
       .required("Pincode is required"),
-    address: Yup.string().required("Address is required"),
-    employementType: Yup.string().required("Employment Type is required"),
+    address: Yup.string().trim().required("Address is required"),
+
+    employementType: Yup.string()
+      .trim()
+      .required("Employment Type is required"),
+
+    // Number fields - No trim needed
     monthlyIncome: Yup.number().required("Monthly Income is required"),
     annualIncome: Yup.number().required("Annual Income is required"),
     creditScore: Yup.number().required("Credit Score is required"),
-    panNumber: Yup.string(),
-    aadharNumber: Yup.string(),
+
+    panNumber: Yup.string()
+      .trim()
+      .matches(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, "Invalid PAN format")
+      .nullable(),
+
+    aadharNumber: Yup.string()
+      .trim()
+      .matches(/^[0-9]{12}$/, "Aadhar must be 12 digits")
+      .nullable(),
+
     profilePic: Yup.mixed(),
   });
-
+const formatDateForInput = (dateStr) => {
+    if (!dateStr || !dateStr.includes("/")) return "";
+    const [day, month, year] = dateStr.split("/");
+    return `${year}-${month}-${day}`;
+  };
   // ✅ Fetch user
   useEffect(() => {
     const fetchUser = async () => {
@@ -54,7 +82,7 @@ function UpdateUser() {
             email: user.email || "",
             phone: user.phone || "",
             countryCode: user.countryCode || "+91",
-            dob: user.dob ? user.dob.split("T")[0] : "",
+            dob: user.dob ? formatDateForInput(user.dob) : "",
             gender: user.gender || "",
             profileStatus: user.profileStatus || "",
             state: user.state || "",
@@ -175,7 +203,9 @@ function UpdateUser() {
                     />
                   </div>
                   <div className="col-md-4">
-                    <label className="form-label">First Name <span className="text-danger">*</span></label>
+                    <label className="form-label">
+                      First Name <span className="text-danger">*</span>
+                    </label>
                     <Field
                       type="text"
                       name="firstName"
@@ -189,7 +219,9 @@ function UpdateUser() {
                     />
                   </div>
                   <div className="col-md-4">
-                    <label className="form-label">Last Name <span className="text-danger">*</span></label>
+                    <label className="form-label">
+                      Last Name <span className="text-danger">*</span>
+                    </label>
                     <Field
                       type="text"
                       name="lastName"
@@ -203,7 +235,9 @@ function UpdateUser() {
                     />
                   </div>
                   <div className="col-md-4">
-                    <label className="form-label">Email <span className="text-danger">*</span></label>
+                    <label className="form-label">
+                      Email <span className="text-danger">*</span>
+                    </label>
                     <Field
                       type="email"
                       name="email"
@@ -217,7 +251,9 @@ function UpdateUser() {
                     />
                   </div>
                   <div className="col-md-4">
-                    <label className="form-label">Phone <span className="text-danger">*</span></label>
+                    <label className="form-label">
+                      Phone <span className="text-danger">*</span>
+                    </label>
                     <div className="input-group">
                       <Field
                         as="select"
@@ -245,7 +281,9 @@ function UpdateUser() {
                     />
                   </div>
                   <div className="col-md-4">
-                    <label className="form-label">Date Of Birth <span className="text-danger">*</span></label>
+                    <label className="form-label">
+                      Date Of Birth <span className="text-danger">*</span>
+                    </label>
                     <Field type="date" name="dob" className="form-control" />
                     <ErrorMessage
                       name="dob"
@@ -254,7 +292,9 @@ function UpdateUser() {
                     />
                   </div>
                   <div className="col-md-4">
-                    <label className="form-label">Gender <span className="text-danger">*</span></label>
+                    <label className="form-label">
+                      Gender <span className="text-danger">*</span>
+                    </label>
                     <Field as="select" name="gender" className="form-select">
                       <option value="">Select</option>
                       <option value="male">Male</option>
@@ -268,7 +308,9 @@ function UpdateUser() {
                     />
                   </div>
                   <div className="col-md-4">
-                    <label className="form-label">Profile Status <span className="text-danger">*</span></label>
+                    <label className="form-label">
+                      Profile Status <span className="text-danger">*</span>
+                    </label>
                     <Field
                       as="select"
                       name="profileStatus"
@@ -294,7 +336,9 @@ function UpdateUser() {
                 <div className="form-section-header">Address Details</div>
                 <div className="form-section-body row g-3">
                   <div className="col-md-4">
-                    <label className="form-label">State <span className="text-danger">*</span></label>
+                    <label className="form-label">
+                      State <span className="text-danger">*</span>
+                    </label>
                     <Field type="text" name="state" className="form-control" />
                     <ErrorMessage
                       name="state"
@@ -303,7 +347,9 @@ function UpdateUser() {
                     />
                   </div>
                   <div className="col-md-4">
-                    <label className="form-label">City <span className="text-danger">*</span> </label>
+                    <label className="form-label">
+                      City <span className="text-danger">*</span>{" "}
+                    </label>
                     <Field type="text" name="city" className="form-control" />
                     <ErrorMessage
                       name="city"
@@ -312,7 +358,9 @@ function UpdateUser() {
                     />
                   </div>
                   <div className="col-md-4">
-                    <label className="form-label">Pincode <span className="text-danger">*</span></label>
+                    <label className="form-label">
+                      Pincode <span className="text-danger">*</span>
+                    </label>
                     <Field
                       type="text"
                       name="pincode"
@@ -325,7 +373,9 @@ function UpdateUser() {
                     />
                   </div>
                   <div className="col-md-12">
-                    <label className="form-label">Address <span className="text-danger">*</span></label>
+                    <label className="form-label">
+                      Address <span className="text-danger">*</span>
+                    </label>
                     <Field
                       as="textarea"
                       name="address"
@@ -379,7 +429,9 @@ function UpdateUser() {
                 <div className="form-section-header">Employment Details</div>
                 <div className="form-section-body row g-3">
                   <div className="col-md-6">
-                    <label className="form-label">Employment Type <span className="text-danger">*</span></label>
+                    <label className="form-label">
+                      Employment Type <span className="text-danger">*</span>
+                    </label>
                     <Field
                       as="select"
                       name="employementType"
@@ -387,10 +439,16 @@ function UpdateUser() {
                     >
                       <option value="">Select</option>
                       <option value="Private Sector">Private Sector</option>
-                      <option value="Government Sector">Government Sector</option>
+                      <option value="Government Sector">
+                        Government Sector
+                      </option>
                       <option value="Self-Employed">Self-Employed</option>
-                      <option value="Freelancer / Independent Contractor">Freelancer / Independent Contractor</option>
-                      <option value="Daily Wage / Labor Worker">Daily Wage / Labor Worker</option>
+                      <option value="Freelancer / Independent Contractor">
+                        Freelancer / Independent Contractor
+                      </option>
+                      <option value="Daily Wage / Labor Worker">
+                        Daily Wage / Labor Worker
+                      </option>
                     </Field>
                     <ErrorMessage
                       name="employementType"
@@ -399,7 +457,9 @@ function UpdateUser() {
                     />
                   </div>
                   <div className="col-md-6">
-                    <label className="form-label">Monthly Income <span className="text-danger">*</span></label>
+                    <label className="form-label">
+                      Monthly Income <span className="text-danger">*</span>
+                    </label>
                     <Field
                       type="number"
                       name="monthlyIncome"
@@ -412,7 +472,9 @@ function UpdateUser() {
                     />
                   </div>
                   <div className="col-md-6">
-                    <label className="form-label">Annual Income <span className="text-danger">*</span></label>
+                    <label className="form-label">
+                      Annual Income <span className="text-danger">*</span>
+                    </label>
                     <Field
                       type="number"
                       name="annualIncome"
@@ -425,7 +487,9 @@ function UpdateUser() {
                     />
                   </div>
                   <div className="col-md-6">
-                    <label className="form-label">Credit Score <span className="text-danger">*</span></label>
+                    <label className="form-label">
+                      Credit Score <span className="text-danger">*</span>
+                    </label>
                     <Field
                       type="number"
                       name="creditScore"
