@@ -222,9 +222,16 @@ function UpdateLoanRequirement() {
               initialValues={initialValues}
               enableReinitialize
               validationSchema={getLoanSchema()}
-              onSubmit={(values) => {
-                updateLoanTypeFunc(values);
-              }}
+              
+              onSubmit={async (values, { setSubmitting }) => {
+                        try {
+                          await updateLoanTypeFunc(values);
+                        } catch (error) {
+                          console.error("Add failed", error);
+                        } finally {
+                          setSubmitting(false); 
+                        }
+                      }}
             >
               {({ values, setFieldValue, isSubmitting, dirty }) => (
                 <Form>

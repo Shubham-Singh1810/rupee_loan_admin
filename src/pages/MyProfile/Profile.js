@@ -177,7 +177,16 @@ function Profile() {
           enableReinitialize
           initialValues={initialValues}
           validationSchema={userSchema}
-          onSubmit={updateAdminProfile}
+          
+           onSubmit={async (values, { setSubmitting }) => {
+                        try {
+                          await updateAdminProfile(values);
+                        } catch (error) {
+                          console.error("Add failed", error);
+                        } finally {
+                          setSubmitting(false); 
+                        }
+                      }}
         >
           {({ setFieldValue, isSubmitting, values }) => (
             <Form>

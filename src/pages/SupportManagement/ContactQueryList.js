@@ -463,8 +463,15 @@ function ContactQuesryList() {
                         note: editFormData?.note,
                       }}
                       validationSchema={ContactSchema}
-                      onSubmit={(values) => {
-                        handleUpdateContact(values);
+                      
+                       onSubmit={async (values, { setSubmitting }) => {
+                        try {
+                          await handleUpdateContact(values);
+                        } catch (error) {
+                          console.error("Add failed", error);
+                        } finally {
+                          setSubmitting(false); 
+                        }
                       }}
                       enableReinitialize
                     >

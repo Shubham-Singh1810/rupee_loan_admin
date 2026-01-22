@@ -166,7 +166,7 @@ function AdminList() {
     .required("Email is required"),
   profilePic: Yup.mixed(),
 });
-  const handleAddAdmin = async (values) => {
+  const handleAddAdmin = async (values, setSubmitting) => {
     try {
       // ✅ Create FormData because file & array (branch) hain
       const formData = new FormData();
@@ -212,25 +212,24 @@ function AdminList() {
       console.error(error);
       toast.error(error?.response?.data?.message);
     }
+    finally {
+      setSubmitting(false);
+    }
   };
 
   const handleUpdateAdmin = async (values, setSubmitting) => {
     try {
       const formData = new FormData();
-
       Object.keys(values).forEach((key) => {
         if (key === "branch") {
           if (values.branch && values.branch.length > 0) {
-            // ✅ Convert array → JSON string
             formData.append("branch", JSON.stringify(values.branch));
           }
         } else if (key === "profilePic") {
           if (values.profilePic instanceof File) {
-            // ✅ Append file if exists
             formData.append("profilePic", values.profilePic);
           }
         } else {
-          // ✅ Normal text fields
           formData.append(key, values[key]);
         }
       });
@@ -734,8 +733,9 @@ function AdminList() {
                         role: "",
                       }}
                       validationSchema={AdminSchema}
-                      onSubmit={(values) => {
-                        handleAddAdmin(values);
+                     
+                      onSubmit={(values, { setSubmitting }) => {
+                        handleAddAdmin(values, setSubmitting);
                       }}
                     >
                       {({ setFieldValue, isSubmitting, values }) => (
@@ -1002,7 +1002,7 @@ function AdminList() {
                       }}
                       validationSchema={AdminSchema}
                       onSubmit={(values, { setSubmitting }) => {
-                        handleUpdateAdmin(values, setSubmitting); // setSubmitting ko pass karein
+                        handleUpdateAdmin(values, setSubmitting);
                       }}
                       enableReinitialize
                     >

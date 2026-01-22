@@ -541,11 +541,11 @@ function Branches() {
                       validationSchema={BranchSchema}
                       onSubmit={async (values, { setSubmitting }) => {
                         try {
-                          await handleAddBranch(values); // Aapka function call
+                          await handleAddBranch(values);
                         } catch (error) {
                           console.error("Add failed", error);
                         } finally {
-                          setSubmitting(false); // Loader band ho jayega
+                          setSubmitting(false); 
                         }
                       }}
                     >
@@ -791,11 +791,11 @@ function Branches() {
                       validationSchema={BranchSchema}
                       onSubmit={async (values, { setSubmitting }) => {
                         try {
-                          await handleUpdateBranch(values); // Aapka function call
+                          await handleUpdateBranch(values); 
                         } catch (error) {
                           console.error("Update failed", error);
                         } finally {
-                          setSubmitting(false); // Loader band ho jayega
+                          setSubmitting(false);
                         }
                       }}
                       enableReinitialize

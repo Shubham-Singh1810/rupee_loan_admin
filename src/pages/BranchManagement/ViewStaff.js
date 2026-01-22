@@ -134,7 +134,7 @@ function ViewStaff() {
       toast.error(error?.response?.data?.message);
     }
   };
-  const AdminSchema = Yup.object().trim().shape({
+  const AdminSchema = Yup.object().shape({
     firstName: Yup.string().trim().required("First Name is required"),
     lastName: Yup.string().trim().required("Last Name is required"),
     phone: Yup.string().trim()
@@ -147,7 +147,6 @@ function ViewStaff() {
   });
   const handleAddAdmin = async (value) => {
     try {
-      // branch empty hai to usko hatao
       let finalPayload = { ...value };
       if (!finalPayload.branch) {
         delete finalPayload.branch;
@@ -593,8 +592,15 @@ function ViewStaff() {
                         role: "",
                       }}
                       validationSchema={AdminSchema}
-                      onSubmit={(values) => {
-                        handleAddAdmin(values);
+                      
+                      onSubmit={async (values, { setSubmitting }) => {
+                        try {
+                          await handleAddAdmin(values);;
+                        } catch (error) {
+                          console.error("Add failed", error);
+                        } finally {
+                          setSubmitting(false);
+                        }
                       }}
                     >
                       {({ setFieldValue, isSubmitting, values }) => (
@@ -840,8 +846,14 @@ function ViewStaff() {
                         role: editFormData?.role || "",
                       }}
                       validationSchema={AdminSchema}
-                      onSubmit={(values) => {
-                        handleUpdateAdmin(values);
+                      onSubmit={async (values, { setSubmitting }) => {
+                        try {
+                          await handleUpdateAdmin(values);;
+                        } catch (error) {
+                          console.error("Add failed", error);
+                        } finally {
+                          setSubmitting(false);
+                        }
                       }}
                       enableReinitialize
                     >

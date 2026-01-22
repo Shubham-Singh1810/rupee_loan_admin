@@ -157,7 +157,16 @@ const formatDateForInput = (dateStr) => {
           initialValues={initialValues}
           validationSchema={userSchema}
           enableReinitialize
-          onSubmit={handleUpdateUser}
+          
+          onSubmit={async (values, { setSubmitting }) => {
+                        try {
+                          await handleUpdateUser(values);
+                        } catch (error) {
+                          console.error("Add failed", error);
+                        } finally {
+                          setSubmitting(false); 
+                        }
+                      }}
         >
           {({ setFieldValue, isSubmitting, values, dirty }) => (
             <Form>

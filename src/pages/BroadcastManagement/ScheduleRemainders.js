@@ -130,7 +130,6 @@ function ScheduleRemainders() {
   const [editLoader, setEditLoader] = useState(false);
   const handleUpdateFunc = async () => {
     setEditLoader(true);
-
     try {
       let response = await updateNotifyServ(editFormData);
       if (response?.data?.statusCode == "200") {

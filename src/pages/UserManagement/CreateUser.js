@@ -120,7 +120,16 @@ function CreateUser() {
             aadharNumber: "",
           }}
           validationSchema={userSchema}
-          onSubmit={handleCreateUser}
+          
+          onSubmit={async (values, { setSubmitting }) => {
+                        try {
+                          await handleCreateUser(values);
+                        } catch (error) {
+                          console.error("Add failed", error);
+                        } finally {
+                          setSubmitting(false); 
+                        }
+                      }}
         >
           {({ setFieldValue, isSubmitting, values }) => (
             <Form>

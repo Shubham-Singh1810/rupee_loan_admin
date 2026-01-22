@@ -554,8 +554,15 @@ function AllTicket() {
                         ticketCategoryId: "",
                       }}
                       validationSchema={SupportTicketSchema}
-                      onSubmit={(values) => {
-                        handleAddSupportTicket(values);
+                     
+                      onSubmit={async (values, { setSubmitting }) => {
+                        try {
+                          await handleAddSupportTicket(values);
+                        } catch (error) {
+                          console.error("Add failed", error);
+                        } finally {
+                          setSubmitting(false); 
+                        }
                       }}
                     >
                       {({ isSubmitting }) => (

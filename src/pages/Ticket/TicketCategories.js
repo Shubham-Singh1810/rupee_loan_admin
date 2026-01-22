@@ -436,8 +436,15 @@ function TicketCategories() {
                         status: "",
                       }}
                       validationSchema={CategorySchema}
-                      onSubmit={(values) => {
-                        handleAddCategory(values);
+                      
+                     onSubmit={async (values, { setSubmitting }) => {
+                        try {
+                          await handleAddCategory(values);
+                        } catch (error) {
+                          console.error("Add failed", error);
+                        } finally {
+                          setSubmitting(false); 
+                        }
                       }}
                     >
                       {({ isSubmitting }) => (
@@ -548,8 +555,14 @@ function TicketCategories() {
                         status: editFormData?.status?.toString() || "",
                       }}
                       validationSchema={CategorySchema}
-                      onSubmit={(values) => {
-                        handleUpdateCategory(values);
+                       onSubmit={async (values, { setSubmitting }) => {
+                        try {
+                          await handleUpdateCategory(values);
+                        } catch (error) {
+                          console.error("Add failed", error);
+                        } finally {
+                          setSubmitting(false); 
+                        }
                       }}
                       enableReinitialize
                     >

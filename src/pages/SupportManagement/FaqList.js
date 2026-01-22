@@ -522,8 +522,14 @@ function FaqList() {
                         description: "",
                       }}
                       validationSchema={FaqSchema}
-                      onSubmit={(values) => {
-                        handleAddFaq(values);
+                      onSubmit={async (values, { setSubmitting }) => {
+                        try {
+                          await handleAddFaq(values);
+                        } catch (error) {
+                          console.error("Add failed", error);
+                        } finally {
+                          setSubmitting(false);
+                        }
                       }}
                     >
                       {({ isSubmitting }) => (
@@ -678,8 +684,15 @@ function FaqList() {
                         status: editFormData?.status,
                       }}
                       validationSchema={FaqSchema}
-                      onSubmit={(values) => {
-                        handleUpdateFaq(values);
+                      
+                      onSubmit={async (values, { setSubmitting }) => {
+                        try {
+                          await  handleUpdateFaq(values);
+                        } catch (error) {
+                          console.error("Add failed", error);
+                        } finally {
+                          setSubmitting(false); 
+                        }
                       }}
                       enableReinitialize
                     >

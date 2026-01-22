@@ -433,8 +433,15 @@ function Documents() {
                         status: "",
                       }}
                       validationSchema={BranchSchema}
-                      onSubmit={(values) => {
-                        handleAddBranch(values);
+                      
+                       onSubmit={async (values, { setSubmitting }) => {
+                        try {
+                          await handleAddBranch(values)
+                        } catch (error) {
+                          console.error("Add failed", error);
+                        } finally {
+                          setSubmitting(false); 
+                        }
                       }}
                     >
                       {({ isSubmitting }) => (
@@ -546,8 +553,15 @@ function Documents() {
                         status: editFormData?.status?.toString() || "",
                       }}
                       validationSchema={BranchSchema}
-                      onSubmit={(values) => {
-                        handleUpdateBranch(values);
+                      
+                       onSubmit={async (values, { setSubmitting }) => {
+                        try {
+                          await handleUpdateBranch(values);
+                        } catch (error) {
+                          console.error("Add failed", error);
+                        } finally {
+                          setSubmitting(false); 
+                        }
                       }}
                       enableReinitialize
                     >

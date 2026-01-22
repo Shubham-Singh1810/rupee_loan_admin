@@ -15,73 +15,95 @@ function CreateLoan() {
   const [showDaysForm, setShowDaysForm] = useState(false);
   const [showWebForm, setShowWebForm] = useState(false);
   const getLoanSchema = (showDaysForm) =>
-  Yup.object().shape({
-    name: Yup.string().trim(),
-    code: Yup.string().trim(),
-    description: Yup.string().trim().required("Description is required"),
-    status: Yup.boolean().required("Status is required"),
-    icon: Yup.mixed().required("Icon is required"),
+    Yup.object().shape({
+      name: Yup.string().trim(),
+      code: Yup.string().trim(),
+      description: Yup.string().trim().required("Description is required"),
+      status: Yup.boolean().required("Status is required"),
+      icon: Yup.mixed().required("Icon is required"),
 
-    // --- Conditional Days Form ---
-    ...(showDaysForm
-      ? {
-          minAmountDays: Yup.number().required("Minimum amount (days) is required"),
-          maxAmountDays: Yup.number().required("Maximum amount (days) is required"),
-          minTenureDays: Yup.number().required("Minimum tenure (days) is required"),
-          maxTenureDays: Yup.number().required("Maximum tenure (days) is required"),
-          intrestRateDays: Yup.number().required("Interest rate (days) is required"),
-          intrestTypeDays: Yup.string().trim().required("Interest type (days) is required"),
-          repaymentFrequencyDays: Yup.number().required("Repayment frequency (days) is required"),
-        }
-      : {
-          minAmount: Yup.number().required("Minimum amount is required"),
-          maxAmount: Yup.number().required("Maximum amount is required"),
-          minTenure: Yup.number().required("Minimum tenure is required"),
-          maxTenure: Yup.number().required("Maximum tenure is required"),
-          intrestRate: Yup.number().required("Interest rate is required"),
-          intrestType: Yup.string().trim().required("Interest type is required"),
-          repaymentFrequency: Yup.number().required("Repayment frequency is required"),
-        }),
+      // --- Conditional Days Form ---
+      ...(showDaysForm
+        ? {
+            minAmountDays: Yup.number().required(
+              "Minimum amount (days) is required",
+            ),
+            maxAmountDays: Yup.number().required(
+              "Maximum amount (days) is required",
+            ),
+            minTenureDays: Yup.number().required(
+              "Minimum tenure (days) is required",
+            ),
+            maxTenureDays: Yup.number().required(
+              "Maximum tenure (days) is required",
+            ),
+            intrestRateDays: Yup.number().required(
+              "Interest rate (days) is required",
+            ),
+            intrestTypeDays: Yup.string()
+              .trim()
+              .required("Interest type (days) is required"),
+            repaymentFrequencyDays: Yup.number().required(
+              "Repayment frequency (days) is required",
+            ),
+          }
+        : {
+            minAmount: Yup.number().required("Minimum amount is required"),
+            maxAmount: Yup.number().required("Maximum amount is required"),
+            minTenure: Yup.number().required("Minimum tenure is required"),
+            maxTenure: Yup.number().required("Maximum tenure is required"),
+            intrestRate: Yup.number().required("Interest rate is required"),
+            intrestType: Yup.string()
+              .trim()
+              .required("Interest type is required"),
+            repaymentFrequency: Yup.number().required(
+              "Repayment frequency is required",
+            ),
+          }),
 
-    minIncome: Yup.number(),
-    creditScoreRequired: Yup.number(),
-    minAge: Yup.number(),
-    maxAge: Yup.number(),
-    employmentTypesAllowed: Yup.array(),
-    DTIR: Yup.number(),
-    collateralRequired: Yup.boolean().required("Collateral required is required"),
-    collateralTypes: Yup.array().of(Yup.string().trim()), // Trimmed inside array
-    maxLTV: Yup.number(),
-    processingFee: Yup.number().required("Processing fee is required"),
-    latePaymentPenalty: Yup.number().required("Late payment penalty is required"),
-    prepaymentFee: Yup.number().required("Prepayment fee is required"),
-    auto_approval: Yup.boolean().required("Auto approval is required"),
-    
-    documentRequired: Yup.array()
-      .of(Yup.string().trim().required("Document is required"))
-      .min(1, "At least one document is required"),
+      minIncome: Yup.number(),
+      creditScoreRequired: Yup.number(),
+      minAge: Yup.number(),
+      maxAge: Yup.number(),
+      employmentTypesAllowed: Yup.array(),
+      DTIR: Yup.number(),
+      collateralRequired: Yup.boolean().required(
+        "Collateral required is required",
+      ),
+      collateralTypes: Yup.array().of(Yup.string().trim()), // Trimmed inside array
+      maxLTV: Yup.number(),
+      processingFee: Yup.number().required("Processing fee is required"),
+      latePaymentPenalty: Yup.number().required(
+        "Late payment penalty is required",
+      ),
+      prepaymentFee: Yup.number().required("Prepayment fee is required"),
+      auto_approval: Yup.boolean().required("Auto approval is required"),
 
-    // --- Conditional Web Form (Using showWebForm from state) ---
-    ...(showWebForm
-      ? {
-          title: Yup.string().trim().required("Title is required"),
-          slug: Yup.string().trim().required("Slug is required"),
-          seoTitle: Yup.string().trim(),
-          metaDescription: Yup.string().trim(),
-          metaKeywords: Yup.string().trim(),
-          isActiveOnWeb: Yup.boolean(),
-          banner: Yup.mixed().required("Banner image is required"),
-        }
-      : {
-          title: Yup.string().trim(),
-          slug: Yup.string().trim(),
-          seoTitle: Yup.string().trim(),
-          metaDescription: Yup.string().trim(),
-          metaKeywords: Yup.string().trim(),
-          isActiveOnWeb: Yup.boolean(),
-          banner: Yup.mixed(),
-        }),
-  });
+      documentRequired: Yup.array()
+        .of(Yup.string().trim().required("Document is required"))
+        .min(1, "At least one document is required"),
+
+      // --- Conditional Web Form (Using showWebForm from state) ---
+      ...(showWebForm
+        ? {
+            title: Yup.string().trim().required("Title is required"),
+            slug: Yup.string().trim().required("Slug is required"),
+            seoTitle: Yup.string().trim(),
+            metaDescription: Yup.string().trim(),
+            metaKeywords: Yup.string().trim(),
+            isActiveOnWeb: Yup.boolean(),
+            banner: Yup.mixed().required("Banner image is required"),
+          }
+        : {
+            title: Yup.string().trim(),
+            slug: Yup.string().trim(),
+            seoTitle: Yup.string().trim(),
+            metaDescription: Yup.string().trim(),
+            metaKeywords: Yup.string().trim(),
+            isActiveOnWeb: Yup.boolean(),
+            banner: Yup.mixed(),
+          }),
+    });
   const createLoanTypeFunc = async (values) => {
     try {
       const formData = new FormData();
@@ -198,9 +220,14 @@ function CreateLoan() {
               metaDescription: "",
             }}
             validationSchema={getLoanSchema(showDaysForm)}
-            onSubmit={(values) => {
-              console.log("VALUES", values);
-              createLoanTypeFunc(values);
+            onSubmit={async (values, { setSubmitting }) => {
+              try {
+                await createLoanTypeFunc(values);
+              } catch (error) {
+                console.error("Add failed", error);
+              } finally {
+                setSubmitting(false); 
+              }
             }}
           >
             {({ values, setFieldValue, isSubmitting }) => (
@@ -676,11 +703,23 @@ function CreateLoan() {
                         <label className="form-label">Employement Type</label>
                         <MultiSelect
                           options={[
-                             { value: "Private Sector", label: "Private Sector" },
-                            { value: "Government Sector", label: "Government Sector" },
+                            {
+                              value: "Private Sector",
+                              label: "Private Sector",
+                            },
+                            {
+                              value: "Government Sector",
+                              label: "Government Sector",
+                            },
                             { value: "Self-Employed", label: "Self-Employed" },
-                            { value: "Freelancer / Independent Contractor", label: "Freelancer / Independent Contractor" },
-                            { value: "Daily Wage / Labor Worker", label: "Daily Wage / Labor Worker" },
+                            {
+                              value: "Freelancer / Independent Contractor",
+                              label: "Freelancer / Independent Contractor",
+                            },
+                            {
+                              value: "Daily Wage / Labor Worker",
+                              label: "Daily Wage / Labor Worker",
+                            },
                           ]}
                           value={values.employmentTypesAllowed.map((v) => ({
                             value: v,
@@ -689,7 +728,7 @@ function CreateLoan() {
                           onChange={(selected) =>
                             setFieldValue(
                               "employmentTypesAllowed",
-                              selected.map((s) => s.value)
+                              selected.map((s) => s.value),
                             )
                           }
                           labelledBy="Select Employment Types"
@@ -769,7 +808,7 @@ function CreateLoan() {
                             onChange={(selected) =>
                               setFieldValue(
                                 "collateralTypes",
-                                selected.map((s) => s.value)
+                                selected.map((s) => s.value),
                               )
                             }
                             labelledBy="Select Collateral Types"
@@ -893,7 +932,7 @@ function CreateLoan() {
                       onChange={(selected) =>
                         setFieldValue(
                           "documentRequired",
-                          selected.map((s) => s.value)
+                          selected.map((s) => s.value),
                         )
                       }
                       labelledBy="Select Document"
@@ -920,7 +959,10 @@ function CreateLoan() {
                         type="checkbox"
                         name="isActiveOnWeb"
                         className="form-check-input"
-                        onChange={(e) => {setFieldValue("isActiveOnWeb", e.target.checked); setShowWebForm(e.target.checked)}}
+                        onChange={(e) => {
+                          setFieldValue("isActiveOnWeb", e.target.checked);
+                          setShowWebForm(e.target.checked);
+                        }}
                       />
                       <label className="form-check-label">Is active</label>
                     </div>
