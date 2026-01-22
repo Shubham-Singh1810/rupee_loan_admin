@@ -14,6 +14,7 @@ import { getAdminListServ } from "../../services/commandCenter.services";
 import { toast } from "react-toastify";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGlobalState } from "../../GlobalProvider";
+import moment from "moment";
 
 function UpdatePayDayApplication() {
   const { globalState } = useGlobalState();
@@ -65,21 +66,13 @@ function UpdatePayDayApplication() {
   });
 
   const validationSchema = Yup.object().shape({
-    userId: Yup.string()
-      .trim()
-      .required("User is required"),
+    userId: Yup.string().trim().required("User is required"),
 
-    loanPurposeId: Yup.string()
-      .trim()
-      .required("Loan purpose is required"),
+    loanPurposeId: Yup.string().trim().required("Loan purpose is required"),
 
-    branchId: Yup.string()
-      .trim()
-      .required("Branch is required"),
+    branchId: Yup.string().trim().required("Branch is required"),
 
-    fullName: Yup.string()
-      .trim()
-      .required("Full name is required"),
+    fullName: Yup.string().trim().required("Full name is required"),
 
     panNumber: Yup.string()
       .trim()
@@ -91,30 +84,18 @@ function UpdatePayDayApplication() {
       .email("Invalid email")
       .required("Email is required"),
 
-    dob: Yup.string()
-      .trim()
-      .required("Date of Birth is required"),
+    dob: Yup.string().trim().required("Date of Birth is required"),
 
-    monthlyExpense: Yup.string()
-      .trim()
-      .required("Monthly expense is required"),
+    monthlyExpense: Yup.string().trim().required("Monthly expense is required"),
 
-    gender: Yup.string()
-      .trim()
-      .required("Gender is required"),
+    gender: Yup.string().trim().required("Gender is required"),
 
-    monthlyIncome: Yup.string()
-      .trim()
-      .required("Monthly Income is required"),
+    monthlyIncome: Yup.string().trim().required("Monthly Income is required"),
 
-    loanAmount: Yup.string()
-      .trim()
-      .required("Loan Amount is required"),
+    loanAmount: Yup.string().trim().required("Loan Amount is required"),
 
-    tenure: Yup.string()
-      .trim()
-      .required("Tenure is required"),
-});
+    tenure: Yup.string().trim().required("Tenure is required"),
+  });
 
   // ---------------------- API Calls ----------------------
   const params = useParams();
@@ -609,6 +590,8 @@ function UpdatePayDayApplication() {
           status: "",
           branchId: "",
           assignedAdminId: "",
+          dueDate: "",
+          disbursedDate: "",
         });
       }
     } catch (error) {
@@ -619,8 +602,8 @@ function UpdatePayDayApplication() {
   const updateSelfieStatusFunc = async (formData) => {
     setStatusUpdateLoader(true);
     let finalFormData = formData;
-    if(formData?.selfieApprovalStatus=="rejected"){
-      finalFormData = {...formData, processingStatus:"selfie"}
+    if (formData?.selfieApprovalStatus == "rejected") {
+      finalFormData = { ...formData, processingStatus: "selfie" };
     }
     try {
       let response = await updatePaydayLoanApplicationServ(finalFormData);
@@ -631,6 +614,8 @@ function UpdatePayDayApplication() {
           _id: params?.id,
           rejectReason: "",
           status: "",
+          dueDate: "",
+          disbursedDate: "",
         });
       }
     } catch (error) {
@@ -677,16 +662,27 @@ function UpdatePayDayApplication() {
   const renderProfile = (status) => {
     if (status == "pending") {
       return (
-        <span className="status-badge bg-primary-subtle text-primary">
-          New Request
-        </span>
+        <div className="d-flex align-items-center ">
+          <p className="mb-0 me-4 text-secondary">
+            Processing Status : {details?.processingStatus}
+          </p>
+          <span className="status-badge bg-primary-subtle text-primary">
+            New Request
+          </span>
+        </div>
       );
     }
     if (status == "closed") {
       return (
-        <span className="status-badge bg-secondary-subtle text-secondary">
-          Closed
-        </span>
+        <div
+          className="d-flex align-items-center "
+          style={{ marginBottom: "-40px" }}
+        >
+          <p className="mb-0 me-2 text-secondary">Application is</p>
+          <span className="status-badge bg-secondary-subtle text-secondary">
+            Closed
+          </span>
+        </div>
       );
     }
     if (status == "approved") {
@@ -698,21 +694,53 @@ function UpdatePayDayApplication() {
     }
     if (status == "rejected") {
       return (
-        <span className="status-badge bg-danger-subtle text-danger">
-          Rejected
-        </span>
+        <div className="d-flex align-items-center ">
+          <p className="mb-0 me-4 text-secondary">
+            Reject Reason : {details?.rejectReason}
+          </p>
+          <span className="status-badge bg-danger-subtle text-danger">
+            Rejected
+          </span>
+        </div>
       );
     }
     if (status == "disbursed") {
       return (
-        <span className="status-badge bg-info-subtle text-info">Disbursed</span>
+        <div className="d-flex align-items-center ">
+          <p className="mb-0 me-4 text-secondary">
+            Disburse Date: {moment(details.disbursedDate).format("DD-MM-YYYY")}{" "}
+            || Due Date : {moment(details.dueDate).format("DD-MM-YYYY")}
+          </p>
+          <span className="status-badge bg-info-subtle text-info">
+            Disbursed
+          </span>
+        </div>
+      );
+    }
+    if (status == "overDue") {
+      return (
+        <div className="d-flex align-items-center ">
+          <p className="mb-0 me-4 text-secondary">
+            Disburse Date: {moment(details.disbursedDate).format("DD-MM-YYYY")}{" "}
+            || Due Date : {moment(details.dueDate).format("DD-MM-YYYY")}
+          </p>
+          <span className="status-badge bg-danger-subtle text-danger">
+            Over Due
+          </span>
+        </div>
       );
     }
     if (status == "completed") {
       return (
-        <span className="status-badge bg-success-subtle text-success">
-          Completed
-        </span>
+        <div
+          className="d-flex align-items-center "
+          style={{ marginBottom: "-40px" }}
+        >
+          <p className="mb-0 me-2 text-secondary">Application is</p>
+          <span className="status-badge bg-success-subtle text-success">
+            Completed
+          </span>
+        </div>
       );
     }
   };
@@ -722,11 +750,12 @@ function UpdatePayDayApplication() {
     status: "",
     branchId: "",
     assignedAdminId: "",
+    dueDate: "",
+    disbursedDate: "",
   });
 
   const handleBranchChange = (e) => {
     const branchId = e.target.value;
-    // Jab branch badle, check karo ki current admin us naye branch mein hai ya nahi
     const currentAdmin = adminList?.find(
       (a) => a._id === formData.assignedAdminId,
     );
@@ -737,20 +766,17 @@ function UpdatePayDayApplication() {
     setFormData({
       ...formData,
       branchId: branchId,
-      assignedAdminId: isAdminInNewBranch ? formData.assignedAdminId : "", // Agar nahi hai toh reset
+      assignedAdminId: isAdminInNewBranch ? formData.assignedAdminId : "",
     });
   };
 
   const handleAdminChange = (e) => {
     const adminId = e.target.value;
     const admin = adminList?.find((a) => a._id === adminId);
-
-    // Agar is admin ke pass sirf 1 hi branch hai, toh wo auto-select kar lo
     let autoBranchId = formData.branchId;
     if (admin?.branch?.length === 1) {
       autoBranchId = admin.branch[0]._id;
     } else if (admin?.branch?.length > 1) {
-      // Agar admin ke branches mein current selected branch nahi hai, toh reset branch
       const hasCurrentBranch = admin.branch.some(
         (b) => b._id === formData.branchId,
       );
@@ -763,16 +789,11 @@ function UpdatePayDayApplication() {
       branchId: autoBranchId,
     });
   };
-
-  // 1. Filtered Admins: Sirf wo admins dikhao jinke pass selected branch assigned hai
   const filteredAdmins = formData?.branchId
     ? adminList?.filter((admin) =>
         admin.branch?.some((b) => b._id === formData.branchId),
       )
     : adminList;
-
-  // 2. Filtered Branches: Sirf wo branches dikhao jo selected admin ke pass hain
-  // Note: Agar admin ke pass 0 branches hain (empty array), toh saari branches dikhayenge
   const selectedAdminObj = adminList?.find(
     (a) => a._id === formData?.assignedAdminId,
   );
@@ -780,6 +801,22 @@ function UpdatePayDayApplication() {
     formData?.assignedAdminId && selectedAdminObj?.branch?.length > 0
       ? selectedAdminObj.branch
       : branchList;
+
+  useEffect(() => {
+    if (formData?.status === "disbursed" && details?.tenure) {
+      const today = moment().startOf("day");
+      const calculatedDueDate = moment(today).add(
+        parseInt(details.tenure),
+        "days",
+      );
+      setFormData({
+        ...formData,
+        disbursedDate: today.format("YYYY-MM-DD"),
+        dueDate: calculatedDueDate.format("YYYY-MM-DD"),
+      });
+    }
+  }, [formData?.status, details?.tenure]);
+
   return (
     <div className="container-fluid p-4">
       <div className="d-flex justify-content-end mb-2">
@@ -787,23 +824,25 @@ function UpdatePayDayApplication() {
       </div>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h5>Update Payday Loan Application</h5>
-        <div className="d-flex align-items-center">
-          <lebel style={{ width: "200px" }}>
-            <b>Update Status: </b>
-          </lebel>
-          <select
-            className="form-control"
-            value={formData?.status}
-            onChange={(e) =>
-              setFormData({ ...formData, status: e?.target?.value })
-            }
-          >
-            <option value="">Select</option>
-            {renderStatusOption(details?.status)?.map((v, i) => {
-              return <option value={v?.value}>{v?.label}</option>;
-            })}
-          </select>
-        </div>
+        {!(details?.status == "completed" || details?.status == "closed") && (
+          <div className="d-flex align-items-center">
+            <lebel style={{ width: "200px" }}>
+              <b>Update Status: </b>
+            </lebel>
+            <select
+              className="form-control"
+              value={formData?.status}
+              onChange={(e) =>
+                setFormData({ ...formData, status: e?.target?.value })
+              }
+            >
+              <option value="">Select</option>
+              {renderStatusOption(details?.status)?.map((v, i) => {
+                return <option value={v?.value}>{v?.label}</option>;
+              })}
+            </select>
+          </div>
+        )}
       </div>
       {showSkelton ? (
         <div className="row border bg-light px-2 py-4  rounded">
@@ -903,32 +942,45 @@ function UpdatePayDayApplication() {
                         />
                       )}
                     </div>
-                    {details?.status =="pending" && <> <label>Update Selfie Status</label>
-                    <select
-                      className="form-control mt-1"
-                      value={values?.selfieApprovalStatus}
-                      onChange={(e) =>
-                        updateSelfieStatusFunc({
-                          _id: params?.id,
-                          selfieApprovalStatus: e?.target?.value,
-                        })
-                      }
-                    >
-                      <option value="approved">Approved</option>
-                      <option value="rejected">Rejected</option>
-                    </select></>}
-                   
+                    {details?.status == "pending" && (
+                      <>
+                        {" "}
+                        <label>Update Selfie Status</label>
+                        <select
+                          className="form-control mt-1"
+                          value={values?.selfieApprovalStatus}
+                          onChange={(e) => {
+                            const newStatus = e.target.value;
+
+                            // Khali value check (trim karke)
+                            if (newStatus && newStatus.trim() !== "") {
+                              updateSelfieStatusFunc({
+                                _id: params?.id,
+                                selfieApprovalStatus: newStatus,
+                              });
+                            }
+                          }}
+                        >
+                          <option value="">Select</option>
+                          <option value="approved">Approved</option>
+                          <option value="rejected">Rejected</option>
+                        </select>
+                      </>
+                    )}
                   </div>
                 </div>
               )}
-
-              <button
-                type="submit"
-                className="btn bgThemePrimary w-100"
-                disabled={submitBtnLoader}
-              >
-                {submitBtnLoader ? "Submitting..." : "Submit"}
-              </button>
+              {(details?.status == "pending" ||
+                details?.status == "approved" ||
+                details?.status == "rejected") && (
+                <button
+                  type="submit"
+                  className="btn bgThemePrimary w-100"
+                  disabled={submitBtnLoader}
+                >
+                  {submitBtnLoader ? "Submitting..." : "Submit"}
+                </button>
+              )}
             </Form>
           )}
         </Formik>
@@ -965,6 +1017,8 @@ function UpdatePayDayApplication() {
                             status: "",
                             branchId: "",
                             assignedAdminId: "",
+                            dueDate: "",
+                            disbursedDate: "",
                           })
                         }
                         src="https://cdn-icons-png.flaticon.com/128/2734/2734822.png"
@@ -1045,6 +1099,8 @@ function UpdatePayDayApplication() {
                       status: "",
                       assignedAdminId: "",
                       branchId: "",
+                      dueDate: "",
+                      disbursedDate: "",
                     })
                   }
                 ></button>
@@ -1071,6 +1127,8 @@ function UpdatePayDayApplication() {
                       status: "",
                       assignedAdminId: "",
                       branchId: "",
+                      dueDate: "",
+                      disbursedDate: "",
                     });
                   }}
                 >
@@ -1113,6 +1171,8 @@ function UpdatePayDayApplication() {
                       status: "",
                       assignedAdminId: "",
                       branchId: "",
+                      dueDate: "",
+                      disbursedDate: "",
                     })
                   }
                 ></button>
@@ -1184,6 +1244,8 @@ function UpdatePayDayApplication() {
                           status: "",
                           assignedAdminId: "",
                           branchId: "",
+                          dueDate: "",
+                          disbursedDate: "",
                         });
                       }}
                     >
@@ -1229,6 +1291,8 @@ function UpdatePayDayApplication() {
                         status: "",
                         branchId: "",
                         assignedAdminId: "",
+                        dueDate: "",
+                        disbursedDate: "",
                       });
                     }}
                   >
@@ -1265,6 +1329,8 @@ function UpdatePayDayApplication() {
                       status: "",
                       branchId: "",
                       assignedAdminId: "",
+                      dueDate: "",
+                      disbursedDate: "",
                     })
                   }
                 ></button>
@@ -1288,6 +1354,8 @@ function UpdatePayDayApplication() {
                       status: "",
                       assignedAdminId: "",
                       branchId: "",
+                      dueDate: "",
+                      disbursedDate: "",
                     });
                   }}
                 >
@@ -1330,6 +1398,8 @@ function UpdatePayDayApplication() {
                       status: "",
                       assignedAdminId: "",
                       branchId: "",
+                      dueDate: "",
+                      disbursedDate: "",
                     })
                   }
                 ></button>
@@ -1337,122 +1407,42 @@ function UpdatePayDayApplication() {
 
               {/* Body */}
               <div className="modal-body">
-                {details?.processingStatus == "eSign" ? (
-                  details?.branchId && details?.assignedAdminId ? (
-                    <>
-                      <p className="mb-0">
-                        Do you really want to approve this application
-                      </p>
-                      <p className="text-muted mb-0">
-                        Have you seen all the details properly ?
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <div>
-                        <label>Branch</label>
-                        <select
-                          value={formData?.branchId}
-                          className="form-control"
-                          onChange={handleBranchChange}
-                        >
-                          <option value="">Select</option>
-                          {filteredBranches?.map((v) => (
-                            <option key={v._id} value={v._id}>
-                              {v.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="mt-3">
-                        <label>Assign Staff</label>
-                        <select
-                          value={formData?.assignedAdminId}
-                          className="form-control"
-                          onChange={handleAdminChange}
-                        >
-                          <option value="">Select</option>
-                          {filteredAdmins?.map((v) => (
-                            <option key={v._id} value={v._id}>
-                              {v.firstName} {v.lastName} ({v.code})
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </>
-                  )
-                ) : (
-                  <>
-                    <p className="mb-0">Application is still in progress !</p>
-                  </>
-                )}
+                <b>Disburse Amount : {details?.disbursedAmount} INR</b>
+                <div className="mt-3">
+                  <label>Disburse Date</label>
+                  <input
+                    className="form-control"
+                    value={
+                      formData?.disbursedDate
+                        ? moment(formData.disbursedDate).format("DD-MM-YYYY")
+                        : ""
+                    }
+                    readOnly
+                  />
+                </div>
+                <div className="mt-3">
+                  <label>Due Date</label>
+                  <input
+                    className="form-control"
+                    readOnly
+                    value={
+                      formData?.dueDate
+                        ? moment(formData.dueDate).format("DD-MM-YYYY")
+                        : ""
+                    }
+                  />
+                </div>
               </div>
 
-              {/* Footer */}
-              {details?.processingStatus == "eSign" ? (
-                details?.branchId && details?.assignedAdminId ? (
-                  <div className="modal-footer">
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={() => {
-                        setFormData({
-                          ...formData,
-                          status: "",
-                          assignedAdminId: "",
-                          branchId: "",
-                        });
-                      }}
-                    >
-                      NO
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-success"
-                      onClick={() => updateLoanApplicationFunc()}
-                    >
-                      Yes
-                    </button>
-                  </div>
-                ) : formData?.branchId && formData?.assignedAdminId ? (
-                  <div className="modal-footer">
-                    <button
-                      type="button"
-                      className="btn btn-success"
-                      onClick={() => updateLoanApplicationFunc()}
-                    >
-                      Submit
-                    </button>
-                  </div>
-                ) : (
-                  <div className="modal-footer">
-                    <button
-                      type="button"
-                      className="btn btn-success"
-                      style={{ opacity: 0.5 }}
-                    >
-                      Submit
-                    </button>
-                  </div>
-                )
-              ) : (
-                <div className="modal-footer">
-                  <button
-                    type="button"
-                    className="btn btn-danger"
-                    onClick={() => {
-                      setFormData({
-                        ...formData,
-                        status: "",
-                        branchId: "",
-                        assignedAdminId: "",
-                      });
-                    }}
-                  >
-                    Close
-                  </button>
-                </div>
-              )}
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-success w-100"
+                  onClick={() => updateLoanApplicationFunc()}
+                >
+                  Procced To Pay
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -1482,6 +1472,8 @@ function UpdatePayDayApplication() {
                       status: "",
                       branchId: "",
                       assignedAdminId: "",
+                      dueDate: "",
+                      disbursedDate: "",
                     })
                   }
                 ></button>
@@ -1505,6 +1497,8 @@ function UpdatePayDayApplication() {
                       status: "",
                       assignedAdminId: "",
                       branchId: "",
+                      dueDate: "",
+                      disbursedDate: "",
                     });
                   }}
                 >
